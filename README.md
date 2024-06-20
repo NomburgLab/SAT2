@@ -1,7 +1,7 @@
 # SAT
 Structural Analysis Toolkit - A python package for manipulation of structural data and structural alignments.  
 
-![Tests](https://github.com/jnoms/SAT/actions/workflows/main.yml/badge.svg)
+![Tests](https://github.com/jnoms/SAT2/actions/workflows/main.yml/badge.svg)
 
 # Installation
 There are two methods to install this package - in a poetry environment, or within a conda environment.
