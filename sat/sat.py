@@ -2502,6 +2502,7 @@ def call_plot_pae_main(args):
 
     plot_pae_main(args)
 
+
 def call_seq_split_fasta_main(args):
     from scripts.seq_split_fasta import seq_split_fasta_main
 
