@@ -159,6 +159,34 @@ def main():
     parser_struc_get_domains.set_defaults(func=call_struc_get_domains)
 
     # -------------------------------------------------------------------------------- #
+    # Parser for seq_split_fasta subcommand
+    # ----------------------------------------------------------------------------
+    parser_seq_split_fasta = subparsers.add_parser(
+        "seq_split_fasta",
+        help=(
+            """
+                Tool to split a fasta file with multiple entries into individual fasta files 
+                with one entry each.
+                """
+        ),
+    )
+    parser_seq_split_fasta.add_argument(
+        "-i",
+        "--in_fasta",
+        type=str,
+        required=True,
+        help="""Path to the input fasta.""",
+    )
+    parser_seq_split_fasta.add_argument(
+        "-o",
+        "--outfile_dir",
+        type=str,
+        required=True,
+        help=("""Path to the output file directory"""),
+    )
+    parser_seq_split_fasta.set_defaults(func=call_seq_split_fasta_main)
+
+    # -------------------------------------------------------------------------------- #
     # Parser for struc_remove_redundant subcommand
     # -------------------------------------------------------------------------------- #
     parser_struc_remove_redundant = subparsers.add_parser(
@@ -2245,13 +2273,13 @@ def main():
             """
             This subcommand produces a PAE matrix plot when given a colabfold scores
             json file. The output file type is specified by the suffix of the out_image
-            argument.
+            argument.     
             """
         ),
     )
     parser_plot_pae.add_argument(
         "-s",
-        "--scores",
+        "--scoresdfsdfdsf",
         type=str,
         required=True,
         help="""
@@ -2471,6 +2499,12 @@ def call_plot_pae_main(args):
     from scripts.plot_pae import plot_pae_main
 
     plot_pae_main(args)
+
+
+def call_seq_split_fasta_main(args):
+    from scripts.seq_split_fasta import seq_split_fasta_main
+
+    seq_split_fasta_main(args)
 
 
 # Keep these buffer lines here
