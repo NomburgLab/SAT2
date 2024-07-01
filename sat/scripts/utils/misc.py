@@ -94,14 +94,18 @@ def read_fasta_to_memory(input_fasta):
 
 
 def write_fasta(input_fasta, outfile_dir):
-        for seq_record in SeqIO.parse(input_fasta, "fasta"):
-            file_name = seq_record.id +'.fasta'
-            file_path = os.path.join(outfile_dir, file_name) 
-            
-            with open(file_path, 'w') as file:
-                file.write('>'+seq_record.description + '\n')
-                file.write(str(seq_record.seq))
-        return
+    """
+    Read a fasta file with multiple entries and then output
+    multiple fasta files with 1 entry each
+    """
+    for seq_record in SeqIO.parse(input_fasta, "fasta"):
+        file_name = seq_record.id +'.fasta'
+        file_path = os.path.join(outfile_dir, file_name) 
+        
+        with open(file_path, 'w') as file:
+            file.write('>'+seq_record.description + '\n')
+            file.write(str(seq_record.seq))
+    return
 
 
 if __name__ == "__main__":

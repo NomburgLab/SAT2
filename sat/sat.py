@@ -2303,6 +2303,7 @@ def main():
         )
     
     parser_seq_split_fasta.set_defaults(func=call_seq_split_fasta_main)
+    
     # ----------------------------------------------------------------------------------#
     # Parse the args and call the function associated with the subcommand
     # ----------------------------------------------------------------------------------#
