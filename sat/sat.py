@@ -2273,17 +2273,17 @@ def main():
             """
             This subcommand produces a PAE matrix plot when given a colabfold scores
             json file. The output file type is specified by the suffix of the out_image
-            argument.     
+            argument.
             """
         ),
     )
     parser_plot_pae.add_argument(
         "-s",
-        "--scoresdfsdfdsf",
+        "--scores",
         type=str,
         required=True,
         help="""
-        Path to the colabfold PAE scores file, in json format.
+        Path to the colabfold PAE scores file, in json format...
         """,
     )
     parser_plot_pae.add_argument(
