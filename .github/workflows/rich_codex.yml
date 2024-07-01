@@ -9,6 +9,9 @@ on:
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
+permissions:
+  contents: write
+  
 jobs:
   rich_codex:
     strategy:
@@ -20,7 +23,7 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v2
       # Note - can swap order of setup-python and install poetry if there
       # is difficulty with python version, though this in turn will require
       # you to figure out an alternative method of cacheing.
