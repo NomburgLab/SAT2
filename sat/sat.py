@@ -2466,7 +2466,6 @@ def call_aln_ecod_purity_main(args):
 
     aln_ecod_purity_main(args)
 
-
 def call_plot_pae_main2(args):
     from scripts.plot_pae import plot_pae_main
 
