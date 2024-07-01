@@ -23,7 +23,7 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@a81bbbf8298c0fa03ea29cdc473d45769f953675
       # Note - can swap order of setup-python and install poetry if there
       # is difficulty with python version, though this in turn will require
       # you to figure out an alternative method of cacheing.
