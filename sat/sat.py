@@ -2268,7 +2268,7 @@ def main():
         by the suffix of this argument.
         """,
     )
-    parser_plot_pae.set_defaults(func=call_plot_pae_main)
+    parser_plot_pae.set_defaults(func=call_plot_pae_main2)
 
     # ----------------------------------------------------------------------------------#
     # Parse the args and call the function associated with the subcommand
@@ -2467,7 +2467,7 @@ def call_aln_ecod_purity_main(args):
     aln_ecod_purity_main(args)
 
 
-def call_plot_pae_main(args):
+def call_plot_pae_main2(args):
     from scripts.plot_pae import plot_pae_main
 
     plot_pae_main(args)
