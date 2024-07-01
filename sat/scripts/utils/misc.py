@@ -96,7 +96,7 @@ def read_fasta_to_memory(input_fasta):
 def write_fasta(input_fasta, outfile_dir):
     """
     Read a fasta file with multiple entries and then output
-    multiple fasta files with 1 entry each
+    multiple fasta files with 1 entry each. ADDING IN RANDOM COMMENT
     """
     for seq_record in SeqIO.parse(input_fasta, "fasta"):
         file_name = seq_record.id +'.fasta'
