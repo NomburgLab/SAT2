@@ -23,7 +23,7 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     steps:
-      - uses: actions/checkout@a81bbbf8298c0fa03ea29cdc473d45769f953675
+      - uses: actions/checkout@v2
       # Note - can swap order of setup-python and install poetry if there
       # is difficulty with python version, though this in turn will require
       # you to figure out an alternative method of cacheing.
@@ -42,5 +42,6 @@ jobs:
       - name: Generate terminal images with rich-codex
         uses: ewels/rich-codex@v1
         with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           commit_changes: "true"
           skip_git_checks: "true"
