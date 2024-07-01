@@ -2270,7 +2270,7 @@ def main():
     )
     parser_plot_pae.set_defaults(func=call_plot_pae_main)
 
-     # -------------------------------------------------------------------------------- #
+    # -------------------------------------------------------------------------------- #
     # Parser for seq_split_fasta subcommand
     # ----------------------------------------------------------------------------
     parser_seq_split_fasta = subparsers.add_parser(
@@ -2287,16 +2287,19 @@ def main():
             "--in_fasta",
             type=str,
             required=True,
-            help="""Path to the input fasta.""",
+            help=
+            """
+            Path to the input fasta.
+            """,
         )
     parser_seq_split_fasta.add_argument(
             "-o",
             "--outfile_dir",
             type=str,
             required=True,
-            help=(
-                """Path to the output file directory"""
-            ),
+            help="""
+            Path to the output file directory
+            """,
         )
     
     parser_seq_split_fasta.set_defaults(func=call_seq_split_fasta_main)
@@ -2507,6 +2510,7 @@ def call_seq_split_fasta_main(args):
     from scripts.seq_split_fasta import seq_split_fasta_main
 
     seq_split_fasta_main(args)
+
 
 # Keep these buffer lines here
 #
