@@ -1,7 +1,9 @@
 # ------------------------------------------------------------------------------------ #
 # Import dependencies
 # ------------------------------------------------------------------------------------ #
-from .utils.misc import make_output_dir, write_fasta, talk_to_me
+from .utils.misc import make_output_dir, talk_to_me
+import os
+from Bio import SeqIO
 
 # ------------------------------------------------------------------------------------ #
 # Functions
@@ -11,7 +13,13 @@ def seq_split_fasta(input_fasta: str, outfile_dir: str):
     Creates single entry fasta files from a fasta file with multiple entries.
     """
     if input_fasta.endswith(".fasta"):
-        write_fasta(input_fasta = input_fasta, outfile_dir = outfile_dir)
+        for seq_record in SeqIO.parse(input_fasta, "fasta"):
+            file_name = seq_record.id +'.fasta'
+            file_path = os.path.join(outfile_dir, file_name) 
+        
+            with open(file_path, 'w') as file:
+                file.write('>'+seq_record.description + '\n')
+                file.write(str(seq_record.seq))
 
     else:
         talk_to_me("This is not a fasta file. Fasta file must be unzipped.")
