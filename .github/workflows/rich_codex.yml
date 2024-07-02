@@ -34,6 +34,8 @@ jobs:
           cache: 'poetry'
       - name: Install package
         run: poetry install
+      - name: Check Git status
+        run: git status
       - name: Make a copy of the argument parser without imports
         run: grep -v "def call_" -A 6 sat/sat.py > .github/tmp/sat_codex.py && chmod +x .github/tmp/sat_codex.py
       - name: Generate terminal images with rich-codex
@@ -41,3 +43,5 @@ jobs:
         with:
           commit_changes: "true"
           skip_git_checks: "true"
+      - name: Check Git log
+        run: git log -3
