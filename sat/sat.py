@@ -1468,7 +1468,7 @@ def main():
 
             Besides making or updating a cache file, the main purpose of this script
             is to output a flat, tab-delimited file with the columns uniprotID,
-            geneName, and fullName (fullName is a descriptive protein name).
+            geneName, and fullName (fullName is a descriptive protein name). 
             """
         ),
     )
