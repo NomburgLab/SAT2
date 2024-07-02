@@ -4,8 +4,8 @@
 import pandas as pd
 import os
 
-from sat.scripts.utils.misc import talk_to_me, make_output_dir
-from sat.scripts.utils.structure import pdb_to_structure_object, write_structure_subset
+from .utils.misc import talk_to_me, make_output_dir
+from .utils.structure import pdb_to_structure_object, write_structure_subset
 
 # ------------------------------------------------------------------------------------ #
 # Functions
@@ -88,11 +88,14 @@ def struc_extract_residues(pdb_file_path, domain_residues_list, min_domain_lengt
                          If domain length < min_domain_length, the domain will not be written out to file.
     - output_dir: directory to output the pdb files
     """
+    print("hello")
     structure = pdb_to_structure_object(pdb_file_path, structure_name="structure")
     for domain_residues in domain_residues_list:
         domain_start = min(domain_residues)
         domain_end = max(domain_residues)
 
+        print("type for min_domain_length", min_domain_length)
+        print(min_domain_length)
         if len(domain_residues) < min_domain_length:
             continue
         else:
@@ -103,7 +106,7 @@ def struc_extract_residues(pdb_file_path, domain_residues_list, min_domain_lengt
             write_structure_subset(structure, residues_to_keep=domain_residues, outfile=file_path)
     return
 
-def struct_get_domains_main(args):
+def struc_get_domains_main(args):
     domain_dict = parse_chainsaw_file(args.chainsaw_file_path)
     structure_name = get_pdb_filename(args.structure_file_path)
     domain_residues_list = format_chainsaw_domains(structure_name=structure_name, domain_dict=domain_dict)

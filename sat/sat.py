@@ -53,15 +53,16 @@ def main():
         "-m",
         "--min_domain_length",
         type=int,
-        required=True,
+        required=False,
+        default=1,
         help="""
-        Minimum length of each domain. Domains that do not meet the minimum length requirment
+        Optional minimum length of each domain. Default value is 1. Domains that do not meet the minimum length requirment
         will be excluded and not output a pdb file.
         """,
     )
     parser_struc_get_domains.add_argument(
         "-o",
-        "--output_dir",
+        "--outfile_dir",
         type=str,
         required=True,
         default="",
@@ -71,8 +72,6 @@ def main():
         Note that the domain number will be 1-indexed.
         """,
     )
-
-     
 
     parser_struc_get_domains.set_defaults(func=call_struc_get_domains)
 

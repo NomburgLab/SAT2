@@ -48,7 +48,7 @@ When you run the tests or the first time you run any taxonomy-related script, et
 # List of subcommands
 
 ## Structure-focused
-`sat.py struc_get_domains` - Uses PAE information to extract well-folded domains from an input structure.  
+`sat.py struc_get_domains` - Uses chainsaw predicted domain boundaries to extract domains from structure files.  
 `sat.py struc_remove_redundant` - Removes domains that have strongly overlapping primary amino-acid sequences.   
 `sat.py struc_extract_chains` - Given an input structure file with multiple chains, write a new file with only the specified chain(s).  
 `sat.py struc_find_motif` - Checks if there is a motif in a structure or sequence input.  
@@ -86,7 +86,7 @@ When you run the tests or the first time you run any taxonomy-related script, et
 
 # SAT struc_get_domains
 Extract separate domain structures from a predicted structure.  
-This uses the PAE information to cluster residues that likely fall into linear domains. Notably, the script is currently only configured to process colabfold-generated PAE files. 
+This uses the chainsaw predicted domain boundaries to extract domains from pdb structure files. 
 <!-- RICH-CODEX hide_command: true -->
 ![`poetry run .github/tmp/sat_codex.py struc_get_domains -h`](.github/img/struc_get_domains.png)  
 
@@ -324,8 +324,5 @@ This subcommand produces a PAE matrix plot when given a colabfold scores json fi
 
 
 # Planned improvements
-struc_get_domains
-- Add functionality to parse PAE json files from additional sources
-
 ete3  
 - Add ability to specify where the ete3 taxonomy database is downloaded.

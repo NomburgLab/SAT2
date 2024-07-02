@@ -56,6 +56,4 @@ def test_domain_length_less_than_min(mock_write_structure_subset, mock_get_filen
     mock_write_structure_subset.assert_has_calls(expected_calls, any_order=False)
     assert mock_write_structure_subset.call_count == 3
 
-    return
-
     
