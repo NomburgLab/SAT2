@@ -1371,7 +1371,7 @@ def main():
         type=str,
         required=True,
         help="""
-        Path the cluster file.
+        Path the cluster file. 
         """,
     )
     parser_aln_taxa_counts.add_argument(
