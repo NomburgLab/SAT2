@@ -2191,36 +2191,6 @@ def main():
     # Parser for seq_split_fasta subcommand
     # ----------------------------------------------------------------------------
     parser_seq_split_fasta = subparsers.add_parser(
-            "seq_split_fasta",
-            help=(
-                """
-                Tool to split a fasta file with multiple entries into individual fasta files 
-                with one entry each.
-                """
-            ),
-        )
-    parser_seq_split_fasta.add_argument(
-            "-i",
-            "--in_fasta",
-            type=str,
-            required=True,
-            help="""Path to the input fasta.""",
-        )
-    parser_seq_split_fasta.add_argument(
-            "-o",
-            "--outfile_dir",
-            type=str,
-            required=True,
-            help=(
-                """Path to the output file directory"""
-            ),
-        )
-    
-    parser_seq_split_fasta.set_defaults(func=call_seq_split_fasta_main)
-    # -------------------------------------------------------------------------------- #
-    # Parser for seq_split_fasta subcommand
-    # ----------------------------------------------------------------------------
-    parser_seq_split_fasta = subparsers.add_parser(
         "seq_split_fasta",
         help=(
             """
