@@ -79,7 +79,8 @@ When you run the tests or the first time you run any taxonomy-related script, et
 ## Sequence-focused  
 `sat.py seq_chunk` - Splits a fasta file into overlapping or non-overlapping chunks.  
 `sat.py seq_multimerize` - Combines one or more fasta sequences, separated by :'s, to be used for multimer prediction. Cardinality can be specified, so this is good to make any number of homo- and hetero-complexes.  
-`sat.py seq_parse_genbank` - Parses a nucleotide genbank file into a fasta of proteins, as well as a convenient table.    
+`sat.py seq_parse_genbank` - Parses a nucleotide genbank file into a fasta of proteins, as well as a convenient table.
+`sat.py seq_split_fasta` - Parses a fasta file with multiple entries into multiple fasta files with one entry each.      
 
 ## Plotting-focused  
 `sat.py plot_pae` - Plots the colabfold PAE scores json file.    
@@ -206,6 +207,10 @@ Note that if you desire to only process a subset of genbank entires, you can pro
 <!-- RICH-CODEX hide_command: true -->
 ![`poetry run .github/tmp/sat_codex.py seq_parse_genbank -h`](.github/img/seq_parse_genbank.png)  
 
+# SAT seq_split_fasta
+This subcommand parses a fasta file with multiple entries into multiple fasta files with one entry each.
+<!-- RICH-CODEX hide_command: true -->
+![`poetry run .github/tmp/sat_codex.py seq_split_fasta -h`](.github/img/seq_split_fasta.png) 
 
 # SAT struc_download
 This subcommand takes in a file of uniprot IDs and downloads the AF2 database pdb and pae files to the indicated directory. Furthermore, if any additional information is present in the tabular infile it will be appended to the output files - this is a good way to lable the files with information like taxonomyID, etc.
