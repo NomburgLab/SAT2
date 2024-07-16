@@ -1,9 +1,75 @@
 import os
 import numpy as np
+import json
+import numpy as np
+import networkx as nx
+from networkx.algorithms import community
 
-from .struc_get_domains import parse_json_file, domains_from_pae_matrix_networkx
 from .utils.structure import pdb_to_structure_object
 from .utils.misc import talk_to_me, make_output_dir
+
+
+def parse_json_file(pae_json_file):
+    """
+    This function was adapted from
+    https://github.com/tristanic/pae_to_domains/blob/main/pae_to_domains.py
+    which is under the MIT license.
+    """
+    # Returns json information as a dictionary
+    with open(pae_json_file, "rt") as f:
+        data = json.load(f)
+
+    # Colabfold format only
+    if "pae" not in data.keys() or "plddt" not in data.keys():
+        msg = "This script is only configured for the colabfold PAE format."
+        raise ValueError(msg)
+
+    pae_matrix = np.array(data["pae"], dtype=np.float64)
+    plddt_array = data["plddt"]
+
+    return pae_matrix, plddt_array
+
+
+def domains_from_pae_matrix_networkx(
+    pae_matrix, pae_power=1, pae_cutoff=5, graph_resolution=1
+):
+    """
+    This function was adapted from
+    https://github.com/tristanic/pae_to_domains/blob/main/pae_to_domains.py
+    under the MIT license. Because this function is used as-is, this function
+    is still liscenced under the original MIT license of that source. See
+    https://github.com/tristanic/pae_to_domains/blob/main/LICENSE.
+
+    Takes a predicted aligned error (PAE) matrix representing the predicted error in
+    distances between each pair of residues in a model, and uses a graph-based community
+    clustering algorithm to partition the model into approximately rigid groups.
+    Arguments:
+        * pae_matrix: a (n_residues x n_residues) numpy array. Diagonal elements should
+        be set to some non-zero value to avoid divide-by-zero warnings
+        * pae_power (optional, default=1): each edge in the graph will be weighted
+        proportional to (1/pae**pae_power)
+        * pae_cutoff (optional, default=5): graph edges will only be created for
+        residue pairs with pae<pae_cutoff
+        * graph_resolution (optional, default=1): regulates how aggressively the
+        clustering algorithm is. Smaller values lead to larger clusters. Value should
+        be larger than zero, and values larger than 5 are unlikely to be useful.
+    Returns: a series of lists, where each list contains the indices of residues
+    belonging to one cluster.
+    """
+    weights = 1 / pae_matrix**pae_power
+
+    g = nx.Graph()
+    size = weights.shape[0]
+    g.add_nodes_from(range(size))
+    edges = np.argwhere(pae_matrix < pae_cutoff)
+    sel_weights = weights[edges.T[0], edges.T[1]]
+    wedges = [(i, j, w) for (i, j), w in zip(edges, sel_weights)]
+    g.add_weighted_edges_from(wedges)
+    clusters = community.greedy_modularity_communities(
+        g, weight="weight", resolution=graph_resolution
+    )
+    return clusters
+
 
 
 def get_chain_ids(structure):
