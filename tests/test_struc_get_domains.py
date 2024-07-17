@@ -16,22 +16,22 @@ class Test_Parse_Domain():
 class Test_Format_Chainsaw_Domains():
 
     def single_domain_formatting(self):
-        domain_dict = {'structure1': "3-8"}
+        domain_dict = {'structure1': {'chopping':"3-8"}}
         expected = [[3, 4, 5, 6, 7, 8]]
         assert format_chainsaw_domains('structure1', domain_dict) == expected
 
     def test_multiple_domains_formatting(self):
-        domain_dict = {'structure1': "3-8, 11-15"}
+        domain_dict = {'structure1': {'chopping':"3-8, 11-15"}}
         expected = [[3, 4, 5, 6, 7, 8], [11, 12, 13, 14, 15]]
         assert format_chainsaw_domains('structure1', domain_dict) == expected
 
     def test_single_domain_with_subdomain_formatting(self):
-        domain_dict = {'structure1': "3-8_11-15"}
+        domain_dict = {'structure1': {'chopping':"3-8_11-15"}}
         expected = [[3, 4, 5, 6, 7, 8, 11, 12, 13, 14, 15]]
         assert format_chainsaw_domains('structure1', domain_dict) == expected
 
     def test_complex_domains_with_subdomains_formatting(self):
-        domain_dict = {'structure1': "3-8_11-15, 20-25, 30-32_40-45"}
+        domain_dict = {'structure1': {'chopping':"3-8_11-15, 20-25, 30-32_40-45"}}
         expected = [[3, 4, 5, 6, 7, 8, 11, 12, 13, 14, 15], [20, 21, 22, 23,24,25], [30,31,32,40,41,42,43,44,45]]
         assert format_chainsaw_domains('structure1', domain_dict) == expected
 

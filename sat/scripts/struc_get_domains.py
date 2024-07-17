@@ -25,8 +25,9 @@ def parse_chainsaw_file(chainsaw_file):
     talk_to_me("Number of structures with no domains: " + str(chainsaw_table['chopping'].isnull().sum()))
     talk_to_me("Number of structures with at least 1 domain: " + str(chainsaw_table['chopping'].notnull().sum()))
 
-    chainsaw_table_filtered = chainsaw_table.dropna(subset=['chopping'])
-    domains_dict = chainsaw_table_filtered.set_index('chain_id')['chopping'].to_dict()
+    chainsaw_table['chopping'] = chainsaw_table['chopping'].fillna(value='1-nres')
+
+    domains_dict = chainsaw_table.set_index('chain_id').to_dict(orient='index')
 
     return domains_dict
 
@@ -63,15 +64,20 @@ def format_chainsaw_domains(structure_name, domain_dict):
     - domain_residues_list: a list of lists of domain residues corresponding to the structure_name. 
     """
 
-    domain_boundaries = domain_dict.get(structure_name) 
-    domain_list = domain_boundaries.split(',')
+    domain_boundaries = domain_dict[structure_name]['chopping']
     domain_residues_list = []
-    for domain in domain_list:
-        subdomain_list = domain.split('_')
-        subdomain_residues_list = []
-        for subdomain in subdomain_list:
-            subdomain_residues_list = subdomain_residues_list + parse_domain(subdomain)
-        domain_residues_list.append(subdomain_residues_list)
+    
+    if domain_boundaries == '1-nres':
+        domain_boundaries = '1-' + str(domain_dict[structure_name]['nres'])
+        domain_residues_list.append(parse_domain(domain_boundaries))
+    else:
+        domain_list = domain_boundaries.split(',')
+        for domain in domain_list:
+            subdomain_list = domain.split('_')
+            subdomain_residues_list = []
+            for subdomain in subdomain_list:
+                subdomain_residues_list = subdomain_residues_list + parse_domain(subdomain)
+            domain_residues_list.append(subdomain_residues_list)
            
     return domain_residues_list
 
@@ -132,12 +138,17 @@ def struc_extract_residues(pdb_file_path, domain_residues_list, min_domain_lengt
 def struc_get_domains_main(args):
     domain_dict = parse_chainsaw_file(args.chainsaw_file_path)
     structure_name = get_pdb_filename(args.structure_file_path)
-    if domain_dict.get(structure_name) is None:
-        talk_to_me(f"{structure_name}PDB file is not in domain dictionary. It does not have a domain.")
-    elif domain_dict.get(structure_name) != None:
+    make_output_dir(args.outfile_dir, is_dir=True)
+
+    if structure_name not in domain_dict:
+        raise ValueError(f"{structure_name} is not found in domain dictionary.")
+    
+    else:
         domain_residues_list = format_chainsaw_domains(structure_name=structure_name, domain_dict=domain_dict)
         make_output_dir(args.outfile_dir, is_dir=True)
         struc_extract_residues(args.structure_file_path, domain_residues_list, args.min_domain_length, args.outfile_dir)
+        talk_to_me(f"{structure_name} domains extracted successfully.")
+    
 
 if __name__ == "__main__":
     msg = "Call this script from sat.py, where there is argument parsing."

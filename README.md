@@ -79,7 +79,7 @@ When you run the tests or the first time you run any taxonomy-related script, et
 ## Sequence-focused  
 `sat.py seq_chunk` - Splits a fasta file into overlapping or non-overlapping chunks.  
 `sat.py seq_multimerize` - Combines one or more fasta sequences, separated by :'s, to be used for multimer prediction. Cardinality can be specified, so this is good to make any number of homo- and hetero-complexes.  
-`sat.py seq_parse_genbank` - Parses a nucleotide genbank file into a fasta of proteins, as well as a convenient table.
+`sat.py seq_parse_genbank` - Parses a nucleotide genbank file into a fasta of proteins, as well as a convenient table.  
 `sat.py seq_split_fasta` - Parses a fasta file with multiple entries into multiple fasta files with one entry each.      
 
 ## Plotting-focused  

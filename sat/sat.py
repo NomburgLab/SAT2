@@ -45,7 +45,8 @@ def main():
         required=True,
         default="",
         help="""
-        Path to the chainsaw .txt file.
+        Path to the chainsaw.txt file. The first row contains column names.
+        The chainsaw file can consist of a single chainsaw output or be a concatenation of multiple chainsaw outputs.
         """,
     )    
     
