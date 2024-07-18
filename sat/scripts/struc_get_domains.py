@@ -21,9 +21,6 @@ def parse_chainsaw_file(chainsaw_file):
     - domains_dict: dictionary of structure name: domain boundaries
     """
     chainsaw_table = pd.read_csv(chainsaw_file, sep='\t')
-    
-    talk_to_me("Number of structures with no domains: " + str(chainsaw_table['chopping'].isnull().sum()))
-    talk_to_me("Number of structures with at least 1 domain: " + str(chainsaw_table['chopping'].notnull().sum()))
 
     chainsaw_table['chopping'] = chainsaw_table['chopping'].fillna(value='1-nres')
 
@@ -70,6 +67,7 @@ def format_chainsaw_domains(structure_name, domain_dict):
     if domain_boundaries == '1-nres':
         domain_boundaries = '1-' + str(domain_dict[structure_name]['nres'])
         domain_residues_list.append(parse_domain(domain_boundaries))
+        domain_list = ['FULL']
     else:
         domain_list = domain_boundaries.split(',')
         for domain in domain_list:
@@ -78,8 +76,12 @@ def format_chainsaw_domains(structure_name, domain_dict):
             for subdomain in subdomain_list:
                 subdomain_residues_list = subdomain_residues_list + parse_domain(subdomain)
             domain_residues_list.append(subdomain_residues_list)
-           
-    return domain_residues_list
+    
+    zipped_domains_and_residues = zip(domain_list, domain_residues_list)
+    
+    talk_to_me(f"{structure_name} has {len(domain_residues_list)} domain(s).")
+    
+    return zipped_domains_and_residues
 
 def get_pdb_filename(file_path):
     """
@@ -94,59 +96,55 @@ def get_pdb_filename(file_path):
         talk_to_me("This is not a pdb file")
         return
 
-def get_outfile_name(file_path, domain_start, domain_end):
+def get_outfile_name(file_path, domain_boundary):
     """
     Given the path to a pdb file and residue numbers for the start and end of the domain,
     generate the output file name
 
     Inputs:
     - file_path: path to pdb structure file
-    - domain_start:  first residue of the domain
-    - domain_end: last residue of the domain
+    - domain_boundary: a string that indicates the domain boundaries (e.g. '5-20')
 
     Output:
     - output_file_name: name of the extracted domain output file
     """
     input_file_name = get_pdb_filename(file_path)
-    output_file_name = input_file_name + '_domain' + '_'+ str(domain_start) + '_' +  str(domain_end) + '.pdb'
+    output_file_name = input_file_name + '__D' + domain_boundary +'.pdb'
     
     return output_file_name
 
 
-def struc_extract_residues(pdb_file_path, domain_residues_list, min_domain_length, outfile_dir):
+def struc_extract_residues(pdb_file_path, zipped_domains_and_residues, min_domain_length, outfile_dir):
     """
     For the pdb file, extract and output the domains (pdb format) that meet the min_domain_length requirement.
     
     - pdb_file_path: path to pdb file
-    - domain_residues_list: a list of lists of domain residues
+    - zipped_domains_and_residues: a zipped object of domain boundaries and their list of residues
     - min_domain_length: The length cutoff for the domains. 
                          If domain length < min_domain_length, the domain will not be written out to file.
     - outfile_dir: directory to output the pdb files
     """
     structure = pdb_to_structure_object(pdb_file_path, structure_name="structure")
-    for domain_residues in domain_residues_list:
-        domain_start = min(domain_residues)
-        domain_end = max(domain_residues)
 
+    for domain_boundary, domain_residues in zipped_domains_and_residues:
         if len(domain_residues) < min_domain_length:
             continue
         else:
-            output_file_name = get_outfile_name(pdb_file_path, domain_start, domain_end)
+            output_file_name = get_outfile_name(pdb_file_path, domain_boundary)
             file_path = os.path.join(outfile_dir, output_file_name) 
             write_structure_subset(structure, residues_to_keep=domain_residues, outfile=file_path)
 
 def struc_get_domains_main(args):
     domain_dict = parse_chainsaw_file(args.chainsaw_file_path)
     structure_name = get_pdb_filename(args.structure_file_path)
-    make_output_dir(args.outfile_dir, is_dir=True)
 
     if structure_name not in domain_dict:
-        raise ValueError(f"{structure_name} is not found in domain dictionary.")
+        raise ValueError(f"{structure_name} is not found in the chainsaw file.")
     
     else:
-        domain_residues_list = format_chainsaw_domains(structure_name=structure_name, domain_dict=domain_dict)
+        zipped_domains_and_residues = format_chainsaw_domains(structure_name=structure_name, domain_dict=domain_dict)
         make_output_dir(args.outfile_dir, is_dir=True)
-        struc_extract_residues(args.structure_file_path, domain_residues_list, args.min_domain_length, args.outfile_dir)
+        struc_extract_residues(args.structure_file_path, zipped_domains_and_residues, args.min_domain_length, args.outfile_dir)
         talk_to_me(f"{structure_name} domains extracted successfully.")
     
 
