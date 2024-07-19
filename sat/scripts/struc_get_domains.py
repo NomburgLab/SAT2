@@ -50,14 +50,13 @@ def parse_domain(domain_boundary):
         raise ValueError(f"{domain_boundary} domain boundary has a comma, which indicates more than one domain. \
                          Only one domain is accepted (e.g. 1-10 or 10-20_50-100).")
     
-    else:
-        domain_residues =[]
-        subdomains = domain_boundary.split('_')
-        for subdomain in subdomains:
-            subdomain_start = int(subdomain.split('-')[0])
-            subdomain_end = int(subdomain.split('-')[1])
-            subdomain_residues = [i for i in range(subdomain_start, subdomain_end+1)]
-            domain_residues.extend(subdomain_residues)
+    domain_residues =[]
+    subdomains = domain_boundary.split('_')
+    for subdomain in subdomains:
+        subdomain_start = int(subdomain.split('-')[0])
+        subdomain_end = int(subdomain.split('-')[1])
+        subdomain_residues = [i for i in range(subdomain_start, subdomain_end+1)]
+        domain_residues.extend(subdomain_residues)
 
     return domain_residues 
 
@@ -94,17 +93,7 @@ def get_outfile_name(file_path, domain_boundary):
     return output_file_name
 
 
-def struc_extract_residues(pdb_file_path, domains_dict, min_domain_length, outfile_dir):
-    """
-    For the pdb file, extract and output the domains (pdb format) that meet the min_domain_length requirement.
-    
-    - pdb_file_path: path to pdb file
-    - domains_dict: a nested dictionary of each structure's chainsaw result. 
-                    {stucture_name: {chain_id:value, sequence_md5:value, nres:value, ndom:value, chopping:value, confidence:value, time_sec:value}}
-    - min_domain_length: The length cutoff for the domains. 
-                         If domain length < min_domain_length, the domain will not be written out to file.
-    - outfile_dir: directory to output the pdb files
-    """
+'''def struc_extract_residues(pdb_file_path, domains_dict, min_domain_length, outfile_dir):
     structure = pdb_to_structure_object(pdb_file_path, structure_name="structure")
     structure_name = get_pdb_filename(pdb_file_path)
     domain_boundaries = domains_dict[structure_name]['chopping'].split(",")
@@ -127,18 +116,53 @@ def struc_extract_residues(pdb_file_path, domains_dict, min_domain_length, outfi
             file_path = os.path.join(outfile_dir, output_file_name) 
             write_structure_subset(structure, residues_to_keep=domain_residues, outfile=file_path)
 
-    talk_to_me(f"{structure_name}: {ndom_extracted} domains extracted successfully")
+    talk_to_me(f"{structure_name}: {ndom_extracted} domains extracted successfully")'''
 
 def struc_get_domains_main(args):
-    domain_dict = parse_chainsaw_file(args.chainsaw_file_path)
+    """
+    For the pdb file, extract and output the domains (pdb format) that meet the min_domain_length requirement.
+    
+    - pdb_file_path: path to pdb file
+    - domains_dict: a nested dictionary of each structure's chainsaw result. 
+                    {stucture_name: {chain_id:value, sequence_md5:value, nres:value, ndom:value, chopping:value, confidence:value, time_sec:value}}
+    - min_domain_length: The length cutoff for the domains. 
+                         If domain length < min_domain_length, the domain will not be written out to file.
+    - outfile_dir: directory to output the pdb files
+    """
+    structure = pdb_to_structure_object(args.structure_file_path, structure_name="structure")
     structure_name = get_pdb_filename(args.structure_file_path)
+    domain_dict = parse_chainsaw_file(args.chainsaw_file_path)
 
+    #for a structure, create a list of domains from 'chopping' key
+    domain_boundaries = domain_dict[structure_name]['chopping'].split(",")
+    talk_to_me(f"{structure_name} has {len(domain_boundaries)} domains.")
+
+    #check if structure exists
     if structure_name not in domain_dict:
         raise ValueError(f"{structure_name} is not found in the chainsaw file.")
     
-    else:
-        make_output_dir(args.outfile_dir, is_dir=True)
-        struc_extract_residues(args.structure_file_path, domain_dict, args.min_domain_length, args.outfile_dir)
+    make_output_dir(args.outfile_dir, is_dir=True)
+    ndom_extracted = 0
+
+    #iterate through each domain of a structure and extract it only if it meets min length requirement
+    for domain_boundary in domain_boundaries:
+        domain_residues = parse_domain(domain_boundary)
+        if len(domain_residues) < args.min_domain_length:
+            talk_to_me(f"{structure_name} with {domain_boundary} domain boundary does not meet the minimum domain length. This domain will not be extracted.")
+            continue
+        else:
+            ndom_extracted +=1
+
+            #determine the domain boundary for the output file name
+            if domain_boundary == "1-"+ str(domain_dict[structure_name]['nres']):
+                output_file_name = get_outfile_name(args.pdb_file_path, domain_boundary="FULL")
+            else:
+                output_file_name = get_outfile_name(args.pdb_file_path, domain_boundary=domain_boundary)
+            
+            file_path = os.path.join(args.outfile_dir, output_file_name) 
+
+            #write the extracted domain to file
+            write_structure_subset(structure, residues_to_keep=domain_residues, outfile=file_path)
     
 
 if __name__ == "__main__":
