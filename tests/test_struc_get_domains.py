@@ -9,19 +9,19 @@ from sat.scripts.struc_get_domains import (
 
 class Test_Parse_Domain():
     def test_parse_single_domain(self):
-        domain_boundaries = '1-10'
+        domain_boundary = '1-10'
         expected = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-        assert parse_domain(domain_boundaries) == expected
+        assert parse_domain(domain_boundary) == expected
 
     def test_single_domain_with_subdomain_formatting(self):
-        domain_boundaries = "3-8_11-15"
+        domain_boundary = "3-8_11-15"
         expected = [3, 4, 5, 6, 7, 8, 11, 12, 13, 14, 15]
-        assert parse_domain(domain_boundaries) ==  expected
+        assert parse_domain(domain_boundary) ==  expected
     
     def test_multiple_domains(self):
-        domain_boundaries= "3-8,11-15"
+        domain_boundary= "3-8,11-15"
         with pytest.raises(ValueError):
-            parse_domain(domain_boundaries)
+            parse_domain(domain_boundary)
 
 
 class Test_Struc_Extract_Residues():
