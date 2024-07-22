@@ -21,6 +21,21 @@ class Test_Parse_Domain():
         domain_boundary= "3-8,11-15"
         with pytest.raises(ValueError):
             parse_domain(domain_boundary)
+    
+    def test_single_residue_domain(self):
+        domain_boundary= "3"
+        with pytest.raises(ValueError):
+            parse_domain(domain_boundary)
+
+    def test_empty_domain(self):
+        domain_boundary= " "
+        with pytest.raises(ValueError):
+            parse_domain(domain_boundary)
+
+    def test_no_hyphen_domain(self):
+        domain_boundary = "10_20"
+        with pytest.raises(ValueError):
+            parse_domain(domain_boundary)
 
 
 class Test_Struc_Get_Domains_Main():

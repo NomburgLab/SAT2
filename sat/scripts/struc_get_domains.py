@@ -53,6 +53,10 @@ def parse_domain(domain_boundary):
     domain_residues =[]
     subdomains = domain_boundary.split('_')
     for subdomain in subdomains:
+
+        if '-' not in subdomain:
+            raise ValueError(f"{domain_boundary} domain boundary must have a hyphen to separate subdomains (e.g. 1-10).")
+
         subdomain_start = int(subdomain.split('-')[0])
         subdomain_end = int(subdomain.split('-')[1])
         subdomain_residues = [i for i in range(subdomain_start, subdomain_end+1)]
