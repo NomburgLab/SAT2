@@ -56,7 +56,7 @@ class Test_Struc_Get_Domains_Main():
             pass
 
         args.chainsaw_file_path = (
-            "tests/test_data/structure_related/get_domains_chainsaw/input_extract_all/chainsaw_file_test.txt"
+            "tests/test_data/structure_related/get_domains_chainsaw/input_extract_all/chainsaw_file_extract_all_test.txt"
         )
         args.min_domain_length = 1
         args.outfile_dir = tmp_path/"test_output"

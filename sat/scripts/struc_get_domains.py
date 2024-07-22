@@ -48,7 +48,7 @@ def parse_domain(domain_boundary):
     """
     if "," in domain_boundary:
         raise ValueError(f"{domain_boundary} domain boundary has a comma, which indicates more than one domain. \
-                         Only one domain is accepted (e.g. 1-10 or 10-20_50-100).")
+                         Only one domain is accepted (e.g. 1-10 or 10-20_50-100). Underscores denote a discontinous domain.")
     
     domain_residues =[]
     subdomains = domain_boundary.split('_')
@@ -128,9 +128,9 @@ def struc_get_domains_main(args):
 
             #determine the domain boundary for the output file name
             if domain_boundary == "1-"+ str(domain_dict[structure_name]['nres']):
-                output_file_name = get_outfile_name(args.pdb_file_path, domain_boundary="FULL")
+                output_file_name = get_outfile_name(args.structure_file_path, domain_boundary="FULL")
             else:
-                output_file_name = get_outfile_name(args.pdb_file_path, domain_boundary=domain_boundary)
+                output_file_name = get_outfile_name(args.structure_file_path, domain_boundary=domain_boundary)
             
             file_path = os.path.join(args.outfile_dir, output_file_name) 
 
