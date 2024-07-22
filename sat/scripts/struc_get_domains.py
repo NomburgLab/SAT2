@@ -119,24 +119,27 @@ def struc_get_domains_main(args):
 
     #iterate through each domain of a structure and extract it only if it meets min length requirement
     for domain_boundary in domain_boundaries:
+        
         domain_residues = parse_domain(domain_boundary)
+        
         if len(domain_residues) < args.min_domain_length:
             talk_to_me(f"{structure_name} with {domain_boundary} domain boundary does not meet the minimum domain length. This domain will not be extracted.")
             continue
+   
+        ndom_extracted +=1
+
+        #determine the domain boundary for the output file name
+        if domain_boundary == "1-"+ str(domain_dict[structure_name]['nres']):
+            output_file_name = get_outfile_name(args.structure_file_path, domain_boundary="FULL")
         else:
-            ndom_extracted +=1
+            output_file_name = get_outfile_name(args.structure_file_path, domain_boundary=domain_boundary)
+        
+        file_path = os.path.join(args.outfile_dir, output_file_name) 
 
-            #determine the domain boundary for the output file name
-            if domain_boundary == "1-"+ str(domain_dict[structure_name]['nres']):
-                output_file_name = get_outfile_name(args.structure_file_path, domain_boundary="FULL")
-            else:
-                output_file_name = get_outfile_name(args.structure_file_path, domain_boundary=domain_boundary)
-            
-            file_path = os.path.join(args.outfile_dir, output_file_name) 
+        #write the extracted domain to file
+        write_structure_subset(structure, residues_to_keep=domain_residues, outfile=file_path)
 
-            #write the extracted domain to file
-            write_structure_subset(structure, residues_to_keep=domain_residues, outfile=file_path)
-    
+    talk_to_me(f"{structure_name} has {ndom_extracted} extracted domains.")
 
 if __name__ == "__main__":
     msg = "Call this script from sat.py, where there is argument parsing."
