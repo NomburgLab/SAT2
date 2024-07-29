@@ -1,0 +1,2 @@
+chain_id	sequence_md5	nres	ndom	chopping	confidence	time_sec
+AB537968__BAJ06111.1__X__00001	e10795397a5dac688fec5b35af3c2926	94	1	4-7,4-8,50-60,7-8_15-16,60-65_70-75_80-85	0.992	0.47

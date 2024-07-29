@@ -13,8 +13,8 @@ jobs:
   rich_codex:
     strategy:
       matrix:
-        python-version: ["3.10"]
-        poetry-version: ["1.1.14"]
+        python-version: ["3.10.5"]
+        poetry-version: ["1.8.3"]
         os: [ubuntu-latest]
         
     runs-on: ${{ matrix.os }}
