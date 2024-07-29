@@ -89,7 +89,11 @@ def aln_parse_dali_main(args):
                 continue
 
             # Need to stop looping after the summary segment
-            if line.startswith("# Structural equivalences"):
+            if (
+                line.startswith("# Structural equivalences")
+                or line.startswith("# Pairwise alignments")
+                or line.startswith("# Translation-rotation matrices")
+            ):
                 break
 
             # Find query
