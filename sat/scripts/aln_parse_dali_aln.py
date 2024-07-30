@@ -282,7 +282,10 @@ class DALI_alignment:
 
 def aln_parse_dali_aln_main(args):
 
-    key = parse_structure_key(args.key)
+    if args.key != "":
+        key = parse_structure_key(args.key)
+    else:
+        key = ""
     alignments = read_alignment_block(args.aln_file)
     alignments = segment_alignments(alignments)
 
