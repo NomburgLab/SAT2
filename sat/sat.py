@@ -48,8 +48,8 @@ def main():
         Path to the chainsaw.txt file. The first row contains column names.
         The chainsaw file can consist of a single chainsaw output or be a concatenation of multiple chainsaw outputs.
         """,
-    )    
-    
+    )
+
     parser_struc_get_domains.add_argument(
         "-m",
         "--min_domain_length",
@@ -1809,6 +1809,112 @@ def main():
     parser_aln_parse_dali_matrix.set_defaults(func=call_aln_parse_dali_matrix_main)
 
     # -------------------------------------------------------------------------------- #
+    # Parser for aln_parse_dali_aln subcommand
+    # -------------------------------------------------------------------------------- #
+    parser_aln_parse_dali_aln = subparsers.add_parser(
+        "aln_parse_dali_aln",
+        help=(
+            """
+            This subcommand parses a DALI alignments field (specified by the
+            'alignments' output format) and determines, for each target, if a specified
+            motif or series of motifs is present at specified locations.
+
+            The output of this script is a a file with two columns - target and 
+            target_id - for those targets that contain all indicated motifs. Note that
+            adding a DALI key is optional, in which case 'target' will be blank.
+             
+            See below for detailed instructions about how to input motifs.
+            """
+        ),
+    )
+    parser_aln_parse_dali_aln.add_argument(
+        "-i",
+        "--aln_file",
+        type=str,
+        required=True,
+        help="""
+        Path to a DALI file that contains the 'alignments' output field. There can be
+        other output fields as well, but only the alignments will be parsed here.
+        """,
+    )
+    parser_aln_parse_dali_aln.add_argument(
+        "-m",
+        "--motif_list",
+        type=str,
+        required=True,
+        help="""
+        This is a complicated string with many sublists. I will describe them
+        iterateively.
+
+        motif_list: MOTIF+MOTIF
+        MOTIF: POS_RESIDUES_FLEXIBILITY
+        - POS: a 1-indexed position of a residue in the query. This script will
+            determine where in the alignment that position occurs, and then check for 
+            the indicated motif (specified in RESIDUES) starting at that alignment
+            position.
+        - RESIDUES: a comma-delimited list of residues. E.g., the length of this list 
+            is equal to the length of the desired motif. For each individual motif
+            position, multiple residue options are specified with forward-slash-
+            delimited list. An 'X' indicates that E.g. R/H,X,H is searching for a motif
+            that starts with R or H, followed by any residue, followed by H.
+        - FLEXIBILITY: an integer value indicating how flexible the motif positioning
+            is. If set to 0, this means that the RESIDUES must start exactly at the
+            alignment position derived from POS. If 1, the motif can start 1 residue
+            beforehand or 1 residue after that position. And so on. 
+
+        Examples of correct inputs, and their interpretations:
+        16_K_0                  K at the alignment position of query residue 16.
+        16_K_0+82_K_0           K at the alignment position of query residue 16 and 82.
+        16_K_1                  K in the target either at the alignment position 
+                                corresponding to query reisdue 16, or one residue 
+                                beforehand, or one residue afterwards.
+        72_R/H,X,K_1+103_H_0    Two motifs. First is looking for an R or H, followed by
+                                any residue, followed by K. The position of this motif
+                                should be at the alignment position of query reisdue 72
+                                or one residue before or after that position. The second
+                                motif is looking for an H at the alignment position 
+                                corresponding to query residue 103.
+
+        Description of the POS (indicated by the input motif) vs the alignment index:
+
+        Consider the following alignment:
+        query residue:        1234 5678
+        query:               -ehhc-ahat-
+        target:              heh-ta-hn-g
+        alignment index:     01234567890
+                             0         1
+
+        For the motif 6_H_0, this target would pass. 6_H corresponds to alignment
+        index 7, which is an H in the target. Note that the input POS for the motif 
+        is 1-indexed.
+        """,
+    )
+    parser_aln_parse_dali_aln.add_argument(
+        "-k",
+        "--key",
+        type=str,
+        required=False,
+        default="",
+        help="""
+        Path to a tab-delimited file of format structure_name,,ID, where
+        the ID is a 4-digit identifier used during the DALI alignment. This lets you
+        convert the identifiers back.
+        """,
+    )
+    parser_aln_parse_dali_aln.add_argument(
+        "-o",
+        "--outfile",
+        type=str,
+        required=True,
+        help="""
+        Path to the output file. This file will have two columns: target and target_id.
+        The target_id is the DALI ID, while the target will be present if a key was
+        used.
+        """,
+    )
+    parser_aln_parse_dali_aln.set_defaults(func=call_aln_parse_dali_aln_main)
+
+    # -------------------------------------------------------------------------------- #
     # Parser for aln_merge subcommand
     # -------------------------------------------------------------------------------- #
     parser_aln_merge = subparsers.add_parser(
@@ -2205,8 +2311,7 @@ def main():
         "--in_fasta",
         type=str,
         required=True,
-        help=
-        """
+        help="""
         Path to the input fasta.
         """,
     )
@@ -2219,7 +2324,7 @@ def main():
         Path to the output file directory
         """,
     )
-    
+
     parser_seq_split_fasta.set_defaults(func=call_seq_split_fasta_main)
 
     # ----------------------------------------------------------------------------------#
@@ -2389,6 +2494,12 @@ def call_aln_parse_dali_matrix_main(args):
     aln_parse_dali_matrix_main(args)
 
 
+def call_aln_parse_dali_aln_main(args):
+    from scripts.aln_parse_dali_aln import aln_parse_dali_aln_main
+
+    aln_parse_dali_aln_main(args)
+
+
 def call_aln_merge_main(args):
     from scripts.aln_merge import aln_merge_main
 
@@ -2424,12 +2535,13 @@ def call_plot_pae_main(args):
 
     plot_pae_main(args)
 
+
 def call_seq_split_fasta_main(args):
     from scripts.seq_split_fasta import seq_split_fasta_main
 
     seq_split_fasta_main(args)
 
-                
+
 # Keep these buffer lines here
 #
 #

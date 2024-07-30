@@ -72,6 +72,8 @@ When you run the tests or the first time you run any taxonomy-related script, et
 `sat.py aln_expand_clusters` - When you use the cluster representatives from one clustering (often sequence-based) to cluster using another clustering (often structure based), will merge them.  
 `sat.py aln_merge_clusters` - This takes in a cluster file and an alignment file of alignments between cluster representatives, and merges clusters whose representatives align.  
 `sat.py aln_parse_dali` - This parses a Dalilite alignment output into a tab-delimited format. It can also filter based on various alignment statistics.  
+`sat.py aln_parse_dali_matrix` - This parses a Dalilite matrix output - basically uses the DALI key to annotate it.  
+`sat.py aln_parse_dali_aln` - This parses the 'alignments' block of a DALI output file, and checks if a given residue or motif is present in each target at an indicated position of the structural alignment.  
 `sat.py aln_generate_superclusters` - This takes in an all-by-all foldseek alignment and foldseek-reported clusters and identifies clusters that are linked (e.g. - some specified number of members of each cluster align to members of the other cluster). These clusters are then merged into a supercluster.  
 `sat.py aln_ecod_purity` - This takes in a cluster file and the alignments between the cluster members and the ECOD HMM database and counts, for each ECOD level, the number of members per cluster.  
 `sat.py aln_connection_map` - This takes a cluster file (that has taxonomy information) and reports, for every pair of families, the number of clusters that they share.  
@@ -264,7 +266,10 @@ specified key to convert each ID to its proper name.
 <!-- RICH-CODEX hide_command: true -->
 ![`poetry run .github/tmp/sat_codex.py aln_parse_dali_matrix -h`](.github/img/aln_parse_dali_matrix.png)  
 
-
+# SAT aln_parse_dali_aln
+This subcommand parses a DALI alignments field (specified by the 'alignments' output format) and determines, for each target, if a specified motif or series of motifs is present at specified locations. The output of this script is a a file with two columns - target and target_id - for those targets that contain all indicated motifs. Note that adding a DALI key is optional, in which case 'target' will be blank. See below for detailed instructions about how to input motifs.
+<!-- RICH-CODEX hide_command: true -->
+![`poetry run .github/tmp/sat_codex.py aln_parse_dali_aln -h`](.github/img/aln_parse_dali_aln.png)  
 
 # SAT aln_merge
 This subcommand is used to merge two foldseek alignment files.
