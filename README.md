@@ -270,6 +270,8 @@ specified key to convert each ID to its proper name.
 This subcommand parses a DALI alignments field (specified by the 'alignments' output format) and determines, for each target, if a specified motif or series of motifs is present at specified locations. The output of this script is a a file with two columns - target and target_id - for those targets that contain all indicated motifs. Note that adding a DALI key is optional, in which case 'target' will be blank. See below for detailed instructions about how to input motifs.
 
 ## Description of the motif_list input argument
+*Important Note*: The motif query position (e.g. POS, see below) is based on the residues actually included in the structure. E.g. if you are looking for K26, but the PDB file started at residue 2, you need to use 25 as the value for POS.  
+
 This is a complicated string with many sublists. I will describe them iterateively.  
         motif_list: MOTIF+MOTIF  
         MOTIF: POS_RESIDUES_FLEXIBILITY  
