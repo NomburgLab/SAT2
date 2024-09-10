@@ -2284,6 +2284,72 @@ def main():
 
     parser_seq_split_fasta.set_defaults(func=call_seq_split_fasta_main)
 
+    # -------------------------------------------------------------------------------- #
+    # Parser for aln_trim_target_fasta subcommand
+    # -------------------------------------------------------------------------------- #
+    parser_aln_trim_target_fasta = subparsers.add_parser(
+        "aln_trim_target_fasta",
+        help=("""
+        Trim the fasta sequences of target accessions from alingment files according. 
+        """),
+    )
+    parser_aln_trim_target_fasta.add_argument(
+        "-a",
+        "--alignment_file",
+        type=str,
+        required=True,
+        default="",
+        help="""
+        Path to alignment file
+        """,
+    )
+    parser_aln_trim_target_fasta.add_argument(
+        "-c",
+        "--alignment_fields",
+        type=str,
+        required=True,
+        default="",
+        help="""
+        A string of column names for the alignment file
+        """,
+    )
+    parser_aln_trim_target_fasta.add_argument(
+        "-f",
+        "--fasta_file",
+        type=str,
+        required=True,
+        default="",
+        help="""
+        Path to fasta file
+        """,
+    )
+    parser_aln_trim_target_fasta.add_argument(
+        "-o",
+        "--output_file",
+        type=str,
+        required=True,
+        default=1,
+        help="""
+        Name for output file
+        """,
+    )
+    parser_aln_trim_target_fasta.add_argument(
+        "-s",
+        "--short_aln_type",
+        type=int,
+        required=False,
+        default=1,
+        help="""
+        If 1, find the shortest alignment length.
+        If 0, find the longest alignment length. 
+        Default is 1. 
+        """,
+    )
+
+
+    parser_aln_trim_target_fasta.set_defaults(func=call_aln_trim_target_fasta_main)
+
+
     # ----------------------------------------------------------------------------------#
     # Parse the args and call the function associated with the subcommand
     # ----------------------------------------------------------------------------------#
@@ -2498,6 +2564,10 @@ def call_seq_split_fasta_main(args):
 
     seq_split_fasta_main(args)
 
+def call_aln_trim_target_fasta_main(args):
+    from scripts.aln_trim_target_fasta import aln_trim_target_fasta_main
+
+    aln_trim_target_fasta_main(args)
 
 # Keep these buffer lines here
 #
