@@ -2289,9 +2289,11 @@ def main():
     # -------------------------------------------------------------------------------- #
     parser_aln_trim_target_fasta = subparsers.add_parser(
         "aln_trim_target_fasta",
-        help=("""
+        help=(
+            """
         Trim the fasta sequences of target accessions from alingment files according. 
-        """),
+        """
+        ),
     )
     parser_aln_trim_target_fasta.add_argument(
         "-a",
@@ -2345,10 +2347,63 @@ def main():
         Default is 1. 
         """,
     )
-
-
     parser_aln_trim_target_fasta.set_defaults(func=call_aln_trim_target_fasta_main)
 
+    # -------------------------------------------------------------------------------- #
+    # Parser for tab_add_taxonomy subcommand
+    # ----------------------------------------------------------------------------
+    parser_tab_add_taxonomy = subparsers.add_parser(
+        "tab_add_taxonomy",
+        help=(
+            """
+            Adds taxonomy information to any file. There must be a column named
+            'taxid', that contains each taxon ID. This file will essentially add
+            additional columns, one per desired taxonomy level, with the corresponding
+            taxon names.
+            """
+        ),
+    )
+    parser_tab_add_taxonomy.add_argument(
+        "-i",
+        "--infile",
+        type=str,
+        required=True,
+        help="""
+        Path to the input tabular file. Should be tab-delimited.
+        """,
+    )
+    parser_tab_add_taxonomy.add_argument(
+        "-o",
+        "--outfile",
+        type=str,
+        required=True,
+        help="""
+        Path to the output file. Will be tab-delimited.
+        """,
+    )
+    parser_tab_add_taxonomy.add_argument(
+        "-c",
+        "--colnames",
+        type=str,
+        required=False,
+        default="",
+        help="""
+        Comma-delimited string of the column names. If left blank, will use the first
+        row of the infile as the colnames. For this script, one colname must be 'taxid'
+        """,
+    )
+    parser_tab_add_taxonomy.add_argument(
+        "-t",
+        "--taxonomy_levels",
+        type=str,
+        required=False,
+        default="superkingdom,phylum,class,order,family,genus,species",
+        help="""
+        Comma-delimited string taxonomy levels to be output.
+        Default: 'superkingdom,phylum,class,order,family,genus,species'
+        """,
+    )
+    parser_tab_add_taxonomy.set_defaults(func=call_parser_tab_add_taxonomy_main)
 
     # ----------------------------------------------------------------------------------#
     # Parse the args and call the function associated with the subcommand
@@ -2564,10 +2619,18 @@ def call_seq_split_fasta_main(args):
 
     seq_split_fasta_main(args)
 
+
 def call_aln_trim_target_fasta_main(args):
     from scripts.aln_trim_target_fasta import aln_trim_target_fasta_main
 
     aln_trim_target_fasta_main(args)
+
+
+def call_parser_tab_add_taxonomy_main(args):
+    from scripts.tab_add_taxonomy import tab_add_taxonomy_main
+
+    tab_add_taxonomy_main(args)
+
 
 # Keep these buffer lines here
 #

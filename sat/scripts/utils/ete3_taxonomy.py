@@ -3,6 +3,9 @@ from collections import Counter
 
 
 ncbi = NCBITaxa()
+# Note - if/when developing in a jupyter notebook and using the Taxon object, need to
+# execute the above line in the notebook. Something about the scope. Don't need to do
+# that in an actual subcommand fine.
 
 
 class Taxon:

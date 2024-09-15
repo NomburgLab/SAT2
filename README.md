@@ -62,7 +62,7 @@ When you run the tests or the first time you run any taxonomy-related script, et
 
 ## Alignment-focused
 `sat.py aln_add_clusters` - Adds foldseek clustering information to the foldseek tabular alignment file.  
-`sat.py aln_add_taxonomy` - Adds specified taxonomic levels for the query and/or target of foldseek alignments.  
+`sat.py aln_add_taxonomy` - DEPRICATED - Recommend using tab_add_taxonomy. ~~Adds specified taxonomic levels for the query and/or target of foldseek alignments.~~  
 `sat.py aln_taxa_counts` - Returns counts at desired taxonomic levels within each foldseek cluster.  
 `sat.py aln_query_uniprot` - Lets you look up alphafold or uniprot IDs using the Uniprot REST API, and get the geneName and fullName (an informative protein name) for each.  
 `sat.py aln_add_uniprot` - After retreiving the uniprot unformation using aln_query_uniprot, adds the information as columns to the alignment file.  
@@ -86,6 +86,9 @@ When you run the tests or the first time you run any taxonomy-related script, et
 
 ## Plotting-focused  
 `sat.py plot_pae` - Plots the colabfold PAE scores json file.    
+
+## Manipulation of tabular files  
+`sat.py tab_add_taxonomy` - If there is a column in a file with taxonomy IDs, this script looks up the lineage and adds the lineage to each line as a column.   
 
 # SAT struc_get_domains
 Extract separate domain structures from a predicted structure.  
@@ -376,6 +379,11 @@ This subcommand takes in a cluster file that has taxonomy information (criticall
 This subcommand produces a PAE matrix plot when given a colabfold scores json file. The output file type is specified by the suffix of the out_image arguemnt.    
 <!-- RICH-CODEX hide_command: true -->
 ![`poetry run .github/tmp/sat_codex.py plot_pae -h`](.github/img/plot_pae.png)  
+
+# SAT tab_add_taxonomy  
+Adds taxonomy information to any file. There must be a column named 'taxid', that contains each taxon ID. This file will essentially add additional columns, one per desired taxonomy level, with the corresponding taxon names.  
+<!-- RICH-CODEX hide_command: true -->
+![`poetry run .github/tmp/sat_codex.py tab_add_taxonomy -h`](.github/img/tab_add_taxonomy.png)  
 
 
 # Planned improvements
