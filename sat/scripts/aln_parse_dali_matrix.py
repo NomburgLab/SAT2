@@ -1,6 +1,7 @@
 import re
 
 from .utils.misc import talk_to_me, make_output_dir
+from .utils.dali import parse_structure_key
 
 
 def validate_args(args):
@@ -13,15 +14,6 @@ def validate_args(args):
     if args.matrix != "" and args.matrix_out == "":
         msg = "You specified --matrix, so you must specify --matrix_out!"
         raise ValueError(msg)
-
-
-def parse_key(key_path):
-    key = dict()
-    with open(key_path) as infile:
-        for line in infile:
-            line = line.rstrip("\n").split(",,")
-            key[line[1]] = line[0].rstrip(".pdb")
-    return key
 
 
 def format_nwk(nwk, key):
@@ -73,7 +65,7 @@ def aln_parse_dali_matrix_main(args):
     validate_args(args)
 
     talk_to_me("Parsing key")
-    key = parse_key(args.key)
+    key = parse_structure_key(args.key)
 
     if args.tree != "":
 

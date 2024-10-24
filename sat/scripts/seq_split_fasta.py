@@ -1,5 +1,3 @@
-<<<<<<< HEAD
-=======
 # ------------------------------------------------------------------------------------ #
 # Import dependencies
 # ------------------------------------------------------------------------------------ #
@@ -40,4 +38,3 @@ def seq_split_fasta_main(args):
 if __name__ == "__main__":
     msg = "Call this script from sat.py, where there is argument parsing."
     raise ValueError(msg)
->>>>>>> origin/main

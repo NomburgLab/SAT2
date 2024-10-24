@@ -1,9 +1,10 @@
-from sat.scripts.aln_parse_dali_aln import DALI_alignment
+from sat.scripts.utils.dali import DALI_alignment
+from sat.scripts.aln_dali_motif_finder import DALI_alignment_motif_finder
 
 
 class Test_get_alignment_position:
     def test_1(self):
-        a = DALI_alignment()
+        a = DALI_alignment_motif_finder("", "")
 
         a.aln_qseq = "abcde--fghi--JK"
         pos = 5
@@ -14,7 +15,7 @@ class Test_get_alignment_position:
         assert a.aln_qseq[result] == "e"
 
     def test_2(self):
-        a = DALI_alignment()
+        a = DALI_alignment_motif_finder("", "")
 
         a.aln_qseq = "abcde--fghi--JK"
         pos = 6
@@ -25,7 +26,7 @@ class Test_get_alignment_position:
         assert a.aln_qseq[result] == "f"
 
     def test_3(self):
-        a = DALI_alignment()
+        a = DALI_alignment_motif_finder("","")
 
         a.aln_qseq = "abcde--fghi--JK"
         pos = 11
@@ -38,7 +39,7 @@ class Test_get_alignment_position:
 
 class Test_alignment_has_residues:
     def test_1(self):
-        self = DALI_alignment()
+        self = DALI_alignment_motif_finder("","")
         self.aln_qseq = "abcde--fghi--JK"
         self.aln_tseq = "abcde--fghi--JK"
 
@@ -50,7 +51,7 @@ class Test_alignment_has_residues:
         assert self.alignment_has_residues(aln_position, residues)
 
     def test_1_uppercase_motif(self):
-        self = DALI_alignment()
+        self = DALI_alignment_motif_finder("","")
         self.aln_qseq = "abcde--fghi--JK"
         self.aln_tseq = "abcde--fghi--JK"
 
@@ -62,7 +63,7 @@ class Test_alignment_has_residues:
         assert self.alignment_has_residues(aln_position, residues)
 
     def test_2(self):
-        self = DALI_alignment()
+        self = DALI_alignment_motif_finder("","")
         self.aln_qseq = "abcde--fghi--JK"
         self.aln_tseq = "a-cde--fghi--JK"
 
@@ -74,7 +75,7 @@ class Test_alignment_has_residues:
         assert not self.alignment_has_residues(aln_position, residues)
 
     def test_3(self):
-        self = DALI_alignment()
+        self = DALI_alignment_motif_finder("","")
         self.aln_qseq = "abcde--fghi--JK"
         self.aln_tseq = "---cedjdafn-fds"
 
@@ -86,7 +87,7 @@ class Test_alignment_has_residues:
         assert self.alignment_has_residues(aln_position, residues)
 
     def test_3_with_X(self):
-        self = DALI_alignment()
+        self = DALI_alignment_motif_finder("","")
         self.aln_qseq = "abcde--fghi--JK"
         self.aln_tseq = "---cedjdafn-fds"
 
@@ -98,7 +99,7 @@ class Test_alignment_has_residues:
         assert self.alignment_has_residues(aln_position, residues)
 
     def test_3_with_X_FALSE(self):
-        self = DALI_alignment()
+        self = DALI_alignment_motif_finder("","")
         self.aln_qseq = "abcde--fghi--JK"
         self.aln_tseq = "---cedjdafn-fds"
 
@@ -110,7 +111,7 @@ class Test_alignment_has_residues:
         assert not self.alignment_has_residues(aln_position, residues)
 
     def test_single(self):
-        self = DALI_alignment()
+        self = DALI_alignment_motif_finder("","")
         self.aln_qseq = "abcde--fghi--JK"
         self.aln_tseq = "--heqqew--sdfs-"
 
@@ -122,7 +123,7 @@ class Test_alignment_has_residues:
         assert self.alignment_has_residues(aln_position, residues)
 
     def test_single_false(self):
-        self = DALI_alignment()
+        self = DALI_alignment_motif_finder("","")
         self.aln_qseq = "abcde--fghi--JK"
         self.aln_tseq = "--hexqew--sdfs-"
 
@@ -136,7 +137,7 @@ class Test_alignment_has_residues:
 
 class Test_has_motif:
     def test_has_motif_no_flex_true(self):
-        self = DALI_alignment()
+        self = DALI_alignment_motif_finder("","")
         self.aln_qseq = "abcde--fghi--JK"
         self.aln_tseq = "---cedjdafn-fds"
 
@@ -145,7 +146,7 @@ class Test_has_motif:
         assert self.has_motif(motif)
 
     def test_has_motif_no_flex_false(self):
-        self = DALI_alignment()
+        self = DALI_alignment_motif_finder("","")
         self.aln_qseq = "abcde--fghi--JK"
         self.aln_tseq = "---cedjdafn-fds"
 
@@ -154,7 +155,7 @@ class Test_has_motif:
         assert not self.has_motif(motif)
 
     def test_has_motif_flex_true(self):
-        self = DALI_alignment()
+        self = DALI_alignment_motif_finder("","")
         self.aln_qseq = "abcde--fghi--JK"
         self.aln_tseq = "---de-fghfn-fds"
 
