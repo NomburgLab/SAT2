@@ -34,6 +34,21 @@ def test_find_aln_position_no_aln():
     with pytest.raises(ValueError):
         aln_obj.find_aln_position()
 
+def test_find_aln_position_misaligned_aln():
+    aln= [
+    "No 1: Query=ABC Sbjct=DABC Z-score=9.3",
+    "DSSP  -----L--L---L-L--",   
+    "Query  ---AbC-D--EF-G-Fy   9",  
+    "ident     ||| |     |       ",   
+    "Sbjct  --dABC-D--XY-G--y   9",  
+    "DSSP  ----L--L---L-L---"     
+    ]
+
+    aln_obj = DALI_alignment_attributes(aln, key ="")
+    
+    with pytest.raises(ValueError):
+        aln_obj.find_aln_position()
+
 def test_find_seq_position():
 
     aln= [

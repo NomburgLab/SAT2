@@ -387,7 +387,7 @@ This subcommand takes in a cluster file that has taxonomy information (criticall
 ![`poetry run .github/tmp/sat_codex.py aln_aln_connection_mapecod_purity -h`](.github/img/aln_connection_map.png)  
 
 # SAT aln_dali_attributes
-This subcommands takes in a DALI alignment file and key to generate a csv file of aligned targets and queries and their attributes, such as qstart, qend, tstart, tend, etc.
+This subcommands takes in a DALI alignment file (which must have an alignments field) and a key to generate a csv file of aligned targets and queries and their attributes, such as qstart, qend, tstart, tend, etc.
 <!-- RICH-CODEX hide_command: true -->
 ![`poetry run .github/tmp/sat_codex.py aln_dali_attributes -h`](.github/img/aln_dali_attributes.png)  
 

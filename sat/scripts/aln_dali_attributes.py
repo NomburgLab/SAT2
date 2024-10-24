@@ -1,13 +1,13 @@
 import math
 import pandas as pd
-from .aln_parse_dali_matrix import parse_key
+#from .aln_parse_dali_matrix import parse_key
 from .utils.misc import talk_to_me
-from .utils.dali import DALI_alignment, read_alignment_block, segment_alignments
+from .utils.dali import DALI_alignment, read_alignment_block, segment_alignments, parse_structure_key
 
 
 class DALI_alignment_attributes(DALI_alignment):
 
-    def __init__(self, alignment, key):
+    def __init__(self, alignment, key = ""):
         super().__init__(alignment, key)
         self.parse_alignment()
 
@@ -47,7 +47,7 @@ class DALI_alignment_attributes(DALI_alignment):
                 
                 #check if the amino acid of the target or query is upper case and the other is lower case. This shouldn't happen.
                 if query_aa.isupper() ^ target_aa.isupper():
-                    talk_to_me("Query or target amino acid is aligned. Continuing..")
+                    raise ValueError("One amino acid in the query or target is uppercase/aligned, while the other is not!")
 
         if len(aln_pos_list) == 0:
             raise ValueError("No valid alignment positions found.")
@@ -67,7 +67,7 @@ class DALI_alignment_attributes(DALI_alignment):
         The protein sequence only contains residues/amino acids.
 
         Inputs:
-        - aln_position: Index of the alignment position.
+        - aln_position: Index of the alignment position. The alignment is zero-indexed.
         - aln: The alignment string that includes both hyphens and amino acids.
 
         Outputs:
@@ -78,20 +78,17 @@ class DALI_alignment_attributes(DALI_alignment):
         if aln_position >= len(aln):
             raise ValueError("Alignment position is greater than the alignment length.")
         
-        seq_position = None
         index_count = 0
 
         for aln_index, aa in enumerate(aln):
-            if aa!="-":
+            if aa != "-":
                 index_count+=1
                 
                 if aln_index == aln_position:
-                    seq_position = index_count
+                    return index_count
         
-        if seq_position is None:
-            raise ValueError("Sequence position not found.")
-                                
-        return seq_position
+        raise ValueError("Sequence position not found.")
+
     
     def calculate_pident(self): 
         """
@@ -146,7 +143,7 @@ class DALI_alignment_attributes(DALI_alignment):
         return pident
 
 
-    def aln_attribute_dict(self):
+    def get_attribute_dict(self):
         """
         Store the attributes of this query/target alignment in a dictionary.
 
@@ -174,8 +171,8 @@ class DALI_alignment_attributes(DALI_alignment):
         #create a dictionary with all the attributes
         aln_dict = {}
         aln_dict['aln_number'] = self.aln_number
-        aln_dict['query_id'] = self.query_id
-        aln_dict['target_id'] = self.target_id
+        aln_dict['query'] = self.query
+        aln_dict['target'] = self.target
         aln_dict['qstart'] = self.qstart
         aln_dict['qend'] = self.qend
         aln_dict['tstart'] = self.tstart
@@ -207,13 +204,15 @@ def aln_dali_alignment_attributes_main(args):
     segmented_aln = segment_alignments(contents)
 
     aln_dict_list  = []
-    key = parse_key(args.key)
+
+    if args.key != "":
+        key = parse_structure_key(args.key)
 
     #for each alignment block, determine its attributes. Store the attributes in a dictionary. 
     for aln in segmented_aln:
         aln_obj = DALI_alignment_attributes(aln, key)
         aln_obj.find_aln_position()
-        aln_obj.info = aln_obj.aln_attribute_dict()
+        aln_obj.info = aln_obj.get_attribute_dict()
 
         #add the dictionary of attributes to a list
         aln_dict_list.append(aln_obj.info)

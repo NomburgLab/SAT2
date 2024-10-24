@@ -1878,15 +1878,9 @@ def main():
         "aln_dali_alignment_attributes",
         help=(
             """
-            This subcommand parses a DALI alignments field (specified by the
-            'alignments' output format) and determines, for each target, if a specified
-            motif or series of motifs is present at specified locations.
-
-            The output of this script is a a file with two columns - target and 
-            target_id - for those targets that contain all indicated motifs. Note that
-            adding a DALI key is optional, in which case 'target' will be blank.
-             
-            See below for detailed instructions about how to input motifs.
+            This subcommands takes in a DALI alignment file (which must have an alignments field) 
+            and a key to generate a csv file of aligned targets and queries and their attributes, 
+            such as qstart, qend, tstart, tend, etc.
             """
         ),
     )

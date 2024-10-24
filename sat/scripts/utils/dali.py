@@ -100,7 +100,7 @@ def segment_alignments(alignments):
 
 class DALI_alignment:
 
-    def __init__(self, alignment, key) -> None:
+    def __init__(self, alignment, key = "") -> None:
         self.alignment = alignment
         self.key = key
 
