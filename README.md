@@ -60,6 +60,7 @@ When you run the tests or the first time you run any taxonomy-related script, et
 `sat.py struc_detect_interaction` - For a co-folded prediction of two molecules, determine if the PAE matrix clusters across the molecules and suggests a potential interaction.  
 `sat.py struc_get_contact_probability` - Determines the probability that two proteins are interacting. This will probably replace struc_detect_interaction.  
 
+
 ## Alignment-focused
 `sat.py aln_add_clusters` - Adds foldseek clustering information to the foldseek tabular alignment file.  
 `sat.py aln_add_taxonomy` - DEPRICATED - Recommend using tab_add_taxonomy. ~~Adds specified taxonomic levels for the query and/or target of foldseek alignments.~~  
@@ -73,10 +74,12 @@ When you run the tests or the first time you run any taxonomy-related script, et
 `sat.py aln_merge_clusters` - This takes in a cluster file and an alignment file of alignments between cluster representatives, and merges clusters whose representatives align.  
 `sat.py aln_parse_dali` - This parses a Dalilite alignment output into a tab-delimited format. It can also filter based on various alignment statistics.  
 `sat.py aln_parse_dali_matrix` - This parses a Dalilite matrix output - basically uses the DALI key to annotate it.  
-`sat.py aln_parse_dali_aln` - This parses the 'alignments' block of a DALI output file, and checks if a given residue or motif is present in each target at an indicated position of the structural alignment.  
+`sat.py aln_dali_motif_finder` - This parses the 'alignments' block of a DALI output file, and checks if a given residue or motif is present in each target at an indicated position of the structural alignment.  
+`sat.py aln_dali_alignment_attributes` -  Generates a csv file of aligned targets and queries and their attributes, such as qstart, qend, tstart, tend, etc.
 `sat.py aln_generate_superclusters` - This takes in an all-by-all foldseek alignment and foldseek-reported clusters and identifies clusters that are linked (e.g. - some specified number of members of each cluster align to members of the other cluster). These clusters are then merged into a supercluster.  
 `sat.py aln_ecod_purity` - This takes in a cluster file and the alignments between the cluster members and the ECOD HMM database and counts, for each ECOD level, the number of members per cluster.  
 `sat.py aln_connection_map` - This takes a cluster file (that has taxonomy information) and reports, for every pair of families, the number of clusters that they share.  
+`sat.py aln_trim_target` - Trim the fasta sequences of target accessions from alignment files to the longest or shortest target alignment length.
 
 ## Sequence-focused  
 `sat.py seq_chunk` - Splits a fasta file into overlapping or non-overlapping chunks.  
@@ -269,8 +272,11 @@ specified key to convert each ID to its proper name.
 <!-- RICH-CODEX hide_command: true -->
 ![`poetry run .github/tmp/sat_codex.py aln_parse_dali_matrix -h`](.github/img/aln_parse_dali_matrix.png)  
 
-# SAT aln_parse_dali_aln
+# SAT aln_dali_motif_finder
 This subcommand parses a DALI alignments field (specified by the 'alignments' output format) and determines, for each target, if a specified motif or series of motifs is present at specified locations. The output of this script is a a file with two columns - target and target_id - for those targets that contain all indicated motifs. Note that adding a DALI key is optional, in which case 'target' will be blank. See below for detailed instructions about how to input motifs.
+<!-- RICH-CODEX hide_command: true -->
+![`poetry run .github/tmp/sat_codex.py aln_dali_motif_finder -h`](.github/img/aln_dali_motif_finder.png) 
+
 
 ## Description of the motif_list input argument
 *Important Note*: The motif query position (e.g. POS, see below) is based on the residues actually included in the structure. E.g. if you are looking for K26, but the PDB file started at residue 2, you need to use 25 as the value for POS.  
@@ -317,7 +323,12 @@ This is a complicated string with many sublists. I will describe them iterateive
         index 7, which is an H in the target. Note that the input POS for the motif 
         is 1-indexed.  
 <!-- RICH-CODEX hide_command: true -->
-![`poetry run .github/tmp/sat_codex.py aln_parse_dali_aln -h`](.github/img/aln_parse_dali_aln.png)  
+![`poetry run .github/tmp/sat_codex.py aln_dali_motif_finder -h`](.github/img/aln_dali_motif_finder.png)  
+
+# SAT aln_trim_target_fasta
+This subcommand trims the fasta sequences of target accessions from alignment files to the longest (0) or shortest(1) target alignment length.
+<!-- RICH-CODEX hide_command: true -->
+![`poetry run .github/tmp/sat_codex.py aln_trim_target_fasta -h`](.github/img/aln_trim_target_fasta.png) 
 
 # SAT aln_merge
 This subcommand is used to merge two foldseek alignment files.
@@ -374,6 +385,11 @@ Note that this assumes that each member only has ONE alignment - e.g. the best E
 This subcommand takes in a cluster file that has taxonomy information (critically - family) and determines, for each pair of families, how many clusters exist in which both families have a member.
 <!-- RICH-CODEX hide_command: true -->
 ![`poetry run .github/tmp/sat_codex.py aln_aln_connection_mapecod_purity -h`](.github/img/aln_connection_map.png)  
+
+# SAT aln_dali_attributes
+This subcommands takes in a DALI alignment file (which must have an alignments field) and a key to generate a csv file of aligned targets and queries and their attributes, such as qstart, qend, tstart, tend, etc.
+<!-- RICH-CODEX hide_command: true -->
+![`poetry run .github/tmp/sat_codex.py aln_dali_attributes -h`](.github/img/aln_dali_attributes.png)  
 
 # SAT plot_pae
 This subcommand produces a PAE matrix plot when given a colabfold scores json file. The output file type is specified by the suffix of the out_image arguemnt.    

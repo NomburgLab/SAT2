@@ -1899,10 +1899,10 @@ def main():
     parser_aln_parse_dali_matrix.set_defaults(func=call_aln_parse_dali_matrix_main)
 
     # -------------------------------------------------------------------------------- #
-    # Parser for aln_parse_dali_aln subcommand
+    # Parser for aln_dali_motif_finder subcommand
     # -------------------------------------------------------------------------------- #
-    parser_aln_parse_dali_aln = subparsers.add_parser(
-        "aln_parse_dali_aln",
+    parser_aln_dali_motif_finder= subparsers.add_parser(
+        "aln_dali_motif_finder",
         help=(
             """
             This subcommand parses a DALI alignments field (specified by the
@@ -1917,7 +1917,7 @@ def main():
             """
         ),
     )
-    parser_aln_parse_dali_aln.add_argument(
+    parser_aln_dali_motif_finder.add_argument(
         "-i",
         "--aln_file",
         type=str,
@@ -1927,7 +1927,7 @@ def main():
         other output fields as well, but only the alignments will be parsed here.
         """,
     )
-    parser_aln_parse_dali_aln.add_argument(
+    parser_aln_dali_motif_finder.add_argument(
         "-m",
         "--motif_list",
         type=str,
@@ -1936,7 +1936,7 @@ def main():
         See the documentation on github for a detailed description.
         """,
     )
-    parser_aln_parse_dali_aln.add_argument(
+    parser_aln_dali_motif_finder.add_argument(
         "-k",
         "--key",
         type=str,
@@ -1948,7 +1948,7 @@ def main():
         convert the identifiers back.
         """,
     )
-    parser_aln_parse_dali_aln.add_argument(
+    parser_aln_dali_motif_finder.add_argument(
         "-o",
         "--outfile",
         type=str,
@@ -1959,7 +1959,55 @@ def main():
         used.
         """,
     )
-    parser_aln_parse_dali_aln.set_defaults(func=call_aln_parse_dali_aln_main)
+    parser_aln_dali_motif_finder.set_defaults(func=call_aln_dali_motif_finder_main)
+
+    # -------------------------------------------------------------------------------- #
+    # Parser for DALI_alignment_attributes subcommand
+    # -------------------------------------------------------------------------------- #
+    parser_aln_dali_alignment_attributes = subparsers.add_parser(
+        "aln_dali_alignment_attributes",
+        help=(
+            """
+            This subcommands takes in a DALI alignment file (which must have an alignments field) 
+            and a key to generate a csv file of aligned targets and queries and their attributes, 
+            such as qstart, qend, tstart, tend, etc.
+            """
+        ),
+    )
+    parser_aln_dali_alignment_attributes.add_argument(
+        "-i",
+        "--aln_file",
+        type=str,
+        required=True,
+        help="""
+        Path to a DALI file that contains the 'alignments' output field. There can be
+        other output fields as well, but only the alignments will be parsed here.
+        """,
+    )
+    parser_aln_dali_alignment_attributes.add_argument(
+        "-k",
+        "--key",
+        type=str,
+        required=False,
+        default="",
+        help="""
+        Path to a tab-delimited file of format structure_name,,ID, where
+        the ID is a 4-digit identifier used during the DALI alignment. This lets you
+        convert the identifiers back.
+        """,
+    )
+    parser_aln_dali_alignment_attributes.add_argument(
+        "-o",
+        "--outfile",
+        type=str,
+        required=True,
+        help="""
+        Path to the output file. This file will have two columns: target and target_id.
+        The target_id is the DALI ID, while the target will be present if a key was
+        used.
+        """,
+    )
+    parser_aln_dali_alignment_attributes.set_defaults(func=call_aln_dali_alignment_attributes_main)
 
     # -------------------------------------------------------------------------------- #
     # Parser for aln_merge subcommand
@@ -2381,7 +2429,7 @@ def main():
         "aln_trim_target_fasta",
         help=(
             """
-        Trim the fasta sequences of target accessions from alingment files according. 
+        Trim the fasta sequences of target accessions from alignment files to the longest or shortest target alignment length.
         """
         ),
     )
@@ -2494,6 +2542,9 @@ def main():
         """,
     )
     parser_tab_add_taxonomy.set_defaults(func=call_parser_tab_add_taxonomy_main)
+
+
+
 
     # ----------------------------------------------------------------------------------#
     # Parse the args and call the function associated with the subcommand
@@ -2662,10 +2713,16 @@ def call_aln_parse_dali_matrix_main(args):
     aln_parse_dali_matrix_main(args)
 
 
-def call_aln_parse_dali_aln_main(args):
-    from scripts.aln_parse_dali_aln import aln_parse_dali_aln_main
+def call_aln_dali_motif_finder_main(args):
+    from scripts.aln_dali_motif_finder import aln_dali_motif_finder_main
 
-    aln_parse_dali_aln_main(args)
+    aln_dali_motif_finder_main(args)
+
+
+def call_aln_dali_alignment_attributes_main(args):
+    from scripts.aln_dali_attributes import aln_dali_alignment_attributes_main  
+
+    aln_dali_alignment_attributes_main(args)
 
 
 def call_aln_merge_main(args):
