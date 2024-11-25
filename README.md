@@ -58,7 +58,7 @@ When you run the tests or the first time you run any taxonomy-related script, et
 `sat.py struc_qc` - Get information on the fraction of residues that are at least a specified pLDDT - this can be good for filtration.  
 `sat.py struc_disorder` - Get information on the number of residues in an input structure that are considered disordered and ordered.  
 `sat.py struc_detect_interaction` - For a co-folded prediction of two molecules, determine if the PAE matrix clusters across the molecules and suggests a potential interaction.  
-
+`sat.py struc_get_contact_probability` - Determines the probability that two proteins are interacting. This will probably replace struc_detect_interaction.  
 
 ## Alignment-focused
 `sat.py aln_add_clusters` - Adds foldseek clustering information to the foldseek tabular alignment file.  
@@ -384,6 +384,28 @@ This subcommand produces a PAE matrix plot when given a colabfold scores json fi
 Adds taxonomy information to any file. There must be a column named 'taxid', that contains each taxon ID. This file will essentially add additional columns, one per desired taxonomy level, with the corresponding taxon names.  
 <!-- RICH-CODEX hide_command: true -->
 ![`poetry run .github/tmp/sat_codex.py tab_add_taxonomy -h`](.github/img/tab_add_taxonomy.png)  
+
+# SAT struc_get_contact_probability  
+This script calculates the internal contact probability between two chains folded using colabfold. This can be from any model type (e.g. alphafold2_multimer_v3, or even alphafold2_ptm) as long as two chains were predicted using colabfold.  
+
+This script parses the entire colabfold output directory. For a given model type, if different models were run (between 1-5) this script will parse every model.  
+
+This will measure the highest contact probability in the submatrix of residues that cross chains A and B. The user can set a distance cutoff - if set to e.g. 8, this script, for every residue-residue pair between chains, will determine the probability the residue pairs are within 8 angstroms. The highest residue-residue contact probability is the result. I've annotated the functions in this script if you want to learn more about the technical details.  
+
+For each model, there are required input files:   
+1) The a3m file. This is only present once regardless of the number of models run. The critical part of this file is the first line, which lists the length of the two protein chains.  
+2) The pickle file. This is the ouput pickle object from each model. This is the source of the logits from which we calculate interaction probability.  
+3) The json file. This is the scores json file that lists PAE, but also at the end contains the iptm.  
+
+The output file is tab delimited and has the following columns, with one line per model:  
+- sample_name (the prefix of the input files)  
+- model type (e.g. alphafold2_ptm)  
+- rank (1-5, ranked based on however colabfold was ranking structures. Usually pLDDT. E.g. rank 1 is the structure with highest pLDDT)  
+- model (1-5, this is the model run)  
+- iptm (interaction pTM score reported by colabfold) 
+- contact probability (highest cross-chain residue-residue contact probability as discussed above)   
+<!-- RICH-CODEX hide_command: true -->
+![`poetry run .github/tmp/sat_codex.py struc_get_contact_probability -h`](.github/img/struc_get_contact_probability.png)  
 
 
 # Planned improvements
