@@ -39,7 +39,7 @@ jobs:
       - name: Make a copy of the argument parser without imports
         run: grep -v "def call_" -A 6 sat/sat.py > .github/tmp/sat_codex.py && chmod +x .github/tmp/sat_codex.py
       - name: Generate terminal images with rich-codex
-        uses: ewels/rich-codex@v1
+        uses: ewels/rich-codex@v1.2.8
         with:
           commit_changes: "true"
           skip_git_checks: "true"
