@@ -49,6 +49,7 @@ When you run the tests or the first time you run any taxonomy-related script, et
 
 ## Structure-focused
 `sat.py struc_get_domains` - Uses chainsaw predicted domain boundaries to extract domains from structure files.  
+`sat.py struc_get_iptm` - Extract the iPTM value from a colanbfold json file.    
 `sat.py struc_remove_redundant` - Removes domains that have strongly overlapping primary amino-acid sequences.   
 `sat.py struc_extract_chains` - Given an input structure file with multiple chains, write a new file with only the specified chain(s).  
 `sat.py struc_find_motif` - Checks if there is a motif in a structure or sequence input.  
@@ -99,6 +100,10 @@ This uses the chainsaw predicted domain boundaries to extract domains from pdb s
 <!-- RICH-CODEX hide_command: true -->
 ![`poetry run .github/tmp/sat_codex.py struc_get_domains -h`](.github/img/struc_get_domains.png)  
 
+# SAT struc_get_iptm
+Extract the iPTM value from the colabfold json. Appends to an output file with format {json_basename}\t{iptm}\n. 
+<!-- RICH-CODEX hide_command: true -->
+![`poetry run .github/tmp/sat_codex.py struc_get_iptm -h`](.github/img/struc_get_iptm.png)  
 
 # SAT struc_remove_redundant
 Given a glob specifying multiple structure (often domains), will remove structures that have an overlapping pirmary amino acid sequence.   
