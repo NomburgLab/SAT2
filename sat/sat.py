@@ -167,6 +167,42 @@ def main():
     )
 
     # -------------------------------------------------------------------------------- #
+    # Parser for struc_get_itpm subcommand
+    # -------------------------------------------------------------------------------- #
+    parser_struc_get_iptm = subparsers.add_parser(
+        "struc_get_iptm",
+        help="""
+        Extract the iPTM value from the colabfold json. Appends to an output file with
+        format {json_basename}\t{iptm}\n. 
+        """,
+    )
+    parser_struc_get_iptm.add_argument(
+        "-i",
+        "--infile",
+        type=str,
+        required=True,
+        default="",
+        help="""
+        Path to the input json file from colabfold. 
+        """,
+    )
+    parser_struc_get_iptm.add_argument(
+        "-o",
+        "--outfile",
+        type=str,
+        required=True,
+        default="",
+        help="""
+        Path to the output tsv - will have the following columns:
+        1. basename of the input json
+        2. iptm value
+
+        This output file will be appended to if it already exists
+        """,
+    )
+    parser_struc_get_iptm.set_defaults(func=call_struc_get_iptm)
+
+    # -------------------------------------------------------------------------------- #
     # Parser for struc_remove_redundant subcommand
     # -------------------------------------------------------------------------------- #
     parser_struc_remove_redundant = subparsers.add_parser(
@@ -1901,7 +1937,7 @@ def main():
     # -------------------------------------------------------------------------------- #
     # Parser for aln_dali_motif_finder subcommand
     # -------------------------------------------------------------------------------- #
-    parser_aln_dali_motif_finder= subparsers.add_parser(
+    parser_aln_dali_motif_finder = subparsers.add_parser(
         "aln_dali_motif_finder",
         help=(
             """
@@ -2007,7 +2043,9 @@ def main():
         used.
         """,
     )
-    parser_aln_dali_alignment_attributes.set_defaults(func=call_aln_dali_alignment_attributes_main)
+    parser_aln_dali_alignment_attributes.set_defaults(
+        func=call_aln_dali_alignment_attributes_main
+    )
 
     # -------------------------------------------------------------------------------- #
     # Parser for aln_merge subcommand
@@ -2543,9 +2581,6 @@ def main():
     )
     parser_tab_add_taxonomy.set_defaults(func=call_parser_tab_add_taxonomy_main)
 
-
-
-
     # ----------------------------------------------------------------------------------#
     # Parse the args and call the function associated with the subcommand
     # ----------------------------------------------------------------------------------#
@@ -2571,6 +2606,12 @@ def call_struc_get_domains(args):
     from scripts.struc_get_domains import struc_get_domains_main
 
     struc_get_domains_main(args)
+
+
+def call_struc_get_iptm(args):
+    from scripts.struc_get_iptm import struc_get_iptm_main
+
+    struc_get_iptm_main(args)
 
 
 def call_struc_remove_redundant(args):
@@ -2720,7 +2761,7 @@ def call_aln_dali_motif_finder_main(args):
 
 
 def call_aln_dali_alignment_attributes_main(args):
-    from scripts.aln_dali_attributes import aln_dali_alignment_attributes_main  
+    from scripts.aln_dali_attributes import aln_dali_alignment_attributes_main
 
     aln_dali_alignment_attributes_main(args)
 
@@ -2777,6 +2818,7 @@ def call_parser_tab_add_taxonomy_main(args):
     from scripts.tab_add_taxonomy import tab_add_taxonomy_main
 
     tab_add_taxonomy_main(args)
+
 
 def call_struc_get_contact_probability(args):
     from scripts.struc_get_contact_probability import struc_get_contact_probability_main
