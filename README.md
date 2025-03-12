@@ -100,7 +100,7 @@ This uses the chainsaw predicted domain boundaries to extract domains from pdb s
 <!-- RICH-CODEX hide_command: true -->
 ![`poetry run .github/tmp/sat_codex.py struc_get_domains -h`](.github/img/struc_get_domains.png)  
 
-# SAT struc_get_iptm
+# SAT struc_get_iptm  
 Extract the iPTM value from the colabfold json. Appends to an output file with format {json_basename}\t{iptm}\n. 
 <!-- RICH-CODEX hide_command: true -->
 ![`poetry run .github/tmp/sat_codex.py struc_get_iptm -h`](.github/img/struc_get_iptm.png)  
