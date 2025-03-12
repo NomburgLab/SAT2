@@ -173,7 +173,7 @@ def main():
         "struc_get_iptm",
         help="""
         Extract the iPTM value from the colabfold json. Appends to an output file with
-        format {json_basename}\t{iptm}\n. 
+        format [json_basename]\t[iptm]\n. 
         """,
     )
     parser_struc_get_iptm.add_argument(
