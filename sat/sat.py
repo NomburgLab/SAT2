@@ -214,7 +214,7 @@ def main():
         FASTA file for easier downstream analysis.
         
         For each pairwise alignment in the DALI output, a separate FASTA file is created
-        with the naming pattern [query_id]__[target_id].fasta in the specified output directory.
+        with the naming pattern [query_id]xxx[target_id].fasta in the specified output directory.
         Each FASTA file contains two sequences:
         1. The query sequence from the alignment
         2. The target sequence from the alignment
@@ -251,6 +251,15 @@ def main():
         default="",
         help="""
         Path to a structure key file to convert DALI IDs to structure names.
+        """,
+    )
+    parser_aln_dali_to_pairwise_fastas.add_argument(
+        "-s",
+        "--skip_self",
+        action="store_true",
+        help="""
+        Skip self-alignments (where query and target are the same).
+        By default, all alignments including self-alignments are processed.
         """,
     )
 

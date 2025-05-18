@@ -41,6 +41,10 @@ def aln_dali_to_pairwise_fastas_main(args):
         os.makedirs(args.out_dir)
     talk_to_me(f"Writing pairwise FASTA files to: {args.out_dir}")
     
+    # Track stats
+    total_alignments = len(alignments)
+    skipped_self_alignments = 0
+    
     # Process each alignment
     for i, alignment in enumerate(alignments):
         # Parse the alignment
@@ -51,6 +55,11 @@ def aln_dali_to_pairwise_fastas_main(args):
         query_id = dali_aln.query
         target_id = dali_aln.target
         
+        # Skip self-alignments if requested
+        if args.skip_self and query_id == target_id:
+            skipped_self_alignments += 1
+            continue
+        
         # Create output filename
         output_file = os.path.join(args.out_dir, f"{query_id}xxx{target_id}.fasta")
         
@@ -60,7 +69,7 @@ def aln_dali_to_pairwise_fastas_main(args):
             f.write(f">{query_id}\n")
             f.write(f"{dali_aln.aln_qseq}\n")
             
-            # Write subject sequence
+            # Write target sequence
             f.write(f">{target_id}\n")
             f.write(f"{dali_aln.aln_tseq}\n")
         
@@ -68,9 +77,11 @@ def aln_dali_to_pairwise_fastas_main(args):
         if i < 5 or i == len(alignments) - 1:
             talk_to_me(f"Wrote: {os.path.basename(output_file)}")
         elif i == 5:
-            talk_to_me(f"... and {len(alignments) - 6} more files")
+            talk_to_me(f"... and {len(alignments) - 6 - skipped_self_alignments} more files")
     
-    talk_to_me(f"Completed processing {len(alignments)} alignments")
+    talk_to_me(f"Completed processing {total_alignments} alignments")
+    if args.skip_self and skipped_self_alignments > 0:
+        talk_to_me(f"Skipped {skipped_self_alignments} self-alignments")
 
 
 if __name__ == "__main__":
