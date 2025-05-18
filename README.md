@@ -76,7 +76,7 @@ When you run the tests or the first time you run any taxonomy-related script, et
 `sat.py aln_parse_dali` - This parses a Dalilite alignment output into a tab-delimited format. It can also filter based on various alignment statistics.  
 `sat.py aln_parse_dali_matrix` - This parses a Dalilite matrix output - basically uses the DALI key to annotate it.  
 `sat.py aln_dali_motif_finder` - This parses the 'alignments' block of a DALI output file, and checks if a given residue or motif is present in each target at an indicated position of the structural alignment.  
-`sat.py aln_dali_alignment_attributes` -  Generates a csv file of aligned targets and queries and their attributes, such as qstart, qend, tstart, tend, etc.
+`sat.py aln_dali_attributes` -  Generates a csv file of aligned targets and queries and their attributes, such as qstart, qend, tstart, tend, etc.
 `sat.py aln_generate_superclusters` - This takes in an all-by-all foldseek alignment and foldseek-reported clusters and identifies clusters that are linked (e.g. - some specified number of members of each cluster align to members of the other cluster). These clusters are then merged into a supercluster.  
 `sat.py aln_ecod_purity` - This takes in a cluster file and the alignments between the cluster members and the ECOD HMM database and counts, for each ECOD level, the number of members per cluster.  
 `sat.py aln_connection_map` - This takes a cluster file (that has taxonomy information) and reports, for every pair of families, the number of clusters that they share.  
@@ -395,6 +395,17 @@ This subcommand takes in a cluster file that has taxonomy information (criticall
 This subcommands takes in a DALI alignment file (which must have an alignments field) and a key to generate a csv file of aligned targets and queries and their attributes, such as qstart, qend, tstart, tend, etc.
 <!-- RICH-CODEX hide_command: true -->
 ![`poetry run .github/tmp/sat_codex.py aln_dali_attributes -h`](.github/img/aln_dali_attributes.png)  
+
+# SAT aln_dali_to_pairwise_fastas
+This subcommand converts DALI alignments to individual pairwise FASTA files. For each alignment in the DALI output, a separate FASTA file is created with the naming pattern [query_id]__[target_id].fasta in the specified output directory.
+
+Each FASTA file contains two sequences:
+1. The query sequence from the alignment (>query_id)
+2. The target sequence from the alignment (>target_id)
+
+If a structure key file is provided, DALI IDs will be converted to the corresponding structure names found in the key file.
+<!-- RICH-CODEX hide_command: true -->
+![`poetry run .github/tmp/sat_codex.py aln_dali_to_pairwise_fastas -h`](.github/img/aln_dali_to_pairwise_fastas.png)  
 
 # SAT plot_pae
 This subcommand produces a PAE matrix plot when given a colabfold scores json file. The output file type is specified by the suffix of the out_image arguemnt.    

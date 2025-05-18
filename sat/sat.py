@@ -200,7 +200,61 @@ def main():
         This output file will be appended to if it already exists
         """,
     )
+
     parser_struc_get_iptm.set_defaults(func=call_struc_get_iptm)
+
+    # -------------------------------------------------------------------------------- #
+    # Parser for aln_dali_to_pairwise_fastas subcommand
+    # -------------------------------------------------------------------------------- #
+    parser_aln_dali_to_pairwise_fastas = subparsers.add_parser(
+        "aln_dali_to_pairwise_fastas",
+        help="""
+        Convert DALI alignments to pairwise FASTA files. This script takes a DALI 
+        alignment output file and converts each pairwise alignment into a separate 
+        FASTA file for easier downstream analysis.
+        
+        For each pairwise alignment in the DALI output, a separate FASTA file is created
+        with the naming pattern [query_id]__[target_id].fasta in the specified output directory.
+        Each FASTA file contains two sequences:
+        1. The query sequence from the alignment
+        2. The target sequence from the alignment
+        
+        If a structure key file is provided, DALI IDs will be converted to the corresponding
+        structure names found in the key file.
+        """,
+    )
+    parser_aln_dali_to_pairwise_fastas.add_argument(
+        "-a",
+        "--aln_file",
+        type=str,
+        required=True,
+        default="",
+        help="""
+        Path to the input DALI alignment file.
+        """,
+    )
+    parser_aln_dali_to_pairwise_fastas.add_argument(
+        "-o",
+        "--out_dir",
+        type=str,
+        required=True,
+        default="",
+        help="""
+        Directory to write the output FASTA files to.
+        """,
+    )
+    parser_aln_dali_to_pairwise_fastas.add_argument(
+        "-k",
+        "--key",
+        type=str,
+        required=False,
+        default="",
+        help="""
+        Path to a structure key file to convert DALI IDs to structure names.
+        """,
+    )
+
+    parser_aln_dali_to_pairwise_fastas.set_defaults(func=call_aln_dali_to_pairwise_fastas_main)
 
     # -------------------------------------------------------------------------------- #
     # Parser for struc_remove_redundant subcommand
@@ -2794,6 +2848,12 @@ def call_aln_ecod_purity_main(args):
     from scripts.aln_ecod_purity import aln_ecod_purity_main
 
     aln_ecod_purity_main(args)
+
+
+def call_aln_dali_to_pairwise_fastas_main(args):
+    from scripts.aln_dali_to_pairwise_fastas import aln_dali_to_pairwise_fastas_main
+
+    aln_dali_to_pairwise_fastas_main(args)
 
 
 def call_plot_pae_main(args):
