@@ -397,7 +397,7 @@ This subcommands takes in a DALI alignment file (which must have an alignments f
 ![`poetry run .github/tmp/sat_codex.py aln_dali_attributes -h`](.github/img/aln_dali_attributes.png)  
 
 # SAT aln_dali_to_pairwise_fastas
-This subcommand converts DALI alignments to individual pairwise FASTA files. For each alignment in the DALI output, a separate FASTA file is created with the naming pattern [query_id]__[target_id].fasta in the specified output directory.
+This subcommand converts DALI alignments to individual pairwise FASTA files. For each alignment in the DALI output, a separate FASTA file is created with the naming pattern [query_id]xxx[target_id].fasta in the specified output directory.
 
 Each FASTA file contains two sequences:
 1. The query sequence from the alignment (>query_id)
