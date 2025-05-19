@@ -209,9 +209,10 @@ def main():
     parser_aln_dali_to_pairwise_fastas = subparsers.add_parser(
         "aln_dali_to_pairwise_fastas",
         help="""
-        Convert DALI alignments to pairwise FASTA files. This script takes a DALI 
-        alignment output file and converts each pairwise alignment into a separate 
-        FASTA file for easier downstream analysis.
+        This subcommand converts the alignment fields of a DALI output file to pairwise
+        fasta files, one per alignment. The usecase here is typically when you are
+        trying to generate a structure-guided MSA. This means that, during the DALI 
+        run, the 'alignments' output field must have been included.
         
         For each pairwise alignment in the DALI output, a separate FASTA file is created
         with the naming pattern [query_id]xxx[target_id].fasta in the specified output directory.
