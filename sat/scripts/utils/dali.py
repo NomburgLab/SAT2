@@ -25,6 +25,9 @@ def parse_structure_key(structure_key_file, delim=",,", existing_dict=dict()):
                 msg = f"Have obseved a key, {key}, that is already present in"
                 msg += " key_to_structure! This means it may be present multiple times!"
                 raise ValueError(msg)
+            
+            # unfortuantely my structure keys end in .pdb, which is not needed.
+            structure = structure.rstrip(".pdb")
 
             key_to_structure[key] = structure
 
