@@ -190,8 +190,8 @@ class DALI_alignment:
         query = "x"
         target = "x"
         if key != "":
-            query = key.get(query_id, "x")[:-4]
-            target = key.get(target_id, "x")[:-4]
+            query = key.get(query_id, "x").replace(".pdb", "")
+            target = key.get(target_id, "x").replace(".pdb", "")
 
         # Load self
         self.query = query
