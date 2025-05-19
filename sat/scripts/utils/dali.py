@@ -27,7 +27,7 @@ def parse_structure_key(structure_key_file, delim=",,", existing_dict=dict()):
                 raise ValueError(msg)
             
             # unfortuantely my structure keys end in .pdb, which is not needed.
-            structure = structure.rstrip(".pdb")
+            structure = structure.replace(".pdb", "")
 
             key_to_structure[key] = structure
 
