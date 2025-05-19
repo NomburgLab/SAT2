@@ -61,7 +61,7 @@ def aln_dali_to_pairwise_fastas_main(args):
             continue
         
         # Create output filename
-        output_file = os.path.join(args.out_dir, f"{query_id}xxx{target_id}.fasta")
+        output_file = os.path.join(args.out_dir, f"{query_id}xxx{target_id}.fasta.aln")
         
         # Write the pairwise FASTA
         with open(output_file, 'w') as f:

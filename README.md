@@ -400,7 +400,7 @@ This subcommands takes in a DALI alignment file (which must have an alignments f
 # SAT aln_dali_to_pairwise_fastas
 This subcommand converts the alignment fields of a DALI output file to pairwise fasta files, one per alignment. The usecase here is typically when you are trying to generate a structure-guided MSA. This means that, during the DALI  run, the 'alignments' output field must have been included.
 
-For each pairwise alignment in the DALI output, a separate FASTA file is created with the naming pattern [query_id]xxx[target_id].fasta in the specified output directory. Each FASTA file contains two sequences:  
+For each pairwise alignment in the DALI output, a separate FASTA file is created with the naming pattern [query_id]xxx[target_id].fasta.aln in the specified output directory. Each FASTA file contains two sequences:  
 1. The query sequence from the alignment
 2. The target sequence from the alignment  
 
