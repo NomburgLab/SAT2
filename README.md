@@ -48,35 +48,35 @@ When you run the tests or the first time you run any taxonomy-related script, et
 # List of subcommands
 
 ## Structure-focused
-`sat.py struc_get_domains` - Uses chainsaw predicted domain boundaries to extract domains from structure files.  
-`sat.py struc_get_iptm` - Extract the iPTM value from a colanbfold json file.    
+`sat.py struc_detect_interaction` - For a co-folded prediction of two molecules, determine if the PAE matrix clusters across the molecules and suggests a potential interaction.  
+`sat.py struc_disorder` - Get information on the number of residues in an input structure that are considered disordered and ordered.  
 `sat.py struc_extract_chains` - Given an input structure file with multiple chains, write a new file with only the specified chain(s).  
 `sat.py struc_find_motif` - Checks if there is a motif in a structure or sequence input.  
-`sat.py struc_to_seq` - Prints the primary amino acid sequence of a structure to the screen or appends to a specified file in fasta format.  
-`sat.py struc_to_plddt` - Prints the average pLDDT of a structure to the screen or appends to a specified file.  
-`sat.py struc_rebase` - Rebases an input structure such that the first residue is residue #1, and all subsequent residues are sequential (e.g. removes numeric gaps present in discontinuous domains).  
-`sat.py struc_qc` - Get information on the fraction of residues that are at least a specified pLDDT - this can be good for filtration.  
-`sat.py struc_disorder` - Get information on the number of residues in an input structure that are considered disordered and ordered.  
-`sat.py struc_detect_interaction` - For a co-folded prediction of two molecules, determine if the PAE matrix clusters across the molecules and suggests a potential interaction.  
 `sat.py struc_get_contact_probability` - Determines the probability that two proteins are interacting. This will probably replace struc_detect_interaction.  
+`sat.py struc_get_domains` - Uses chainsaw predicted domain boundaries to extract domains from structure files.  
+`sat.py struc_get_iptm` - Extract the iPTM value from a colanbfold json file.    
+`sat.py struc_qc` - Get information on the fraction of residues that are at least a specified pLDDT - this can be good for filtration.  
+`sat.py struc_rebase` - Rebases an input structure such that the first residue is residue #1, and all subsequent residues are sequential (e.g. removes numeric gaps present in discontinuous domains).  
+`sat.py struc_to_plddt` - Prints the average pLDDT of a structure to the screen or appends to a specified file.  
+`sat.py struc_to_seq` - Prints the primary amino acid sequence of a structure to the screen or appends to a specified file in fasta format.  
 
 
 ## Alignment-focused
 `sat.py aln_add_clusters` - Adds foldseek clustering information to the foldseek tabular alignment file.  
-`sat.py aln_taxa_counts` - Returns counts at desired taxonomic levels within each foldseek cluster.  
-`sat.py aln_query_uniprot` - Lets you look up alphafold or uniprot IDs using the Uniprot REST API, and get the geneName and fullName (an informative protein name) for each.  
 `sat.py aln_add_uniprot` - After retreiving the uniprot unformation using aln_query_uniprot, adds the information as columns to the alignment file.  
-`sat.py aln_filter` - This filters for alignments below/above a specified value in a specified column, and can also filter to keep a maximum number of queries per alignment.  
-`sat.py aln_merge` - This merges two alignment files.  
 `sat.py aln_cluster` - This lets you do connected-component clustering, similar to foldseek/mmseqs cluster mode 1, but lets you have more control on filtering the alignments prior.  
+`sat.py aln_connection_map` - This takes a cluster file (that has taxonomy information) and reports, for every pair of families, the number of clusters that they share.  
+`sat.py aln_dali_attributes` -  Generates a csv file of aligned targets and queries and their attributes, such as qstart, qend, tstart, tend, etc.  
+`sat.py aln_dali_motif_finder` - This parses the 'alignments' block of a DALI output file, and checks if a given residue or motif is present in each target at an indicated position of the structural alignment.  
+`sat.py aln_dali_to_pariwise_fastas` - This subcommand converts the alignment fields of a DALI output file to pairwise fasta files, one per alignment. The usecase here is typically when you are trying to generate a structure-guided MSA.  
+`sat.py aln_filter` - This filters for alignments below/above a specified value in a specified column, and can also filter to keep a maximum number of queries per alignment.  
+`sat.py aln_generate_superclusters` - This takes in an all-by-all foldseek alignment and foldseek-reported clusters and identifies clusters that are linked (e.g. - some specified number of members of each cluster align to members of the other cluster). These clusters are then merged into a supercluster.  
+`sat.py aln_merge` - This merges two alignment files.  
 `sat.py aln_merge_clusters` - This takes in a cluster file and an alignment file of alignments between cluster representatives, and merges clusters whose representatives align.  
 `sat.py aln_parse_dali` - This parses a Dalilite alignment output into a tab-delimited format. It can also filter based on various alignment statistics.  
 `sat.py aln_parse_dali_matrix` - This parses a Dalilite matrix output - basically uses the DALI key to annotate it.  
-`sat.py aln_dali_motif_finder` - This parses the 'alignments' block of a DALI output file, and checks if a given residue or motif is present in each target at an indicated position of the structural alignment.  
-`sat.py aln_dali_attributes` -  Generates a csv file of aligned targets and queries and their attributes, such as qstart, qend, tstart, tend, etc.  
-`sat.py aln_dali_to_pariwise_fastas` - This subcommand converts the alignment fields of a DALI output file to pairwise fasta files, one per alignment. The usecase here is typically when you are trying to generate a structure-guided MSA.  
-`sat.py aln_generate_superclusters` - This takes in an all-by-all foldseek alignment and foldseek-reported clusters and identifies clusters that are linked (e.g. - some specified number of members of each cluster align to members of the other cluster). These clusters are then merged into a supercluster.  
-`sat.py aln_connection_map` - This takes a cluster file (that has taxonomy information) and reports, for every pair of families, the number of clusters that they share.  
+`sat.py aln_query_uniprot` - Lets you look up alphafold or uniprot IDs using the Uniprot REST API, and get the geneName and fullName (an informative protein name) for each.  
+`sat.py aln_taxa_counts` - Returns counts at desired taxonomic levels within each foldseek cluster.  
 `sat.py aln_trim_target` - Trim the fasta sequences of target accessions from alignment files to the longest or shortest target alignment length.
 
 ## Sequence-focused  
@@ -91,174 +91,31 @@ When you run the tests or the first time you run any taxonomy-related script, et
 ## Manipulation of tabular files  
 `sat.py tab_add_taxonomy` - If there is a column in a file with taxonomy IDs, this script looks up the lineage and adds the lineage to each line as a column.   
 
-# SAT struc_get_domains
-Extract separate domain structures from a predicted structure.  
-This uses the chainsaw predicted domain boundaries to extract domains from pdb structure files. 
-<!-- RICH-CODEX hide_command: true -->
-![`poetry run .github/tmp/sat_codex.py struc_get_domains -h`](.github/img/struc_get_domains.png)  
-
-# SAT struc_get_iptm  
-Extract the iPTM value from the colabfold json. Appends to an output file with format {json_basename}\t{iptm}\n. 
-<!-- RICH-CODEX hide_command: true -->
-![`poetry run .github/tmp/sat_codex.py struc_get_iptm -h`](.github/img/struc_get_iptm.png)  
-
-# SAT struc_find_motif
-Given a motif of structure [OPTIONS]xxx[OPTIONS]xx, where x indicates any amino acid and [] indicate any of the amino acids present within the brackets, this returns the match and position start/end of the motif present in the input sequence.  
-
-The input can be a structure file, a fasta, or just a sequence. The output is tab-delimited and printed to the screen, with the columns  
-- match  
-- start   
-- end   
-<!-- RICH-CODEX hide_command: true -->
-![`poetry run .github/tmp/sat_codex.py struc_find_motif -h`](.github/img/struc_find_motif.png) 
-
-# SAT struc_extract_chains
-This subcommand extracts one or more chains from an input structure, and writes them to a new pdb file. The desired chains should be input as a comma-delimited string.  
-<!-- RICH-CODEX hide_command: true -->
-![`poetry run .github/tmp/sat_codex.py struc_extract_chains -h`](.github/img/struc_extract_chains.png) 
-
-# SAT struc_qc
-Given a structure, determines the percentage of residues that have at least the specified pLDDT. The output is returned to STDOUT!! It is tab-delimited and has the following columns:   
-- structure_file (the basename of the file, including suffix)  
-- number of residues  
-- number of residues that pass the pLDDT threshold  
-- proportion of residues that pass the pLDDT threshold (this will be a decimal between 0 and 1)
-<!-- RICH-CODEX hide_command: true -->
-![`poetry run .github/tmp/sat_codex.py struc_qc -h`](.github/img/struc_qc.png) 
-
-# SAT struc_detect_interaction
-This subcommand takes in a structure predction (PDB file) and its associated PAE file (from colabfold) that was generated with AF Multimer between two molecules. Thus, the structure prediction should have two chains, A and B. This script clusters the PAE matrix and determins if a cluster contains residues from both chains - if so, the molecules are considered to have an interaction. This script also counts the number of residues of each chain that have a C-alpha  within a specified agstrom distance from a C-alpha from the other chain.  
-
-It is assumed the input structure has a delimiter which indicates the two members that were folded together - this delimiter can be provided.  
-
-The output file is tab-delimited with the following columns:  
-- member1  
-- member2  
-- interaction (True or False)  
-- number of residues in chain1
-- number of residues in chain2
-- number of residues in chain1 that are present in cross-chain clusters  
-- number of residues in chain2 that are present in corss-chain clusters  
-- fraction of residues in chain 1 that are present in cross-chain clusters  
-- fraction of residues in chain 2 that are present in cross-chain clusters  
-- The number of residues in chain1 that have a C-alpha within distance_cutoff angstroms of a C-alpha from chain2.  
-- The number of residues in chain2 that have a C-alpha within distance_cutoff angstroms of a C-alpha from chain1.  
-<!-- RICH-CODEX hide_command: true -->
-![`poetry run .github/tmp/sat_codex.py struc_detect_interaction -h`](.github/img/struc_detect_interaction.png) 
-
-# SAT struc_disorder
-This takes an input structure and calculates the number of residues that are considered ordered, disordered, or intermediate. A residue is considered ordered if it is in a stretch of at least n_sequential residues that have a pLDDT of >= order_cutoff. A residue is considered disordered if it is in a stretech of at least n_sequential residues <= disorder_cutoff.  
-
-This returns an output file with the following columns:  
-- basename of the input structure  
-- number of ordered residues  
-- number of disordered residues   
-- number of intermediate residues (neither ordered or disordered)  
-- total number of residues  
-- there_is_a_domain: yes or no. This checks that there is at least one stretech of continuous residues that have ordered pLDDTs. The required stretch size is args.check_for_domain_len  
-<!-- RICH-CODEX hide_command: true -->
-![`poetry run .github/tmp/sat_codex.py struc_disorder -h`](.github/img/struc_disorder.png) 
-
-# SAT struc_to_seq
-Simple subcommand to produce the amino-acid sequence from a structure file.  
-
-Can append the sequence to an outfile if provided, or will print to screen.
-<!-- RICH-CODEX hide_command: true -->
-![`poetry run .github/tmp/sat_codex.py struc_to_seq -h`](.github/img/struc_to_seq.png)  
-
-
-# SAT struc_to_plddt
-Simple subcommand that returns the average plddt of the input structure file. If --out_file is not specified, the average plddt is simply printed to the screen. If --out_file is specified, the output file will be APPENDED to with the following: [basename input structure_file]\\t[plddt]\\n
-<!-- RICH-CODEX hide_command: true -->
-![`poetry run .github/tmp/sat_codex.py struc_to_plddt -h`](.github/img/struc_to_plddt.png)  
-
-
-# SAT struc_rebase
-Simple subcommand that renumbers all residues in a structure such that the first residue is #1 and all residues are sequential (e.g. it takes out numeric gaps in residue numbers).
-<!-- RICH-CODEX hide_command: true -->
-![`poetry run .github/tmp/sat_codex.py struc_rebase -h`](.github/img/struc_rebase.png)  
-
-
-# SAT seq_chunk
-Splits entries into a fasta into overlapping or non-overlapping chunks. This is helpful when you want to split up sequences that are too long to effectively use for structure prediction. This subcommand is able to generate overlapping sequences. 
-<!-- RICH-CODEX hide_command: true -->
-![`poetry run .github/tmp/sat_codex.py seq_chunk -h`](.github/img/seq_chunk.png)  
-
-# SAT seq_multimerize  
- This subcommand combines input fastas to generate a multimierzed fasta containing :'s separating sequence. The cardinality of the input files can be specified to generate different kinds of homo- or hetero-complexes.
-<!-- RICH-CODEX hide_command: true -->
-![`poetry run .github/tmp/sat_codex.py seq_multimerize -h`](.github/img/seq_multimerize.png)  
-
-# SAT seq_parse_genbank   
-This subcommand parses a genbank file (based on a nuclear accesion!) into an output fasta and an output table.
-
-The output fasta will have headers with the following information:
-{genome_acc}{args.delimiter}{protein_id}{args.delimiter}{locus_tag}{args.delimiter}{protein_order}
-This is equivelant to the "output_name"
-
-The output table is CSV FORMATTED, with the following columns:
-{output_name},{genome_acc},{locus_tag},{protein_id},{start},{end},{strand},{protein_order},{organism_name},{protein_name}
-
-Note that if you desire to only process a subset of genbank entires, you can provide a file with the genome accessions (no version!) that you desire.
-<!-- RICH-CODEX hide_command: true -->
-![`poetry run .github/tmp/sat_codex.py seq_parse_genbank -h`](.github/img/seq_parse_genbank.png)  
-
-# SAT seq_split_fasta
-This subcommand parses a fasta file with multiple entries into multiple fasta files with one entry each.
-<!-- RICH-CODEX hide_command: true -->
-![`poetry run .github/tmp/sat_codex.py seq_split_fasta -h`](.github/img/seq_split_fasta.png) 
-
-# SAT struc_download
-This subcommand takes in a file of uniprot IDs and downloads the AF2 database pdb and pae files to the indicated directory. Furthermore, if any additional information is present in the tabular infile it will be appended to the output files - this is a good way to lable the files with information like taxonomyID, etc.
-<!-- RICH-CODEX hide_command: true -->
-![`poetry run .github/tmp/sat_codex.py struc_download -h`](.github/img/struc_download.png)  
-
-
-# SAT aln_taxa_counts
-This takes in a cluster file (required columns are cluster_ID, cluster_rep, cluster_member, and cluster_count) and tallies up the taxons for each cluster. It makes a tidy file for each cluster where, for every taxon at every level, it specifies the count. The cluster file is assumed to be generated from an all-by-all alignment, perhaps with some additional merging steps. If you are also interested in adding taxonomy count information for the targets of a search of the cluster members against a separate database, you can enter an alignment file to this script. In the event an alignment file is provided, taxonIDs from the TARGET will be added to the cluster_ID of the QUERY.  
-            
-The output file has the following columns:  
-cluster_ID, cluster_rep, cluster_count, superkingdom, level, taxon, count.  
-
-<!-- RICH-CODEX hide_command: true -->
-![`poetry run .github/tmp/sat_codex.py aln_taxa_counts -h`](.github/img/aln_taxa_counts.png)  
-
-# SAT aln_query_uniprot
-This script takes alphafold IDs (or raw uniprot IDs) and uses the Uniprot REST API to get information on the geneName and fullName (an informative name of the protein) for each ID. You can specify in which column of the infile the IDs live.
-<!-- RICH-CODEX hide_command: true -->
-![`poetry run .github/tmp/sat_codex.py aln_query_uniprot -h`](.github/img/aln_query_uniprot.png)  
-
-
 # SAT aln_add_uniprot
 This script adds the uniprot information garther from aln_query_uniprot to a foldseek alignment file.
 <!-- RICH-CODEX hide_command: true -->
 ![`poetry run .github/tmp/sat_codex.py aln_add_uniprot -h`](.github/img/aln_add_uniprot.png)  
 
+# SAT aln_cluster
+This subcommand generates clusters from an input alignment file, where every query-target pair will be put into the same cluster.  
 
-# SAT aln_filter
-This subcommand filters a foldseek alignment file to keep only those alignments with a value below/above the specified value in a field (alntmscore is a common one). It also only outputs a maximum of N alignments for each query.
+This subcommand basically does what mmseqs/foldseek cluster mode 1 does (e.g. connected-compontent clustering). Here, any two members that are aligned will end up in the same cluster. Because of this strong clustering, the alignment file should be strinctly filtered to only keep those alignments with high coverage and high confidence (e.g. high TMscore from foldseek or high z score from DALI).  
+
+The output file is essentially a foldseek/mmseqs cluster file with two columns: cluster_rep, cluster_member.  
+
+The optional --all_inputs switch can be used to provide information for all members that initially were input to the alignment. If provided, the output cluster file will include those members that aren't present in the alignment file as a cluster with only one member (themselves). This is very useful because the alignment file should be strictly filtered prior to using this script, so many of the items inputted to foldseek or mmseqs won't be present in the alignment file.  
 <!-- RICH-CODEX hide_command: true -->
-![`poetry run .github/tmp/sat_codex.py aln_filter -h`](.github/img/aln_filter.png)  
+![`poetry run .github/tmp/sat_codex.py aln_cluster -h`](.github/img/aln_cluster.png)  
 
-# SAT aln_parse_dali
-This subcommand reads in a DALI alignment output file and formats it as a tab-delimited file. This script will written to the specified output file. There is also functionality to filter the alignments by zscore, alnlen, coverage, or rmsd.  
-There are two main inputs:  
-1) alignment_file: This is the DALI alignment file. Notably, the first output field MUST BE the 'summary' and the second output field MUST BE 'equivalences'
-2) structure_key: DALI only processes files that have a 4-digit identifier. The structure key must be of format structure[delimiter]identifier, and lets you convert the identifiers back to the actual structure name. Note that the structure_key identifiers should not have the DALI segment (e.g. A, B, C...) at the end - this will be taken care of.  
-
-The qlen field of the output is dependent on their being a self alignment in the alignment file, as then the qlen=tlen. If not present, qlen will be listed as 0.  
-            
-Note also the coverage is determined by alnlen/max(qlen, tlen)  
-
-The output file is a .m8 file (e.g. tab delimited) and has the following columns: query, target, query_id, target_id, alnlen, qlen, tlen, cov, pident, rmsd, z
+# SAT aln_connection_map
+This subcommand takes in a cluster file that has taxonomy information (critically - family) and determines, for each pair of families, how many clusters exist in which both families have a member.
 <!-- RICH-CODEX hide_command: true -->
-![`poetry run .github/tmp/sat_codex.py aln_parse_dali -h`](.github/img/aln_parse_dali.png)  
+![`poetry run .github/tmp/sat_codex.py aln_aln_connection_mapecod_purity -h`](.github/img/aln_connection_map.png)  
 
-# SAT aln_parse_dali_matrix
-This subcommand takes in a DALI matrix file and/or a DALI dendogram files, and uses the
-specified key to convert each ID to its proper name.
+# SAT aln_dali_attributes
+This subcommands takes in a DALI alignment file (which must have an alignments field) and a key to generate a csv file of aligned targets and queries and their attributes, such as qstart, qend, tstart, tend, etc.
 <!-- RICH-CODEX hide_command: true -->
-![`poetry run .github/tmp/sat_codex.py aln_parse_dali_matrix -h`](.github/img/aln_parse_dali_matrix.png)  
+![`poetry run .github/tmp/sat_codex.py aln_dali_attributes -h`](.github/img/aln_dali_attributes.png)  
 
 # SAT aln_dali_motif_finder
 This subcommand parses a DALI alignments field (specified by the 'alignments' output format) and determines, for each target, if a specified motif or series of motifs is present at specified locations. The output of this script is a a file with two columns - target and target_id - for those targets that contain all indicated motifs. Note that adding a DALI key is optional, in which case 'target' will be blank. See below for detailed instructions about how to input motifs.
@@ -313,42 +170,6 @@ This is a complicated string with many sublists. I will describe them iterateive
 <!-- RICH-CODEX hide_command: true -->
 ![`poetry run .github/tmp/sat_codex.py aln_dali_motif_finder -h`](.github/img/aln_dali_motif_finder.png)  
 
-# SAT aln_trim_target_fasta
-This subcommand trims the fasta sequences of target accessions from alignment files to the longest (0) or shortest(1) target alignment length.
-<!-- RICH-CODEX hide_command: true -->
-![`poetry run .github/tmp/sat_codex.py aln_trim_target_fasta -h`](.github/img/aln_trim_target_fasta.png) 
-
-# SAT aln_merge
-This subcommand is used to merge two foldseek alignment files.
-<!-- RICH-CODEX hide_command: true -->
-![`poetry run .github/tmp/sat_codex.py aln_merge -h`](.github/img/aln_merge.png)  
-
-# SAT aln_cluster
-This subcommand generates clusters from an input alignment file, where every query-target pair will be put into the same cluster.  
-
-This subcommand basically does what mmseqs/foldseek cluster mode 1 does (e.g. connected-compontent clustering). Here, any two members that are aligned will end up in the same cluster. Because of this strong clustering, the alignment file should be strinctly filtered to only keep those alignments with high coverage and high confidence (e.g. high TMscore from foldseek or high z score from DALI).  
-
-The output file is essentially a foldseek/mmseqs cluster file with two columns: cluster_rep, cluster_member.  
-
-The optional --all_inputs switch can be used to provide information for all members that initially were input to the alignment. If provided, the output cluster file will include those members that aren't present in the alignment file as a cluster with only one member (themselves). This is very useful because the alignment file should be strictly filtered prior to using this script, so many of the items inputted to foldseek or mmseqs won't be present in the alignment file.  
-<!-- RICH-CODEX hide_command: true -->
-![`poetry run .github/tmp/sat_codex.py aln_cluster -h`](.github/img/aln_cluster.png)  
-
-# SAT aln_merge_clusters
-This subcommand takes in a cluster file and alignments between the REPRESENTATIVES of the clusters, and merges clusters whose representatives align together.
-<!-- RICH-CODEX hide_command: true -->
-![`poetry run .github/tmp/sat_codex.py aln_merge_clusters -h`](.github/img/aln_merge_clusters.png)  
-
-# SAT aln_connection_map
-This subcommand takes in a cluster file that has taxonomy information (critically - family) and determines, for each pair of families, how many clusters exist in which both families have a member.
-<!-- RICH-CODEX hide_command: true -->
-![`poetry run .github/tmp/sat_codex.py aln_aln_connection_mapecod_purity -h`](.github/img/aln_connection_map.png)  
-
-# SAT aln_dali_attributes
-This subcommands takes in a DALI alignment file (which must have an alignments field) and a key to generate a csv file of aligned targets and queries and their attributes, such as qstart, qend, tstart, tend, etc.
-<!-- RICH-CODEX hide_command: true -->
-![`poetry run .github/tmp/sat_codex.py aln_dali_attributes -h`](.github/img/aln_dali_attributes.png)  
-
 # SAT aln_dali_to_pairwise_fastas
 This subcommand converts the alignment fields of a DALI output file to pairwise fasta files, one per alignment. The usecase here is typically when you are trying to generate a structure-guided MSA. This means that, during the DALI  run, the 'alignments' output field must have been included.
 
@@ -360,15 +181,146 @@ If a structure key file is provided, DALI IDs will be converted to the correspon
 <!-- RICH-CODEX hide_command: true -->
 ![`poetry run .github/tmp/sat_codex.py aln_dali_to_pairwise_fastas -h`](.github/img/aln_dali_to_pairwise_fastas.png)  
 
+# SAT aln_filter
+This subcommand filters a foldseek alignment file to keep only those alignments with a value below/above the specified value in a field (alntmscore is a common one). It also only outputs a maximum of N alignments for each query.
+<!-- RICH-CODEX hide_command: true -->
+![`poetry run .github/tmp/sat_codex.py aln_filter -h`](.github/img/aln_filter.png)  
+
+# SAT aln_merge
+This subcommand is used to merge two foldseek alignment files.
+<!-- RICH-CODEX hide_command: true -->
+![`poetry run .github/tmp/sat_codex.py aln_merge -h`](.github/img/aln_merge.png)  
+
+# SAT aln_merge_clusters
+This subcommand takes in a cluster file and alignments between the REPRESENTATIVES of the clusters, and merges clusters whose representatives align together.
+<!-- RICH-CODEX hide_command: true -->
+![`poetry run .github/tmp/sat_codex.py aln_merge_clusters -h`](.github/img/aln_merge_clusters.png)  
+
+# SAT aln_parse_dali
+This subcommand reads in a DALI alignment output file and formats it as a tab-delimited file. This script will written to the specified output file. There is also functionality to filter the alignments by zscore, alnlen, coverage, or rmsd.  
+There are two main inputs:  
+1) alignment_file: This is the DALI alignment file. Notably, the first output field MUST BE the 'summary' and the second output field MUST BE 'equivalences'
+2) structure_key: DALI only processes files that have a 4-digit identifier. The structure key must be of format structure[delimiter]identifier, and lets you convert the identifiers back to the actual structure name. Note that the structure_key identifiers should not have the DALI segment (e.g. A, B, C...) at the end - this will be taken care of.  
+
+The qlen field of the output is dependent on their being a self alignment in the alignment file, as then the qlen=tlen. If not present, qlen will be listed as 0.  
+            
+Note also the coverage is determined by alnlen/max(qlen, tlen)  
+
+The output file is a .m8 file (e.g. tab delimited) and has the following columns: query, target, query_id, target_id, alnlen, qlen, tlen, cov, pident, rmsd, z
+<!-- RICH-CODEX hide_command: true -->
+![`poetry run .github/tmp/sat_codex.py aln_parse_dali -h`](.github/img/aln_parse_dali.png)  
+
+# SAT aln_parse_dali_matrix
+This subcommand takes in a DALI matrix file and/or a DALI dendogram files, and uses the
+specified key to convert each ID to its proper name.
+<!-- RICH-CODEX hide_command: true -->
+![`poetry run .github/tmp/sat_codex.py aln_parse_dali_matrix -h`](.github/img/aln_parse_dali_matrix.png)  
+
+# SAT aln_query_uniprot
+This script takes alphafold IDs (or raw uniprot IDs) and uses the Uniprot REST API to get information on the geneName and fullName (an informative name of the protein) for each ID. You can specify in which column of the infile the IDs live.
+<!-- RICH-CODEX hide_command: true -->
+![`poetry run .github/tmp/sat_codex.py aln_query_uniprot -h`](.github/img/aln_query_uniprot.png)  
+
+# SAT aln_taxa_counts
+This takes in a cluster file (required columns are cluster_ID, cluster_rep, cluster_member, and cluster_count) and tallies up the taxons for each cluster. It makes a tidy file for each cluster where, for every taxon at every level, it specifies the count. The cluster file is assumed to be generated from an all-by-all alignment, perhaps with some additional merging steps. If you are also interested in adding taxonomy count information for the targets of a search of the cluster members against a separate database, you can enter an alignment file to this script. In the event an alignment file is provided, taxonIDs from the TARGET will be added to the cluster_ID of the QUERY.  
+            
+The output file has the following columns:  
+cluster_ID, cluster_rep, cluster_count, superkingdom, level, taxon, count.  
+
+<!-- RICH-CODEX hide_command: true -->
+![`poetry run .github/tmp/sat_codex.py aln_taxa_counts -h`](.github/img/aln_taxa_counts.png)  
+
+# SAT aln_trim_target_fasta
+This subcommand trims the fasta sequences of target accessions from alignment files to the longest (0) or shortest(1) target alignment length.
+<!-- RICH-CODEX hide_command: true -->
+![`poetry run .github/tmp/sat_codex.py aln_trim_target_fasta -h`](.github/img/aln_trim_target_fasta.png) 
+
 # SAT plot_pae
 This subcommand produces a PAE matrix plot when given a colabfold scores json file. The output file type is specified by the suffix of the out_image arguemnt.    
 <!-- RICH-CODEX hide_command: true -->
 ![`poetry run .github/tmp/sat_codex.py plot_pae -h`](.github/img/plot_pae.png)  
 
-# SAT tab_add_taxonomy  
-Adds taxonomy information to any file. There must be a column named 'taxid', that contains each taxon ID. This file will essentially add additional columns, one per desired taxonomy level, with the corresponding taxon names.  
+# SAT seq_chunk
+Splits entries into a fasta into overlapping or non-overlapping chunks. This is helpful when you want to split up sequences that are too long to effectively use for structure prediction. This subcommand is able to generate overlapping sequences. 
 <!-- RICH-CODEX hide_command: true -->
-![`poetry run .github/tmp/sat_codex.py tab_add_taxonomy -h`](.github/img/tab_add_taxonomy.png)  
+![`poetry run .github/tmp/sat_codex.py seq_chunk -h`](.github/img/seq_chunk.png)  
+
+# SAT seq_multimerize  
+ This subcommand combines input fastas to generate a multimierzed fasta containing :'s separating sequence. The cardinality of the input files can be specified to generate different kinds of homo- or hetero-complexes.
+<!-- RICH-CODEX hide_command: true -->
+![`poetry run .github/tmp/sat_codex.py seq_multimerize -h`](.github/img/seq_multimerize.png)  
+
+# SAT seq_parse_genbank   
+This subcommand parses a genbank file (based on a nuclear accesion!) into an output fasta and an output table.
+
+The output fasta will have headers with the following information:
+{genome_acc}{args.delimiter}{protein_id}{args.delimiter}{locus_tag}{args.delimiter}{protein_order}
+This is equivelant to the "output_name"
+
+The output table is CSV FORMATTED, with the following columns:
+{output_name},{genome_acc},{locus_tag},{protein_id},{start},{end},{strand},{protein_order},{organism_name},{protein_name}
+
+Note that if you desire to only process a subset of genbank entires, you can provide a file with the genome accessions (no version!) that you desire.
+<!-- RICH-CODEX hide_command: true -->
+![`poetry run .github/tmp/sat_codex.py seq_parse_genbank -h`](.github/img/seq_parse_genbank.png)  
+
+# SAT seq_split_fasta
+This subcommand parses a fasta file with multiple entries into multiple fasta files with one entry each.
+<!-- RICH-CODEX hide_command: true -->
+![`poetry run .github/tmp/sat_codex.py seq_split_fasta -h`](.github/img/seq_split_fasta.png) 
+
+# SAT struc_detect_interaction
+This subcommand takes in a structure predction (PDB file) and its associated PAE file (from colabfold) that was generated with AF Multimer between two molecules. Thus, the structure prediction should have two chains, A and B. This script clusters the PAE matrix and determins if a cluster contains residues from both chains - if so, the molecules are considered to have an interaction. This script also counts the number of residues of each chain that have a C-alpha  within a specified agstrom distance from a C-alpha from the other chain.  
+
+It is assumed the input structure has a delimiter which indicates the two members that were folded together - this delimiter can be provided.  
+
+The output file is tab-delimited with the following columns:  
+- member1  
+- member2  
+- interaction (True or False)  
+- number of residues in chain1
+- number of residues in chain2
+- number of residues in chain1 that are present in cross-chain clusters  
+- number of residues in chain2 that are present in corss-chain clusters  
+- fraction of residues in chain 1 that are present in cross-chain clusters  
+- fraction of residues in chain 2 that are present in cross-chain clusters  
+- The number of residues in chain1 that have a C-alpha within distance_cutoff angstroms of a C-alpha from chain2.  
+- The number of residues in chain2 that have a C-alpha within distance_cutoff angstroms of a C-alpha from chain1.  
+<!-- RICH-CODEX hide_command: true -->
+![`poetry run .github/tmp/sat_codex.py struc_detect_interaction -h`](.github/img/struc_detect_interaction.png) 
+
+# SAT struc_disorder
+This takes an input structure and calculates the number of residues that are considered ordered, disordered, or intermediate. A residue is considered ordered if it is in a stretch of at least n_sequential residues that have a pLDDT of >= order_cutoff. A residue is considered disordered if it is in a stretech of at least n_sequential residues <= disorder_cutoff.  
+
+This returns an output file with the following columns:  
+- basename of the input structure  
+- number of ordered residues  
+- number of disordered residues   
+- number of intermediate residues (neither ordered or disordered)  
+- total number of residues  
+- there_is_a_domain: yes or no. This checks that there is at least one stretech of continuous residues that have ordered pLDDTs. The required stretch size is args.check_for_domain_len  
+<!-- RICH-CODEX hide_command: true -->
+![`poetry run .github/tmp/sat_codex.py struc_disorder -h`](.github/img/struc_disorder.png) 
+
+# SAT struc_download
+This subcommand takes in a file of uniprot IDs and downloads the AF2 database pdb and pae files to the indicated directory. Furthermore, if any additional information is present in the tabular infile it will be appended to the output files - this is a good way to lable the files with information like taxonomyID, etc.
+<!-- RICH-CODEX hide_command: true -->
+![`poetry run .github/tmp/sat_codex.py struc_download -h`](.github/img/struc_download.png)  
+
+# SAT struc_extract_chains
+This subcommand extracts one or more chains from an input structure, and writes them to a new pdb file. The desired chains should be input as a comma-delimited string.  
+<!-- RICH-CODEX hide_command: true -->
+![`poetry run .github/tmp/sat_codex.py struc_extract_chains -h`](.github/img/struc_extract_chains.png) 
+
+# SAT struc_find_motif
+Given a motif of structure [OPTIONS]xxx[OPTIONS]xx, where x indicates any amino acid and [] indicate any of the amino acids present within the brackets, this returns the match and position start/end of the motif present in the input sequence.  
+
+The input can be a structure file, a fasta, or just a sequence. The output is tab-delimited and printed to the screen, with the columns  
+- match  
+- start   
+- end   
+<!-- RICH-CODEX hide_command: true -->
+![`poetry run .github/tmp/sat_codex.py struc_find_motif -h`](.github/img/struc_find_motif.png) 
 
 # SAT struc_get_contact_probability  
 This script calculates the internal contact probability between two chains folded using colabfold. This can be from any model type (e.g. alphafold2_multimer_v3, or even alphafold2_ptm) as long as two chains were predicted using colabfold.  
@@ -391,6 +343,48 @@ The output file is tab delimited and has the following columns, with one line pe
 - contact probability (highest cross-chain residue-residue contact probability as discussed above)   
 <!-- RICH-CODEX hide_command: true -->
 ![`poetry run .github/tmp/sat_codex.py struc_get_contact_probability -h`](.github/img/struc_get_contact_probability.png)  
+
+# SAT struc_get_domains
+Extract separate domain structures from a predicted structure.  
+This uses the chainsaw predicted domain boundaries to extract domains from pdb structure files. 
+<!-- RICH-CODEX hide_command: true -->
+![`poetry run .github/tmp/sat_codex.py struc_get_domains -h`](.github/img/struc_get_domains.png)  
+
+# SAT struc_get_iptm  
+Extract the iPTM value from the colabfold json. Appends to an output file with format {json_basename}\t{iptm}\n. 
+<!-- RICH-CODEX hide_command: true -->
+![`poetry run .github/tmp/sat_codex.py struc_get_iptm -h`](.github/img/struc_get_iptm.png)  
+
+# SAT struc_qc
+Given a structure, determines the percentage of residues that have at least the specified pLDDT. The output is returned to STDOUT!! It is tab-delimited and has the following columns:   
+- structure_file (the basename of the file, including suffix)  
+- number of residues  
+- number of residues that pass the pLDDT threshold  
+- proportion of residues that pass the pLDDT threshold (this will be a decimal between 0 and 1)
+<!-- RICH-CODEX hide_command: true -->
+![`poetry run .github/tmp/sat_codex.py struc_qc -h`](.github/img/struc_qc.png) 
+
+# SAT struc_rebase
+Simple subcommand that renumbers all residues in a structure such that the first residue is #1 and all residues are sequential (e.g. it takes out numeric gaps in residue numbers).
+<!-- RICH-CODEX hide_command: true -->
+![`poetry run .github/tmp/sat_codex.py struc_rebase -h`](.github/img/struc_rebase.png)  
+
+# SAT struc_to_plddt
+Simple subcommand that returns the average plddt of the input structure file. If --out_file is not specified, the average plddt is simply printed to the screen. If --out_file is specified, the output file will be APPENDED to with the following: [basename input structure_file]\\t[plddt]\\n
+<!-- RICH-CODEX hide_command: true -->
+![`poetry run .github/tmp/sat_codex.py struc_to_plddt -h`](.github/img/struc_to_plddt.png)  
+
+# SAT struc_to_seq
+Simple subcommand to produce the amino-acid sequence from a structure file.  
+
+Can append the sequence to an outfile if provided, or will print to screen.
+<!-- RICH-CODEX hide_command: true -->
+![`poetry run .github/tmp/sat_codex.py struc_to_seq -h`](.github/img/struc_to_seq.png)  
+
+# SAT tab_add_taxonomy  
+Adds taxonomy information to any file. There must be a column named 'taxid', that contains each taxon ID. This file will essentially add additional columns, one per desired taxonomy level, with the corresponding taxon names.  
+<!-- RICH-CODEX hide_command: true -->
+![`poetry run .github/tmp/sat_codex.py tab_add_taxonomy -h`](.github/img/tab_add_taxonomy.png)  
 
 
 # Planned improvements
