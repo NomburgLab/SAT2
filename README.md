@@ -64,13 +64,12 @@ When you run the tests or the first time you run any taxonomy-related script, et
 ## Alignment-focused
 `sat.py aln_add_clusters` - Adds foldseek clustering information to the foldseek tabular alignment file.  
 `sat.py aln_add_uniprot` - After retreiving the uniprot unformation using aln_query_uniprot, adds the information as columns to the alignment file.  
-`sat.py aln_cluster` - This lets you do connected-component clustering, similar to foldseek/mmseqs cluster mode 1, but lets you have more control on filtering the alignments prior.  
+`sat.py aln_connected_component` - Generates connected component clusters from an alignment file. All query-target pairs that are connected will be placed into the same cluster.  
 `sat.py aln_connection_map` - This takes a cluster file (that has taxonomy information) and reports, for every pair of families, the number of clusters that they share.  
 `sat.py aln_dali_attributes` -  Generates a csv file of aligned targets and queries and their attributes, such as qstart, qend, tstart, tend, etc.  
 `sat.py aln_dali_motif_finder` - This parses the 'alignments' block of a DALI output file, and checks if a given residue or motif is present in each target at an indicated position of the structural alignment.  
 `sat.py aln_dali_to_pariwise_fastas` - This subcommand converts the alignment fields of a DALI output file to pairwise fasta files, one per alignment. The usecase here is typically when you are trying to generate a structure-guided MSA.  
 `sat.py aln_filter` - This filters for alignments below/above a specified value in a specified column, and can also filter to keep a maximum number of queries per alignment.  
-`sat.py aln_generate_superclusters` - This takes in an all-by-all foldseek alignment and foldseek-reported clusters and identifies clusters that are linked (e.g. - some specified number of members of each cluster align to members of the other cluster). These clusters are then merged into a supercluster.  
 `sat.py aln_merge` - This merges two alignment files.  
 `sat.py aln_merge_clusters` - Merges two cluster files by adding a higher-level clustering to a nested cluster file.  
 `sat.py aln_parse_dali` - This parses a Dalilite alignment output into a tab-delimited format. It can also filter based on various alignment statistics.  
@@ -96,16 +95,15 @@ This script adds the uniprot information garther from aln_query_uniprot to a fol
 <!-- RICH-CODEX hide_command: true -->
 ![`poetry run .github/tmp/sat_codex.py aln_add_uniprot -h`](.github/img/aln_add_uniprot.png)  
 
-# SAT aln_cluster
-This subcommand generates clusters from an input alignment file, where every query-target pair will be put into the same cluster.  
+# SAT aln_connected_component
+This subcommand generates connected component clusters from an alignment file. All query-target pairs that are connected (directly or transitively) will be placed into the same cluster. This is similar to foldseek/mmseqs cluster mode 1 (connected-component clustering).
 
-This subcommand basically does what mmseqs/foldseek cluster mode 1 does (e.g. connected-compontent clustering). Here, any two members that are aligned will end up in the same cluster. Because of this strong clustering, the alignment file should be strinctly filtered to only keep those alignments with high coverage and high confidence (e.g. high TMscore from foldseek or high z score from DALI).  
+The output is a foldseek-style cluster file with two columns: `cluster_rep` and `cluster_member`. The cluster representative is selected randomly from each cluster.
 
-The output file is essentially a foldseek/mmseqs cluster file with two columns: cluster_rep, cluster_member.  
+Column names can be auto-detected if the first line of the alignment file starts with "query". Otherwise, provide column names via `--colnames` as a comma-delimited list (must include "query" and "target").
 
-The optional --all_inputs switch can be used to provide information for all members that initially were input to the alignment. If provided, the output cluster file will include those members that aren't present in the alignment file as a cluster with only one member (themselves). This is very useful because the alignment file should be strictly filtered prior to using this script, so many of the items inputted to foldseek or mmseqs won't be present in the alignment file.  
 <!-- RICH-CODEX hide_command: true -->
-![`poetry run .github/tmp/sat_codex.py aln_cluster -h`](.github/img/aln_cluster.png)  
+![`poetry run .github/tmp/sat_codex.py aln_connected_component -h`](.github/img/aln_connected_component.png)  
 
 # SAT aln_connection_map
 This subcommand takes in a cluster file that has taxonomy information (critically - family) and determines, for each pair of families, how many clusters exist in which both families have a member.

@@ -220,99 +220,6 @@ def main():
     parser_aln_add_uniprot.set_defaults(func=call_aln_add_uniprot_main)
 
     # -------------------------------------------------------------------------------- #
-    # Parser for aln_cluster subcommand
-    # -------------------------------------------------------------------------------- #
-    parser_aln_cluster = subparsers.add_parser(
-        "aln_cluster",
-        help=(
-            """
-            This subcommand generates clusters from an input alignment file, where
-            every query-target pair will be put into the same cluster.
-
-            This subcommand basically does what mmseqs/foldseek cluster mode 1 does
-            (e.g. connected-compontent clustering). Here, any two members that are
-            aligned will end up in the same cluster. Because of this strong clustering,
-            the alignment file should be strinctly filtered to only keep those
-            alignments with high coverage and high confidence (e.g. high TMscore from
-            foldseek or high z score from DALI).
-
-            The output file is essentially a foldseek/mmseqs cluster file with two
-            columns: cluster_rep, cluster_member.
-
-            The optional --all_inputs switch can be used to provide information for
-            all members that initially were input to the alignment. If provided, the
-            output cluster file will include those members that aren't present in the
-            alignment file as a cluster with only one member (themselves). This is
-            very useful because the alignment file should be strictly filtered prior
-            to using this script, so many of the items inputted to foldseek or mmseqs
-            won't be present in the alignment file.
-            """
-        ),
-    )
-    parser_aln_cluster.add_argument(
-        "-a",
-        "--alignment_file",
-        type=str,
-        required=True,
-        default="",
-        help="""
-        Path to the foldseek alignment file.
-        """,
-    )
-    parser_aln_cluster.add_argument(
-        "-o",
-        "--outfile",
-        type=str,
-        required=True,
-        default="",
-        help="""
-        Path to output cluster file. The columns will be:
-        cluster_rep, cluster_member, cluster_ID, subcluster_rep.
-        - cluster_rep: the supercluster rep derived from this script.
-        - cluster_member: the member
-        - cluster_ID: A number indicating the ranking of each cluster based on number
-          of members. 1 indicates the cluster is the largest.
-        - subcluster_rep: this is the original cluster_rep in the input file.
-        """,
-    )
-    parser_aln_cluster.add_argument(
-        "-f",
-        "--alignment_fields",
-        type=str,
-        required=False,
-        default="",
-        help="""
-        [Default: '']
-        A comma-delimited string of the fields in the input foldseek alignment file.
-        Make sure to wrap in quotes!
-        """,
-    )
-    parser_aln_cluster.add_argument(
-        "-A",
-        "--all_inputs",
-        type=str,
-        required=False,
-        default="",
-        help="""
-        [Default: '']
-        Path to a file that lists, one per line, all files that were intially input
-        into the alignment algorithm. Those members who did not make an alignment
-        prior to filtering and then putting the alignment file into this script are not
-        in the alignment_file, and thus wouldn't end up in the cluster_file output...
-        By specifying the members here, the un-aligned members will be output into the
-        cluster file as clusters of one member.
-
-        The input file should indicate the basename of each structure (if using
-        foldseek) or sequence (if using mmseqs) that was initially input into the
-        alignment, with one member per line. If the alignment was from foldseek, odds
-        are that the alignment file queries/targets all end in .pdb - so the entries
-        in this file must also end in .pdb. For mmseqs, odds are the query/targets don't
-        have a file suffix, so they shouldn't here.
-        """,
-    )
-    parser_aln_cluster.set_defaults(func=call_aln_cluster)
-
-    # -------------------------------------------------------------------------------- #
     # Parser for aln_connection_map subcommand
     # -------------------------------------------------------------------------------- #
     parser_aln_connection_map = subparsers.add_parser(
@@ -588,106 +495,6 @@ def main():
     parser_aln_filter.set_defaults(func=call_aln_filter_main)
 
     # -------------------------------------------------------------------------------- #
-    # Parser for aln_generate_superclusters subcommand
-    # -------------------------------------------------------------------------------- #
-    parser_aln_generate_superclusters = subparsers.add_parser(
-        "aln_generate_superclusters",
-        help=(
-            """
-            This subcommand takes in a foldseek cluster file and foldseek alignments
-            and generates 'superclusters' by grouping subclusters that have a certain
-            fraction of cross-cluster alignments. Specifically, if two clusters have
-            at linkage_threshold fraction of members of at least one cluster aligned
-            to the other cluster, they are considered 'linked'. Then, superclusters are
-            created for groups of clusters that are all linked to one another. So,
-            all subclusters in a supercluster are linked to every other subcluster
-            in that supercluster.
-
-            This file generates a file with a similar format to the foldseek cluster
-            file. It contains the columns cluster_rep, cluster_member, cluster_ID, and
-            subcluster_rep (aka the original foldseek rep).
-            """
-        ),
-    )
-    parser_aln_generate_superclusters.add_argument(
-        "-a",
-        "--alignment_file",
-        type=str,
-        required=True,
-        default="",
-        help="""
-        Path to the foldseek alignment file.
-        """,
-    )
-    parser_aln_generate_superclusters.add_argument(
-        "-c",
-        "--cluster_file",
-        type=str,
-        required=True,
-        default="",
-        help="""
-        Path to cluster file. Typically, first two columns will be cluster_rep,
-        cluster_member. Subsequent columns can hold additional information, but that
-        is not used for this script. If a header is present in the file, column names
-        will be parsed (but first column must be cluster_rep). Otherwise, you can
-        specify the column names with the cluster_file_fields parameter.
-        """,
-    )
-    parser_aln_generate_superclusters.add_argument(
-        "-o",
-        "--outfile",
-        type=str,
-        required=True,
-        default="",
-        help="""
-        Path to output cluster file. The columns will be:
-        cluster_rep, cluster_member, cluster_ID, subcluster_rep.
-        - cluster_rep: the supercluster rep derived from this script.
-        - cluster_member: the member
-        - cluster_ID: A number indicating the ranking of each cluster based on number
-          of members. 1 indicates the cluster is the largest.
-        - subcluster_rep: this is the original cluster_rep in the input file.
-        """,
-    )
-    parser_aln_generate_superclusters.add_argument(
-        "-l",
-        "--linkage_threshold",
-        type=float,
-        required=False,
-        default=0.3,
-        help="""
-        [Default: 0.3]
-        A decimal value used for determining linkage between two clusters. For any two
-        clusters, at least linkage_threshold fraction of members of at least one
-        cluster must have alignments to members of the other cluster.
-        """,
-    )
-    parser_aln_generate_superclusters.add_argument(
-        "-f",
-        "--alignment_fields",
-        type=str,
-        required=False,
-        default="",
-        help="""
-        [Default: '']
-        A comma-delimited string of the fields in the input foldseek alignment file.
-        Make sure to wrap in quotes!
-        """,
-    )
-    parser_aln_generate_superclusters.add_argument(
-        "-F",
-        "--cluster_file_fields",
-        type=str,
-        required=False,
-        default="cluster_rep,cluster_member",
-        help="""
-        [Default: cluster_rep,cluster_member]
-        Comma-delimited string indicating the columns present in the cluster_file.
-        """,
-    )
-    parser_aln_generate_superclusters.set_defaults(func=call_aln_generate_superclusters)
-
-    # -------------------------------------------------------------------------------- #
     # Parser for aln_merge subcommand
     # -------------------------------------------------------------------------------- #
     parser_aln_merge = subparsers.add_parser(
@@ -843,6 +650,80 @@ def main():
         """,
     )
     parser_aln_merge_clusters.set_defaults(func=call_aln_merge_clusters_main)
+
+    # -------------------------------------------------------------------------------- #
+    # Parser for aln_connected_component subcommand
+    # -------------------------------------------------------------------------------- #
+    parser_aln_connected_component = subparsers.add_parser(
+        "aln_connected_component",
+        help=(
+            """
+            This subcommand generates connected component clusters from an alignment
+            file. All query-target pairs that are connected (directly or transitively)
+            will be placed into the same cluster. This is similar to foldseek/mmseqs
+            cluster mode 1 (connected-component clustering).
+
+            The output is a foldseek-style cluster file with two columns:
+            cluster_rep and cluster_member. The cluster representative is selected
+            randomly from each cluster.
+            """
+        ),
+    )
+    parser_aln_connected_component.add_argument(
+        "-a",
+        "--alignment_file",
+        type=str,
+        required=True,
+        help="""
+        Path to the alignment file. If the first row starts with 'query', it will
+        be automatically used as the header. Otherwise, provide column names via
+        --colnames.
+        """,
+    )
+    parser_aln_connected_component.add_argument(
+        "-o",
+        "--output_file",
+        type=str,
+        required=True,
+        help="""
+        Path to the output cluster file. The file will have two columns:
+        cluster_rep and cluster_member.
+        """,
+    )
+    parser_aln_connected_component.add_argument(
+        "-c",
+        "--colnames",
+        type=str,
+        required=False,
+        default="",
+        help="""
+        Comma-delimited string of column names in the alignment file. If not
+        provided, the first line of the file must start with 'query' and will
+        be used as the header. The column names must include 'query' and 'target'.
+        """,
+    )
+    parser_aln_connected_component.add_argument(
+        "-A",
+        "--all_inputs",
+        type=str,
+        required=False,
+        default="",
+        help="""
+        [Default: '']
+        Path to a file that lists, one per line, all members that were initially
+        input into the alignment algorithm. Members who did not make an alignment
+        (e.g., were filtered out) are not in the alignment file and thus wouldn't
+        end up in the cluster file output. By specifying those members here, they
+        will be output as single-member clusters.
+
+        The input file should indicate the basename of each structure (if using
+        foldseek) or sequence (if using mmseqs) that was initially input into the
+        alignment, with one member per line. If the alignment was from foldseek,
+        the alignment file queries/targets likely end in .pdb - so the entries in
+        this file must also end in .pdb.
+        """,
+    )
+    parser_aln_connected_component.set_defaults(func=call_aln_connected_component_main)
 
     # -------------------------------------------------------------------------------- #
     # Parser for aln_parse_dali subcommand
@@ -2390,16 +2271,16 @@ def call_aln_add_uniprot_main(args):
     aln_add_uniprot_main(args)
 
 
-def call_aln_cluster(args):
-    from scripts.aln_cluster import aln_cluster_main
-
-    aln_cluster_main(args)
-
-
 def call_aln_connection_map(args):
     from scripts.aln_connection_map import aln_connection_map_main
 
     aln_connection_map_main(args)
+
+
+def call_aln_connected_component_main(args):
+    from scripts.aln_connected_component import aln_connected_component_main
+
+    aln_connected_component_main(args)
 
 
 def call_aln_dali_alignment_attributes_main(args):
@@ -2424,12 +2305,6 @@ def call_aln_filter_main(args):
     from scripts.aln_filter import aln_filter_main
 
     aln_filter_main(args)
-
-
-def call_aln_generate_superclusters(args):
-    from scripts.aln_generate_superclusters import aln_generate_superclusters_main
-
-    aln_generate_superclusters_main(args)
 
 
 def call_aln_merge_clusters_main(args):
