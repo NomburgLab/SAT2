@@ -50,7 +50,6 @@ When you run the tests or the first time you run any taxonomy-related script, et
 ## Structure-focused
 `sat.py struc_get_domains` - Uses chainsaw predicted domain boundaries to extract domains from structure files.  
 `sat.py struc_get_iptm` - Extract the iPTM value from a colanbfold json file.    
-`sat.py struc_remove_redundant` - Removes domains that have strongly overlapping primary amino-acid sequences.   
 `sat.py struc_extract_chains` - Given an input structure file with multiple chains, write a new file with only the specified chain(s).  
 `sat.py struc_find_motif` - Checks if there is a motif in a structure or sequence input.  
 `sat.py struc_to_seq` - Prints the primary amino acid sequence of a structure to the screen or appends to a specified file in fasta format.  
@@ -64,14 +63,12 @@ When you run the tests or the first time you run any taxonomy-related script, et
 
 ## Alignment-focused
 `sat.py aln_add_clusters` - Adds foldseek clustering information to the foldseek tabular alignment file.  
-`sat.py aln_add_taxonomy` - DEPRICATED - Recommend using tab_add_taxonomy. ~~Adds specified taxonomic levels for the query and/or target of foldseek alignments.~~  
 `sat.py aln_taxa_counts` - Returns counts at desired taxonomic levels within each foldseek cluster.  
 `sat.py aln_query_uniprot` - Lets you look up alphafold or uniprot IDs using the Uniprot REST API, and get the geneName and fullName (an informative protein name) for each.  
 `sat.py aln_add_uniprot` - After retreiving the uniprot unformation using aln_query_uniprot, adds the information as columns to the alignment file.  
 `sat.py aln_filter` - This filters for alignments below/above a specified value in a specified column, and can also filter to keep a maximum number of queries per alignment.  
 `sat.py aln_merge` - This merges two alignment files.  
 `sat.py aln_cluster` - This lets you do connected-component clustering, similar to foldseek/mmseqs cluster mode 1, but lets you have more control on filtering the alignments prior.  
-`sat.py aln_expand_clusters` - When you use the cluster representatives from one clustering (often sequence-based) to cluster using another clustering (often structure based), will merge them.  
 `sat.py aln_merge_clusters` - This takes in a cluster file and an alignment file of alignments between cluster representatives, and merges clusters whose representatives align.  
 `sat.py aln_parse_dali` - This parses a Dalilite alignment output into a tab-delimited format. It can also filter based on various alignment statistics.  
 `sat.py aln_parse_dali_matrix` - This parses a Dalilite matrix output - basically uses the DALI key to annotate it.  
@@ -79,7 +76,6 @@ When you run the tests or the first time you run any taxonomy-related script, et
 `sat.py aln_dali_attributes` -  Generates a csv file of aligned targets and queries and their attributes, such as qstart, qend, tstart, tend, etc.  
 `sat.py aln_dali_to_pariwise_fastas` - This subcommand converts the alignment fields of a DALI output file to pairwise fasta files, one per alignment. The usecase here is typically when you are trying to generate a structure-guided MSA.  
 `sat.py aln_generate_superclusters` - This takes in an all-by-all foldseek alignment and foldseek-reported clusters and identifies clusters that are linked (e.g. - some specified number of members of each cluster align to members of the other cluster). These clusters are then merged into a supercluster.  
-`sat.py aln_ecod_purity` - This takes in a cluster file and the alignments between the cluster members and the ECOD HMM database and counts, for each ECOD level, the number of members per cluster.  
 `sat.py aln_connection_map` - This takes a cluster file (that has taxonomy information) and reports, for every pair of families, the number of clusters that they share.  
 `sat.py aln_trim_target` - Trim the fasta sequences of target accessions from alignment files to the longest or shortest target alignment length.
 
@@ -105,12 +101,6 @@ This uses the chainsaw predicted domain boundaries to extract domains from pdb s
 Extract the iPTM value from the colabfold json. Appends to an output file with format {json_basename}\t{iptm}\n. 
 <!-- RICH-CODEX hide_command: true -->
 ![`poetry run .github/tmp/sat_codex.py struc_get_iptm -h`](.github/img/struc_get_iptm.png)  
-
-# SAT struc_remove_redundant
-Given a glob specifying multiple structure (often domains), will remove structures that have an overlapping pirmary amino acid sequence.   
-Priority is given to the longer structure or, if the sequences are the same length, the structure with the highest pLDDT
-<!-- RICH-CODEX hide_command: true -->
-![`poetry run .github/tmp/sat_codex.py struc_remove_redundant -h`](.github/img/struc_remove_redundant.png)  
 
 # SAT struc_find_motif
 Given a motif of structure [OPTIONS]xxx[OPTIONS]xx, where x indicates any amino acid and [] indicate any of the amino acids present within the brackets, this returns the match and position start/end of the motif present in the input sequence.  
@@ -168,14 +158,6 @@ This returns an output file with the following columns:
 - there_is_a_domain: yes or no. This checks that there is at least one stretech of continuous residues that have ordered pLDDTs. The required stretch size is args.check_for_domain_len  
 <!-- RICH-CODEX hide_command: true -->
 ![`poetry run .github/tmp/sat_codex.py struc_disorder -h`](.github/img/struc_disorder.png) 
-
-# SAT aln_add_taxonomy
-Adds taxonomy information to a foldseek alignment  
-- Taxonomy for each query can be built in to the query_name as the final element of the double-underscore-delimited list.   
-- Taxonomy for each target can either be built in to the target name in a similar manner, or present as the taxid field in the foldseek output.  
-- This script adds the taxonomic names of the query and/or target at the specified levels.   
-<!-- RICH-CODEX hide_command: true -->
-![`poetry run .github/tmp/sat_codex.py aln_add_taxonomy -h`](.github/img/aln_add_taxonomy.png)  
 
 # SAT struc_to_seq
 Simple subcommand to produce the amino-acid sequence from a structure file.  
@@ -352,40 +334,10 @@ The optional --all_inputs switch can be used to provide information for all memb
 <!-- RICH-CODEX hide_command: true -->
 ![`poetry run .github/tmp/sat_codex.py aln_cluster -h`](.github/img/aln_cluster.png)  
 
-# SAT aln_expand_clusters
-This subcommand is used to merge cluster files from a teired pair of clustering, often first a sequence clustering and then a structure
-clustering. It it assumed that the 'subcluster file' representatives were the members subsequently clustered in the 'cluster file'. This script simply adds the members of each subcluster to the parent cluster in the cluster
-file.  
-
-Ideally, there will not be a cluster_ID column in the input cluster files. If there is, those cluster_IDs will be used. Otherwise, cluster_IDs will be generated which rank clusters by total members.  
-
-The output file has the following columns:  
-- cluster_ID  
-- cluster_rep  
-- subcluster_rep  
-- cluster_member  
-- cluster_count  
-
-<!-- RICH-CODEX hide_command: true -->
-![`poetry run .github/tmp/sat_codex.py aln_expand_clusters -h`](.github/img/aln_expand_clusters.png)  
-
 # SAT aln_merge_clusters
 This subcommand takes in a cluster file and alignments between the REPRESENTATIVES of the clusters, and merges clusters whose representatives align together.
 <!-- RICH-CODEX hide_command: true -->
 ![`poetry run .github/tmp/sat_codex.py aln_merge_clusters -h`](.github/img/aln_merge_clusters.png)  
-
-# SAT aln_ecod_purity
-This subcommand takes in a cluster file and an alignment file of those same members aligned (using an HMM approach) to the ECOD HMM database.  It takes in an ECOD information file that connects each ECOD accession to it's classification at various annotation levels. This script returns a tidy-format output file with, for each cluster, the counts of members with alignments against each ECOD entry.  
-The output columns are as follows:  
-- cluster_ID  
-- cluster_rep  
-- level  
-- value  
-- count  
-
-Note that this assumes that each member only has ONE alignment - e.g. the best ECOD alignment.  
-<!-- RICH-CODEX hide_command: true -->
-![`poetry run .github/tmp/sat_codex.py aln_ecod_purity -h`](.github/img/aln_ecod_purity.png)  
 
 # SAT aln_connection_map
 This subcommand takes in a cluster file that has taxonomy information (critically - family) and determines, for each pair of families, how many clusters exist in which both families have a member.

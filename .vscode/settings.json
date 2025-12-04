@@ -1,9 +1,10 @@
 {
+    "python.defaultInterpreterPath": "/opt/homebrew/Caskroom/miniconda/base/envs/SAT/bin/python",
     "python.linting.flake8Enabled": true,
     "python.linting.enabled": true,
     "python.formatting.provider": "none",
     "editor.formatOnSave": true,
-    "python.formatting.blackPath": "/usr/local/Caskroom/miniconda/base/envs/SAT/bin/black",
+    "python.formatting.blackPath": "/opt/homebrew/Caskroom/miniconda/base/envs/SAT/bin/black",
     "python.linting.flake8Args": [
         "--max-line-length=88"
     ],
