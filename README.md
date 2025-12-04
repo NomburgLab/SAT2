@@ -72,7 +72,7 @@ When you run the tests or the first time you run any taxonomy-related script, et
 `sat.py aln_filter` - This filters for alignments below/above a specified value in a specified column, and can also filter to keep a maximum number of queries per alignment.  
 `sat.py aln_generate_superclusters` - This takes in an all-by-all foldseek alignment and foldseek-reported clusters and identifies clusters that are linked (e.g. - some specified number of members of each cluster align to members of the other cluster). These clusters are then merged into a supercluster.  
 `sat.py aln_merge` - This merges two alignment files.  
-`sat.py aln_merge_clusters` - This takes in a cluster file and an alignment file of alignments between cluster representatives, and merges clusters whose representatives align.  
+`sat.py aln_merge_clusters` - Merges two cluster files by adding a higher-level clustering to a nested cluster file.  
 `sat.py aln_parse_dali` - This parses a Dalilite alignment output into a tab-delimited format. It can also filter based on various alignment statistics.  
 `sat.py aln_parse_dali_matrix` - This parses a Dalilite matrix output - basically uses the DALI key to annotate it.  
 `sat.py aln_query_uniprot` - Lets you look up alphafold or uniprot IDs using the Uniprot REST API, and get the geneName and fullName (an informative protein name) for each.  
@@ -192,7 +192,45 @@ This subcommand is used to merge two foldseek alignment files.
 ![`poetry run .github/tmp/sat_codex.py aln_merge -h`](.github/img/aln_merge.png)  
 
 # SAT aln_merge_clusters
-This subcommand takes in a cluster file and alignments between the REPRESENTATIVES of the clusters, and merges clusters whose representatives align together.
+This subcommand merges two cluster files by adding a higher-level clustering to a nested cluster file. 
+
+**File1** contains the higher-level clustering (e.g., `lol_rep` -> `struc_rep`).  
+**File2** contains the lower-level/nested clustering (e.g., `struc_rep` -> `seq_rep` -> `member`).  
+
+The second column of file1 is joined to the first column of file2. File suffixes (e.g., `.pdb`, `.fasta`) are automatically removed from all values.
+
+**Example:**
+
+File1 (higher-level clustering):
+```
+lol_rep    struc_rep
+A          A
+A          D
+E          E
+```
+
+File2 (nested clustering):
+```
+struc_rep  seq_rep  member
+A          B        B
+A          B        C
+D          D        D
+E          E        E
+E          F        F
+```
+
+Output:
+```
+lol_rep    struc_rep  seq_rep  member
+A          A          B        B
+A          A          B        C
+A          D          D        D
+E          E          E        E
+E          E          F        F
+```
+
+Column names can be parsed from the first line of each file (default), or provided via `--file1_colnames` and `--file2_colnames` as comma-delimited lists.
+
 <!-- RICH-CODEX hide_command: true -->
 ![`poetry run .github/tmp/sat_codex.py aln_merge_clusters -h`](.github/img/aln_merge_clusters.png)  
 

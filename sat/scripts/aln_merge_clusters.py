@@ -1,191 +1,220 @@
-from .utils.Foldseek_Dataset import Foldseek_Dataset
+import os
+import re
+
 from .utils.misc import talk_to_me, make_output_dir
-from .utils.clusters import Cluster_information
-from .aln_generate_superclusters import Super_cluster
 
 
 # ------------------------------------------------------------------------------------ #
 # Functions
 # ------------------------------------------------------------------------------------ #
-def generate_basic_linkage_dict(alignments):
+def remove_file_suffix(value):
     """
-    alignments is a foldseek_dataset object. This function iterates through the
-    alignments and generates an output dictionary of linkages between members. Here,
-    two members are considered linked if they have any one alignment.
-
-    Output is:
-    member: set(members it aligns to)
-
-    Note that this will generate linkages for every member, query or target, rep or
-    not rep, present in the alignment_file. It isn't even looking at the cluster file.
+    Remove common file extensions from a value.
+    Handles extensions like .pdb, .fasta, .fa, .cif, .mmcif, .ent, .gz, etc.
+    Also handles double extensions like .pdb.gz
     """
-
-    linkage_dict = dict()
-    for _, alignment_group in alignments.alignment_groups.items():
-        for alignment in alignment_group.alignments:
-            if alignment.query not in linkage_dict:
-                linkage_dict[alignment.query] = set()
-            if alignment.target not in linkage_dict:
-                linkage_dict[alignment.target] = set()
-
-            linkage_dict[alignment.query].add(alignment.target)
-            linkage_dict[alignment.target].add(alignment.query)
-    return linkage_dict
-
-
-def get_superclusters_no_reciprocal(cluster_linkages):
-    """
-    Takes in linked_clusters, which is a dictionary of format
-    cluster: {set of clusters it is linked to}, which each cluster is represented by
-    the cluster representatives.
-
-    Returns superclusters, which is a list of sets, where each set is the members
-    of the supercluster.
-
-    Note that this function puts all reps that are linked into the same supercluster -
-    it doesn't check for linkage/alignments between cluster members.
-    """
-
-    scs = []
-    progress = 0
-    total = len(cluster_linkages)
-    for c1, linked_clusters in cluster_linkages.items():
-
-        progress += 1
-        if progress % 100 == 0:
-            print(f"get_superclusters - progress: {progress}/{total}")
-
-        if linked_clusters == set():
-            c1_sc = set([c1])
-            for sc in scs:
-                if c1 in sc:
-                    c1_sc = sc
-            if c1_sc == set([c1]):
-                scs.append(c1_sc)
-                continue
-
-        for c2 in linked_clusters:
-            c1_sc = set([c1])
-            c2_sc = set([c2])
-            for sc in scs:
-                if c1 in sc:
-                    c1_sc = sc
-                if c2 in sc:
-                    c2_sc = sc
-                if c1_sc != set([c1]) and c2_sc != set([c2]):
-                    break
-
-            if c1_sc == set([c1]) and c1_sc not in scs:
-                scs.append(c1_sc)
-            if c2_sc == set([c2]) and c2_sc not in scs:
-                scs.append(c2_sc)
-
-            merged_sc = c1_sc.union(c2_sc)
-            if c1_sc == c2_sc:
-                continue
-            scs.remove(c1_sc)
-            scs.remove(c2_sc)
-            scs.append(merged_sc)
-    return scs
-
-
-def generate_output(ordered_scs, cluster_information):
-    """
-    Takes in ordered_scs, which is a list of supercluster objects. Then iterates through
-    each subcluster rep (e.g. sc.member), converts them to their members via
-    cluster_rep_to_members, and returns an output string with the columns
-    cluster_rep, cluster_member, cluster_ID, subcluster_rep.
-
-    all_members is a set of all members that should be observed - this is a sanity check
-    """
-
-    out = [
-        "cluster_rep",
-        "cluster_member",
-        "cluster_ID",
-        "cluster_count",
-        "old_rep",
+    # Common bioinformatics file extensions
+    extensions = [
+        r"\.pdb\.gz$",
+        r"\.cif\.gz$",
+        r"\.fasta\.gz$",
+        r"\.fa\.gz$",
+        r"\.pdb$",
+        r"\.cif$",
+        r"\.mmcif$",
+        r"\.ent$",
+        r"\.fasta$",
+        r"\.fa$",
+        r"\.faa$",
+        r"\.fna$",
+        r"\.ffn$",
+        r"\.frn$",
     ]
-    out = "\t".join(out) + "\n"
-    total_members_observed = 0
-    for sc in ordered_scs:
-        cluster_rep = sc.largest_subcluster_rep_name
-        cluster_id = sc.id
-        cluster_count = sc.total_supercluster_members
-        for old_rep in sc.members:
-            subcluster_members = cluster_information.cluster_rep_to_members[old_rep]
-            total_members_observed += len(subcluster_members)
-            for member in subcluster_members:
-                out += f"{cluster_rep}\t{member}\t{cluster_id}\t"
-                out += f"{cluster_count}\t{old_rep}\n"
 
-    if len(cluster_information.all_members) != total_members_observed:
-        msg = "Total number of cluster members/original alignment items in the cluster "
-        msg += "file doesn't match the number of members observed in superclusters! "
-        msg += "Total clustered members in input cluster file: "
-        msg += f"{len(cluster_information.all_members)}, total observed members: "
-        msg += f"{total_members_observed}"
-        raise ValueError(msg)
-    return out
+    result = value
+    for ext in extensions:
+        result = re.sub(ext, "", result, flags=re.IGNORECASE)
+    return result
+
+
+def parse_cluster_file(filepath, colnames=None):
+    """
+    Parse a cluster file (simple 2-column or nested multi-column).
+
+    Args:
+        filepath: Path to the cluster file
+        colnames: Optional list of column names. If None, assumes first line is header.
+
+    Returns:
+        tuple: (colnames list, list of row dicts)
+    """
+    rows = []
+
+    with open(filepath) as f:
+        lines = [line.rstrip("\n") for line in f if line.strip()]
+
+    if not lines:
+        raise ValueError(f"File {filepath} is empty!")
+
+    # Parse column names
+    first_line_parts = lines[0].split("\t")
+
+    if colnames is None or colnames == "":
+        # Assume first line is header
+        colnames = first_line_parts
+        talk_to_me(f"Using header from file: {colnames}")
+        data_start = 1
+    else:
+        # Use provided colnames
+        if isinstance(colnames, str):
+            colnames = [c.strip() for c in colnames.split(",")]
+        data_start = 0
+
+        # Check if first line looks like a header (matches our colnames)
+        if first_line_parts == colnames:
+            talk_to_me("First line matches provided column names, skipping as header.")
+            data_start = 1
+
+    # Parse data rows
+    for i, line in enumerate(lines[data_start:], start=data_start + 1):
+        parts = line.split("\t")
+        if len(parts) != len(colnames):
+            raise ValueError(
+                f"Line {i} has {len(parts)} columns but expected {len(colnames)}. "
+                f"Line: {line}"
+            )
+
+        # Remove file suffixes from all values
+        row = {col: remove_file_suffix(val) for col, val in zip(colnames, parts)}
+        rows.append(row)
+
+    return colnames, rows
+
+
+def merge_cluster_files(file1_colnames, file1_rows, file2_colnames, file2_rows):
+    """
+    Merge two cluster files by joining file1's second column to file2's first column.
+
+    Args:
+        file1_colnames: Column names from file1 (higher-level clustering)
+        file1_rows: Row dicts from file1
+        file2_colnames: Column names from file2 (lower-level/nested clustering)
+        file2_rows: Row dicts from file2
+
+    Returns:
+        tuple: (output_colnames, output_rows, unmatched_count)
+            - unmatched_count: number of file2 rows where the first column value
+              was not found in file1's second column (these get "X" as higher-level value)
+    """
+    # Get the join columns
+    file1_join_col = file1_colnames[1]  # Second column of file1
+    file2_join_col = file2_colnames[0]  # First column of file2
+
+    # Build lookup from file1: maps file1's second column value to file1's first column value
+    # Also track all other columns from file1 if there are more than 2
+    file1_lookup = {}
+    file1_extra_cols = file1_colnames[2:] if len(file1_colnames) > 2 else []
+
+    for row in file1_rows:
+        key = row[file1_join_col]
+        if key in file1_lookup:
+            # Check consistency - same key should map to same higher-level value
+            existing = file1_lookup[key]
+            if existing[file1_colnames[0]] != row[file1_colnames[0]]:
+                raise ValueError(
+                    f"Inconsistent mapping in file1: '{key}' maps to both "
+                    f"'{existing[file1_colnames[0]]}' and '{row[file1_colnames[0]]}'"
+                )
+        else:
+            file1_lookup[key] = row
+
+    # Build output column names:
+    # file1's first column + any extra file1 columns + all file2 columns
+    output_colnames = [file1_colnames[0]] + file1_extra_cols + file2_colnames
+
+    # Build output rows
+    output_rows = []
+    unmatched_count = 0
+
+    for row2 in file2_rows:
+        join_value = row2[file2_join_col]
+
+        # Build output row
+        out_row = {}
+
+        if join_value in file1_lookup:
+            row1 = file1_lookup[join_value]
+            # Add file1's first column (the new highest level)
+            out_row[file1_colnames[0]] = row1[file1_colnames[0]]
+            # Add any extra columns from file1
+            for col in file1_extra_cols:
+                out_row[col] = row1[col]
+        else:
+            # Value not found in file1 - use "X" for all file1 columns
+            unmatched_count += 1
+            out_row[file1_colnames[0]] = "X"
+            for col in file1_extra_cols:
+                out_row[col] = "X"
+
+        # Add all columns from file2
+        for col in file2_colnames:
+            out_row[col] = row2[col]
+
+        output_rows.append(out_row)
+
+    return output_colnames, output_rows, unmatched_count
+
+
+def write_output(output_file, colnames, rows):
+    """
+    Write the merged cluster file.
+    """
+    make_output_dir(output_file)
+
+    with open(output_file, "w") as f:
+        # Write header
+        f.write("\t".join(colnames) + "\n")
+        # Write data rows
+        for row in rows:
+            values = [row[col] for col in colnames]
+            f.write("\t".join(values) + "\n")
 
 
 # ------------------------------------------------------------------------------------ #
 # Main
 # ------------------------------------------------------------------------------------ #
 def aln_merge_clusters_main(args):
+    """
+    Merge two cluster files by adding a higher-level clustering to a nested cluster file.
 
-    talk_to_me("Parsing inputs.")
-    data = Foldseek_Dataset()
-    data.parse_alignment(args.alignment_file, args.alignment_fields)
-    clusters = Cluster_information()
-    clusters.parse_cluster_file(args.cluster_file, args.cluster_file_fields)
+    File1 contains the higher-level clustering (e.g., lol_rep -> struc_rep).
+    File2 contains the lower-level/nested clustering (e.g., struc_rep -> seq_rep -> member).
 
-    talk_to_me("Generating linkage dict and finding superclusters.")
-    linkage_dict = generate_basic_linkage_dict(data)
-    superclusters = get_superclusters_no_reciprocal(linkage_dict)
+    The second column of file1 is joined to the first column of file2.
+    """
 
-    # Write to super_cluster objects
-    talk_to_me("Generating supercluster objects.")
-    scs = []
-    seen_reps = set()
-    total_clusters_obseved = 0
-    for sc in superclusters:
-        sc_object = Super_cluster(sc)
-        sc_object.get_all_members(clusters.cluster_rep_to_members)
-        scs.append(sc_object)
-        for cluster in sc:
-            total_clusters_obseved += 1
-            seen_reps.add(cluster)
+    talk_to_me("Parsing file1 (higher-level clustering).")
+    file1_colnames, file1_rows = parse_cluster_file(args.file1, args.file1_colnames)
 
-    # Generate supercluster objects for those cluster entries that didn't have
-    # alignments
-    for cluster in set(clusters.clusters.keys()) - seen_reps:
-        total_clusters_obseved += 1
-        sc_object = Super_cluster(cluster)
-        sc_object.get_all_members(clusters.cluster_rep_to_members)
-        scs.append(sc_object)
+    talk_to_me("Parsing file2 (lower-level/nested clustering).")
+    file2_colnames, file2_rows = parse_cluster_file(args.file2, args.file2_colnames)
 
-    # Sanity check
-    if total_clusters_obseved != len(clusters.clusters):
-        msg = "Have not encountered all clusters that are present in the input cluster"
-        msg += f" file! Observed: {total_clusters_obseved}, in cluster file: "
-        msg += f"{len(clusters.cluster_rep_to_members)}"
-        raise ValueError(msg)
+    talk_to_me("Merging cluster files.")
+    output_colnames, output_rows, unmatched_count = merge_cluster_files(
+        file1_colnames, file1_rows, file2_colnames, file2_rows
+    )
 
-    # Order by total # of members
-    ordered_scs = sorted(scs, key=lambda x: x.total_supercluster_members)[::-1]
+    if unmatched_count > 0:
+        talk_to_me(
+            f"WARNING: {unmatched_count} rows in file2 had values in the first column "
+            f"that were not found in file1's second column. These rows have 'X' as "
+            f"their higher-level cluster value."
+        )
 
-    # Label each supercluster with its ID
-    i = 0
-    for sc in ordered_scs:
-        i += 1
-        sc.id = i
+    talk_to_me(f"Writing output with columns: {output_colnames}")
+    write_output(args.output_file, output_colnames, output_rows)
 
-    talk_to_me("Writing output.")
-    out = generate_output(ordered_scs, clusters)
-    make_output_dir(args.output_file)
-    with open(args.output_file, "w") as outfile:
-        outfile.write(out)
+    talk_to_me(f"Done! Wrote {len(output_rows)} rows to {args.output_file}")
 
 
 if __name__ == "__main__":

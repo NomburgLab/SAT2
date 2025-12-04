@@ -1,0 +1,7 @@
+struc_rep	seq_rep	member
+A.pdb	B.fasta	B.fasta
+A.pdb	B.fasta	C.fasta
+D.pdb	D.fasta	D.fasta
+E.pdb	E.fasta	E.fasta
+E.pdb	F.fasta	F.fasta
+

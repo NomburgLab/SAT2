@@ -1,0 +1,7 @@
+struc_rep	member
+A.pdb	A.pdb
+A.pdb	B.pdb
+D.pdb	D.pdb
+E.pdb	E.pdb
+E.pdb	F.pdb
+

@@ -782,28 +782,35 @@ def main():
         "aln_merge_clusters",
         help=(
             """
-            This subcommand takes in a cluster file and alignments between the
-            REPRESENTATIVES of the clusters, and merges clusters whose representatives
-            align together.
+            This subcommand merges two cluster files by adding a higher-level clustering
+            to a nested cluster file. File1 contains the higher-level clustering
+            (e.g., lol_rep -> struc_rep). File2 contains the lower-level/nested
+            clustering (e.g., struc_rep -> seq_rep -> member). The second column of
+            file1 is joined to the first column of file2. File suffixes (e.g., .pdb,
+            .fasta) are automatically removed from all values.
             """
         ),
     )
     parser_aln_merge_clusters.add_argument(
-        "-a",
-        "--alignment_file",
+        "-1",
+        "--file1",
         type=str,
         required=True,
         help="""
-        Path the alignment file.
+        Path to the higher-level cluster file. This file's second column will be
+        joined to file2's first column. Can be a simple 2-column file (rep, member)
+        or a nested file with more columns.
         """,
     )
     parser_aln_merge_clusters.add_argument(
-        "-c",
-        "--cluster_file",
+        "-2",
+        "--file2",
         type=str,
         required=True,
         help="""
-        Path the cluster file.
+        Path to the lower-level/nested cluster file. This file's first column will
+        be joined to file1's second column. Can be a simple 2-column file or a
+        nested file with more columns.
         """,
     )
     parser_aln_merge_clusters.add_argument(
@@ -812,29 +819,27 @@ def main():
         type=str,
         required=True,
         help="""
-        Path the output cluster file, with clusters whose representatives align merged.
+        Path to the output merged cluster file.
         """,
     )
     parser_aln_merge_clusters.add_argument(
-        "-f",
-        "--alignment_fields",
+        "--file1_colnames",
         type=str,
         required=False,
         default="",
         help="""
-        Comma-delimited list of alignment fields if none are present as headers in the
-        alignment file.
+        Comma-delimited list of column names for file1. If not provided, the first
+        line of file1 will be used as the header.
         """,
     )
     parser_aln_merge_clusters.add_argument(
-        "-F",
-        "--cluster_file_fields",
+        "--file2_colnames",
         type=str,
         required=False,
         default="",
         help="""
-        Comma-delimited list of cluster file fields if none are present as headers in
-        the cluster file.
+        Comma-delimited list of column names for file2. If not provided, the first
+        line of file2 will be used as the header.
         """,
     )
     parser_aln_merge_clusters.set_defaults(func=call_aln_merge_clusters_main)
