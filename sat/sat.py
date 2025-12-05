@@ -582,7 +582,12 @@ def main():
             (e.g., lol_rep -> struc_rep). File2 contains the lower-level/nested
             clustering (e.g., struc_rep -> seq_rep -> member). The second column of
             file1 is joined to the first column of file2. File suffixes (e.g., .pdb,
-            .fasta) are automatically removed from all values.
+            .fasta) are automatically removed from all values. 
+
+            If a value in file2's first column is not found in file1's second column,
+            it will be used as the higher-level cluster representative. This would be the case,
+            for example, if you generated the higher level cluster file from an alignment
+            and the protein didn't have any alignments.
             """
         ),
     )
