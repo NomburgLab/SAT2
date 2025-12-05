@@ -3,6 +3,20 @@
 import argparse
 
 
+def arg_str2bool(v):
+    """
+    For use as an argparse argument type. Makes it easy to use boolean flags.
+    """
+    if isinstance(v, bool):
+        return v
+    if v.lower() in ("yes", "true", "t", "y", "1"):
+        return True
+    elif v.lower() in ("no", "false", "f", "n", "0"):
+        return False
+    else:
+        raise argparse.ArgumentTypeError("Boolean value expected.")
+
+
 def main():
 
     # Top-level parser
@@ -1241,27 +1255,6 @@ def main():
     )
     parser_tab_add_taxonomy.set_defaults(func=call_parser_tab_add_taxonomy_main)
 
-    # ----------------------------------------------------------------------------------#
-    # Parse the args and call the function associated with the subcommand
-    # ----------------------------------------------------------------------------------#
-    args = parser.parse_args()
-    args.func(args)
-
-
-def arg_str2bool(v):
-    """
-    For use as an argparse argument type. Makes it easy to use boolean flags.
-    """
-    if isinstance(v, bool):
-        return v
-    if v.lower() in ("yes", "true", "t", "y", "1"):
-        return True
-    elif v.lower() in ("no", "false", "f", "n", "0"):
-        return False
-    else:
-        raise argparse.ArgumentTypeError("Boolean value expected.")
-
-
     # -------------------------------------------------------------------------------- #
     # Parser for plot_pae subcommand
     # -------------------------------------------------------------------------------- #
@@ -2249,6 +2242,13 @@ def arg_str2bool(v):
         """,
     )
     parser_struc_to_seq.set_defaults(func=call_struc_to_seq)
+
+    # ----------------------------------------------------------------------------------#
+    # Parse the args and call the function associated with the subcommand
+    # ----------------------------------------------------------------------------------#
+    args = parser.parse_args()
+    args.func(args)
+
 
 def call_aln_add_clusters(args):
     from scripts.aln_add_clusters import aln_add_clusters_main
