@@ -457,18 +457,6 @@ def main():
         """,
     )
     parser_aln_filter.add_argument(
-        "-N",
-        "--N",
-        type=int,
-        required=False,
-        default=0,
-        help="""
-        Default: 0
-        This is the maximum number of alignments to output for each query. Set to 0 if
-        you want to return all alignments.
-        """,
-    )
-    parser_aln_filter.add_argument(
         "-m",
         "--min_val_filter_field",
         type=float,

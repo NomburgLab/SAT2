@@ -150,11 +150,12 @@ def merge_cluster_files(file1_colnames, file1_rows, file2_colnames, file2_rows):
             for col in file1_extra_cols:
                 out_row[col] = row1[col]
         else:
-            # Value not found in file1 - use "X" for all file1 columns
+            # Value not found in file1 - use file2's first column value as its own
+            # higher-level representative (it becomes its own cluster)
             unmatched_count += 1
-            out_row[file1_colnames[0]] = "X"
+            out_row[file1_colnames[0]] = join_value
             for col in file1_extra_cols:
-                out_row[col] = "X"
+                out_row[col] = join_value
 
         # Add all columns from file2
         for col in file2_colnames:
@@ -206,9 +207,9 @@ def aln_merge_clusters_main(args):
 
     if unmatched_count > 0:
         talk_to_me(
-            f"WARNING: {unmatched_count} rows in file2 had values in the first column "
-            f"that were not found in file1's second column. These rows have 'X' as "
-            f"their higher-level cluster value."
+            f"NOTE: {unmatched_count} rows in file2 had values in the first column "
+            f"that were not found in file1's second column. These rows use their own "
+            f"first column value as the higher-level cluster representative."
         )
 
     talk_to_me(f"Writing output with columns: {output_colnames}")

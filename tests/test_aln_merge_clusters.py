@@ -175,7 +175,7 @@ def test_merge_cluster_files__simple_to_simple():
 
 
 def test_merge_cluster_files__missing_in_file1():
-    """Test when file2's first column value not found in file1 - should use 'X'."""
+    """Test when file2's first column value not found in file1 - uses its own value."""
     file1_colnames = ["lol_rep", "struc_rep"]
     file1_rows = [{"lol_rep": "A", "struc_rep": "A"}]
 
@@ -197,10 +197,10 @@ def test_merge_cluster_files__missing_in_file1():
     assert len(a_rows) == 1
     assert a_rows[0]["lol_rep"] == "A"
 
-    # Check the unmatched row has "X" for the higher-level column
+    # Check the unmatched row uses its own value as higher-level rep
     z_rows = [r for r in out_rows if r["member"] == "Z"]
     assert len(z_rows) == 1
-    assert z_rows[0]["lol_rep"] == "X"
+    assert z_rows[0]["lol_rep"] == "Z"  # Uses Z as its own higher-level rep
     assert z_rows[0]["struc_rep"] == "Z"
 
 
@@ -246,10 +246,11 @@ def test_merge_cluster_files__multiple_unmatched():
     assert unmatched_count == 3
     assert len(out_rows) == 4
 
-    # Check all unmatched rows have "X" for lol_rep
+    # Check all unmatched rows use their own struc_rep value as lol_rep
     for row in out_rows:
         if row["member"] != "A":
-            assert row["lol_rep"] == "X"
+            # lol_rep should equal struc_rep (uses its own value as higher-level rep)
+            assert row["lol_rep"] == row["struc_rep"]
 
 
 def test_merge_cluster_files__inconsistent_file1():
