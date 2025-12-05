@@ -66,7 +66,7 @@ When you run the tests or the first time you run any taxonomy-related script, et
 `sat.py aln_add_uniprot` - After retreiving the uniprot unformation using aln_query_uniprot, adds the information as columns to the alignment file.  
 `sat.py aln_connected_component` - Generates connected component clusters from an alignment file. All query-target pairs that are connected will be placed into the same cluster.  
 `sat.py aln_connection_map` - This takes a cluster file (that has taxonomy information) and reports, for every pair of families, the number of clusters that they share.  
-`sat.py aln_dali_attributes` -  Generates a csv file of aligned targets and queries and their attributes, such as qstart, qend, tstart, tend, etc.  
+`sat.py aln_dali_alignment_attributes` -  Generates a csv file of aligned targets and queries and their attributes, such as qstart, qend, tstart, tend, etc.  
 `sat.py aln_dali_motif_finder` - This parses the 'alignments' block of a DALI output file, and checks if a given residue or motif is present in each target at an indicated position of the structural alignment.  
 `sat.py aln_dali_to_pariwise_fastas` - This subcommand converts the alignment fields of a DALI output file to pairwise fasta files, one per alignment. The usecase here is typically when you are trying to generate a structure-guided MSA.  
 `sat.py aln_filter` - This filters for alignments below/above a specified value in a specified column, and can also filter to keep a maximum number of queries per alignment.  
@@ -110,10 +110,10 @@ This subcommand takes in a cluster file that has taxonomy information (criticall
 <!-- RICH-CODEX hide_command: true -->
 ![`poetry run .github/tmp/sat_codex.py aln_aln_connection_mapecod_purity -h`](.github/img/aln_connection_map.png)  
 
-# SAT aln_dali_attributes
+# SAT aln_dali_alignment_attributes
 This subcommands takes in a DALI alignment file (which must have an alignments field) and a key to generate a csv file of aligned targets and queries and their attributes, such as qstart, qend, tstart, tend, etc.
 <!-- RICH-CODEX hide_command: true -->
-![`poetry run .github/tmp/sat_codex.py aln_dali_attributes -h`](.github/img/aln_dali_attributes.png)  
+![`poetry run .github/tmp/sat_codex.py aln_dali_alignment_attributes -h`](.github/img/aln_dali_alignment_attributes.png)  
 
 # SAT aln_dali_motif_finder
 This subcommand parses a DALI alignments field (specified by the 'alignments' output format) and determines, for each target, if a specified motif or series of motifs is present at specified locations. The output of this script is a a file with two columns - target and target_id - for those targets that contain all indicated motifs. Note that adding a DALI key is optional, in which case 'target' will be blank. See below for detailed instructions about how to input motifs.

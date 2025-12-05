@@ -1,5 +1,5 @@
 import pytest
-from sat.scripts.aln_dali_attributes import (
+from sat.scripts.aln_dali_alignment_attributes import (
     DALI_alignment_attributes
 )
 

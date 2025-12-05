@@ -2277,7 +2277,7 @@ def call_aln_connected_component_main(args):
 
 
 def call_aln_dali_alignment_attributes_main(args):
-    from scripts.aln_dali_attributes import aln_dali_alignment_attributes_main
+    from scripts.aln_dali_alignment_attributes import aln_dali_alignment_attributes_main
 
     aln_dali_alignment_attributes_main(args)
 
