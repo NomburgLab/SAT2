@@ -107,9 +107,13 @@ def find_connected_components(pairs, all_inputs=None):
         if px != py:
             parent[px] = py
 
-    # Build union-find structure
+    # Build union-find structure - skip self-alignments as they don't connect anything
     for query, target in pairs:
-        union(query, target)
+        if query != target:  # Only process non-self alignments
+            union(query, target)
+        else:
+            # Still need to add self-aligned members to parent
+            find(query)
 
     # Track all seen members
     seen_members = set(parent.keys())
@@ -131,6 +135,54 @@ def find_connected_components(pairs, all_inputs=None):
             clusters.append({member})
 
     return clusters
+
+
+def analyze_alignment_connectivity(pairs):
+    """
+    Diagnostic function to analyze what's connecting clusters together.
+
+    Returns information about which alignments are responsible for
+    merging clusters. Useful for debugging why you might get one giant cluster.
+
+    Args:
+        pairs: list of (query, target) tuples
+
+    Returns:
+        dict with diagnostic information
+    """
+    # Count non-self alignments
+    non_self_alignments = [(q, t) for q, t in pairs if q != t]
+    self_alignments = [(q, t) for q, t in pairs if q == t]
+
+    # Find unique members
+    all_members = set()
+    for q, t in pairs:
+        all_members.add(q)
+        all_members.add(t)
+
+    # Build adjacency list for non-self alignments
+    adjacency = {}
+    for q, t in non_self_alignments:
+        if q not in adjacency:
+            adjacency[q] = set()
+        if t not in adjacency:
+            adjacency[t] = set()
+        adjacency[q].add(t)
+        adjacency[t].add(q)
+
+    # Find highly connected nodes (potential "hub" proteins)
+    connection_counts = {member: len(adjacency.get(member, set())) for member in all_members}
+    sorted_by_connections = sorted(connection_counts.items(), key=lambda x: -x[1])
+
+    return {
+        "total_pairs": len(pairs),
+        "self_alignments": len(self_alignments),
+        "non_self_alignments": len(non_self_alignments),
+        "unique_members": len(all_members),
+        "members_with_only_self_alignment": len(all_members) - len(adjacency),
+        "top_connected_members": sorted_by_connections[:10],
+        "non_self_alignment_examples": non_self_alignments[:20],
+    }
 
 
 def write_cluster_file(output_file, clusters):
@@ -172,6 +224,35 @@ def aln_connected_component_main(args):
     pairs = parse_alignment_file(args.alignment_file, args.colnames)
     talk_to_me(f"Found {len(pairs)} query-target pairs.")
 
+    # Diagnostic mode
+    if args.diagnose:
+        talk_to_me("Running diagnostic analysis...")
+        diag = analyze_alignment_connectivity(pairs)
+
+        print("\n" + "=" * 60)
+        print("DIAGNOSTIC REPORT")
+        print("=" * 60)
+        print(f"Total alignment pairs: {diag['total_pairs']}")
+        print(f"Self-alignments (A->A): {diag['self_alignments']}")
+        print(f"Non-self alignments (A->B): {diag['non_self_alignments']}")
+        print(f"Unique members: {diag['unique_members']}")
+        print(f"Members with ONLY self-alignment: {diag['members_with_only_self_alignment']}")
+        print()
+        print("Top 10 most connected members (potential hubs):")
+        for member, count in diag["top_connected_members"]:
+            print(f"  {member}: {count} connections")
+        print()
+        if diag["non_self_alignment_examples"]:
+            print("First 20 non-self alignments (these create connections):")
+            for q, t in diag["non_self_alignment_examples"]:
+                print(f"  {q} -> {t}")
+        else:
+            print("No non-self alignments found!")
+            print("This means all proteins should be in separate clusters.")
+        print("=" * 60 + "\n")
+
+        talk_to_me("Diagnostic complete. Continuing with clustering...")
+
     # Load all_inputs if provided
     all_inputs = None
     if args.all_inputs != "":
@@ -197,6 +278,11 @@ def aln_connected_component_main(args):
         talk_to_me(f"Added {singletons_added} members as single-member clusters.")
 
     talk_to_me(f"Found {len(clusters)} clusters.")
+
+    # Report largest cluster size
+    if clusters:
+        largest_cluster_size = max(len(c) for c in clusters)
+        talk_to_me(f"Largest cluster has {largest_cluster_size} members.")
 
     talk_to_me(f"Writing output to {args.output_file}")
     write_cluster_file(args.output_file, clusters)

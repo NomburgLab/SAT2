@@ -64,6 +64,7 @@ When you run the tests or the first time you run any taxonomy-related script, et
 ## Alignment-focused
 `sat.py aln_add_clusters` - Adds foldseek clustering information to the foldseek tabular alignment file.  
 `sat.py aln_add_uniprot` - After retreiving the uniprot unformation using aln_query_uniprot, adds the information as columns to the alignment file.  
+`sat.py aln_cigar_to_cov` - Adds CIGAR-derived coverage columns (cigar_qcov, cigar_tcov) to an alignment file by parsing the CIGAR string.  
 `sat.py aln_connected_component` - Generates connected component clusters from an alignment file. All query-target pairs that are connected will be placed into the same cluster.  
 `sat.py aln_connection_map` - This takes a cluster file (that has taxonomy information) and reports, for every pair of families, the number of clusters that they share.  
 `sat.py aln_dali_alignment_attributes` -  Generates a csv file of aligned targets and queries and their attributes, such as qstart, qend, tstart, tend, etc.  
@@ -94,6 +95,32 @@ When you run the tests or the first time you run any taxonomy-related script, et
 This script adds the uniprot information garther from aln_query_uniprot to a foldseek alignment file.
 <!-- RICH-CODEX hide_command: true -->
 ![`poetry run .github/tmp/sat_codex.py aln_add_uniprot -h`](.github/img/aln_add_uniprot.png)  
+
+# SAT aln_cigar_to_cov
+This subcommand adds CIGAR-derived coverage columns to an alignment file. It parses the CIGAR string to count the number of M (match) operations, then calculates:
+- `cigar_qcov` = #Ms / qlen (query coverage)
+- `cigar_tcov` = #Ms / tlen (target coverage)
+
+These columns are inserted directly after the `cigar` column in the output.
+
+The input alignment file must have `qlen`, `tlen`, and `cigar` columns. Column names can be auto-detected if the first line starts with "query", or provided via `--colnames` as a comma-delimited list.
+
+**Example:**
+
+Input:
+```
+query   target  qlen    tlen    cigar   evalue
+q1      t1      100     200     80M     1e-10
+```
+
+Output:
+```
+query   target  qlen    tlen    cigar   cigar_qcov  cigar_tcov  evalue
+q1      t1      100     200     80M     0.800       0.400       1e-10
+```
+
+<!-- RICH-CODEX hide_command: true -->
+![`poetry run .github/tmp/sat_codex.py aln_cigar_to_cov -h`](.github/img/aln_cigar_to_cov.png)  
 
 # SAT aln_connected_component
 This subcommand generates connected component clusters from an alignment file. All query-target pairs that are connected (directly or transitively) will be placed into the same cluster. This is similar to foldseek/mmseqs cluster mode 1 (connected-component clustering).

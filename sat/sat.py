@@ -497,6 +497,58 @@ def main():
     parser_aln_filter.set_defaults(func=call_aln_filter_main)
 
     # -------------------------------------------------------------------------------- #
+    # Parser for aln_cigar_to_cov subcommand
+    # -------------------------------------------------------------------------------- #
+    parser_aln_cigar_to_cov = subparsers.add_parser(
+        "aln_cigar_to_cov",
+        help=(
+            """
+            This subcommand adds CIGAR-derived coverage columns to an alignment file.
+            It parses the CIGAR string to count the number of M (match) operations,
+            then calculates query coverage (cigar_qcov = #Ms/qlen) and target coverage
+            (cigar_tcov = #Ms/tlen). These columns are inserted after the 'cigar'
+            column in the output.
+
+            The input alignment file must have 'qlen', 'tlen', and 'cigar' columns.
+            """
+        ),
+    )
+    parser_aln_cigar_to_cov.add_argument(
+        "-a",
+        "--alignment_file",
+        type=str,
+        required=True,
+        help="""
+        Path to the alignment file. If the first row starts with 'query', it will
+        be automatically used as the header. Otherwise, provide column names via
+        --colnames.
+        """,
+    )
+    parser_aln_cigar_to_cov.add_argument(
+        "-o",
+        "--output_file",
+        type=str,
+        required=True,
+        help="""
+        Path to the output alignment file.
+        """,
+    )
+    parser_aln_cigar_to_cov.add_argument(
+        "-c",
+        "--colnames",
+        type=str,
+        required=False,
+        default="",
+        help="""
+        Comma-delimited string of column names in the alignment file. If not
+        provided, the first line of the file must start with 'query' and will
+        be used as the header. The column names must include 'qlen', 'tlen',
+        and 'cigar'.
+        """,
+    )
+    parser_aln_cigar_to_cov.set_defaults(func=call_aln_cigar_to_cov_main)
+
+    # -------------------------------------------------------------------------------- #
     # Parser for aln_merge subcommand
     # -------------------------------------------------------------------------------- #
     parser_aln_merge = subparsers.add_parser(
@@ -728,6 +780,17 @@ def main():
         alignment, with one member per line. If the alignment was from foldseek,
         the alignment file queries/targets likely end in .pdb - so the entries in
         this file must also end in .pdb.
+        """,
+    )
+    parser_aln_connected_component.add_argument(
+        "-d",
+        "--diagnose",
+        action="store_true",
+        help="""
+        Run diagnostic analysis on the alignment file. This will print information
+        about what's connecting clusters together, including the most connected
+        members (potential "hub" proteins) and examples of non-self alignments.
+        Useful for debugging why you might get one giant cluster.
         """,
     )
     parser_aln_connected_component.set_defaults(func=call_aln_connected_component_main)
@@ -2298,6 +2361,12 @@ def call_aln_filter_main(args):
     from scripts.aln_filter import aln_filter_main
 
     aln_filter_main(args)
+
+
+def call_aln_cigar_to_cov_main(args):
+    from scripts.aln_cigar_to_cov import aln_cigar_to_cov_main
+
+    aln_cigar_to_cov_main(args)
 
 
 def call_aln_merge_clusters_main(args):
