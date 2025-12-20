@@ -212,6 +212,11 @@ def aln_merge_clusters_main(args):
             f"first column value as the higher-level cluster representative."
         )
 
+    # Sort output by the first column (highest-level rep) to keep clusters together
+    talk_to_me("Sorting output by highest-level cluster representative.")
+    first_col = output_colnames[0]
+    output_rows.sort(key=lambda row: row[first_col])
+
     talk_to_me(f"Writing output with columns: {output_colnames}")
     write_output(args.output_file, output_colnames, output_rows)
 
