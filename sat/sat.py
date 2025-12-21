@@ -497,6 +497,102 @@ def main():
     parser_aln_filter.set_defaults(func=call_aln_filter_main)
 
     # -------------------------------------------------------------------------------- #
+    # Parser for aln_cluster_greedy subcommand
+    # -------------------------------------------------------------------------------- #
+    parser_aln_cluster_greedy = subparsers.add_parser(
+        "aln_cluster_greedy",
+        help=(
+            """
+            This subcommand performs greedy set cover clustering, similar to
+            foldseek/mmseqs cluster mode 0.
+
+            The algorithm:
+            1. Sorts members by number of alignments (descending)
+            2. Picks the top member as cluster rep, assigns all its alignments to its cluster
+            3. Removes assigned members from consideration
+            4. Repeats until all members are clustered
+            5. Performs a reassignment step where members are moved to a different
+               cluster if they have a better alignment score to that cluster's rep.
+
+            Unlike connected-component clustering, this method does NOT transitively
+            connect members. If A aligns to B and B aligns to C, but A doesn't align
+            to C, then A and C may end up in different clusters.
+
+            The output is a foldseek-style cluster file with two columns:
+            cluster_rep and cluster_member.
+            """
+        ),
+    )
+    parser_aln_cluster_greedy.add_argument(
+        "-a",
+        "--alignment_file",
+        type=str,
+        required=True,
+        help="""
+        Path to the alignment file. If the first row starts with 'query', it will
+        be automatically used as the header. Otherwise, provide column names via
+        --colnames.
+        """,
+    )
+    parser_aln_cluster_greedy.add_argument(
+        "-o",
+        "--output_file",
+        type=str,
+        required=True,
+        help="""
+        Path to the output cluster file. The file will have two columns:
+        cluster_rep and cluster_member.
+        """,
+    )
+    parser_aln_cluster_greedy.add_argument(
+        "-c",
+        "--colnames",
+        type=str,
+        required=False,
+        default="",
+        help="""
+        Comma-delimited string of column names in the alignment file. If not
+        provided, the first line of the file must start with 'query' and will
+        be used as the header.
+        """,
+    )
+    parser_aln_cluster_greedy.add_argument(
+        "-s",
+        "--score_column",
+        type=str,
+        required=False,
+        default="alntmscore",
+        help="""
+        [Default: 'alntmscore']
+        Name of the column containing alignment scores. Higher scores indicate
+        better alignments. Used for the reassignment step.
+        """,
+    )
+    parser_aln_cluster_greedy.add_argument(
+        "-A",
+        "--all_inputs",
+        type=str,
+        required=False,
+        default="",
+        help="""
+        [Default: '']
+        Path to a file that lists, one per line, all members that were initially
+        input into the alignment algorithm. Members not in the alignment file
+        will be added as single-member clusters.
+        """,
+    )
+    parser_aln_cluster_greedy.add_argument(
+        "--no_reassign",
+        action="store_true",
+        help="""
+        Skip the reassignment step. By default, after initial clustering, members
+        are reassigned to a different cluster rep if they have a better alignment
+        score to that rep.
+        """,
+    )
+    parser_aln_cluster_greedy.set_defaults(func=call_aln_cluster_greedy_main)
+
+    # -------------------------------------------------------------------------------- #
     # Parser for aln_cigar_to_cov subcommand
     # -------------------------------------------------------------------------------- #
     parser_aln_cigar_to_cov = subparsers.add_parser(
@@ -711,10 +807,10 @@ def main():
     parser_aln_merge_clusters.set_defaults(func=call_aln_merge_clusters_main)
 
     # -------------------------------------------------------------------------------- #
-    # Parser for aln_connected_component subcommand
+    # Parser for aln_cluster_connected_component subcommand
     # -------------------------------------------------------------------------------- #
-    parser_aln_connected_component = subparsers.add_parser(
-        "aln_connected_component",
+    parser_aln_cluster_connected_component = subparsers.add_parser(
+        "aln_cluster_connected_component",
         help=(
             """
             This subcommand generates connected component clusters from an alignment
@@ -728,7 +824,7 @@ def main():
             """
         ),
     )
-    parser_aln_connected_component.add_argument(
+    parser_aln_cluster_connected_component.add_argument(
         "-a",
         "--alignment_file",
         type=str,
@@ -739,7 +835,7 @@ def main():
         --colnames.
         """,
     )
-    parser_aln_connected_component.add_argument(
+    parser_aln_cluster_connected_component.add_argument(
         "-o",
         "--output_file",
         type=str,
@@ -749,7 +845,7 @@ def main():
         cluster_rep and cluster_member.
         """,
     )
-    parser_aln_connected_component.add_argument(
+    parser_aln_cluster_connected_component.add_argument(
         "-c",
         "--colnames",
         type=str,
@@ -761,7 +857,7 @@ def main():
         be used as the header. The column names must include 'query' and 'target'.
         """,
     )
-    parser_aln_connected_component.add_argument(
+    parser_aln_cluster_connected_component.add_argument(
         "-A",
         "--all_inputs",
         type=str,
@@ -782,7 +878,7 @@ def main():
         this file must also end in .pdb.
         """,
     )
-    parser_aln_connected_component.add_argument(
+    parser_aln_cluster_connected_component.add_argument(
         "-d",
         "--diagnose",
         action="store_true",
@@ -793,7 +889,7 @@ def main():
         Useful for debugging why you might get one giant cluster.
         """,
     )
-    parser_aln_connected_component.set_defaults(func=call_aln_connected_component_main)
+    parser_aln_cluster_connected_component.set_defaults(func=call_aln_cluster_connected_component_main)
 
     # -------------------------------------------------------------------------------- #
     # Parser for aln_parse_dali subcommand
@@ -2333,10 +2429,10 @@ def call_aln_connection_map(args):
     aln_connection_map_main(args)
 
 
-def call_aln_connected_component_main(args):
-    from scripts.aln_connected_component import aln_connected_component_main
+def call_aln_cluster_connected_component_main(args):
+    from scripts.aln_cluster_connected_component import aln_cluster_connected_component_main
 
-    aln_connected_component_main(args)
+    aln_cluster_connected_component_main(args)
 
 
 def call_aln_dali_alignment_attributes_main(args):
@@ -2367,6 +2463,12 @@ def call_aln_cigar_to_cov_main(args):
     from scripts.aln_cigar_to_cov import aln_cigar_to_cov_main
 
     aln_cigar_to_cov_main(args)
+
+
+def call_aln_cluster_greedy_main(args):
+    from scripts.aln_cluster_greedy import aln_cluster_greedy_main
+
+    aln_cluster_greedy_main(args)
 
 
 def call_aln_merge_clusters_main(args):

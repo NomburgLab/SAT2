@@ -2,7 +2,7 @@ import pytest
 import tempfile
 import os
 
-from sat.scripts.aln_connected_component import (
+from sat.scripts.aln_cluster_connected_component import (
     find_connected_components,
     parse_alignment_file,
 )

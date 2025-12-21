@@ -65,7 +65,8 @@ When you run the tests or the first time you run any taxonomy-related script, et
 `sat.py aln_add_clusters` - Adds foldseek clustering information to the foldseek tabular alignment file.  
 `sat.py aln_add_uniprot` - After retreiving the uniprot unformation using aln_query_uniprot, adds the information as columns to the alignment file.  
 `sat.py aln_cigar_to_cov` - Adds CIGAR-derived coverage columns (cigar_qcov, cigar_tcov) to an alignment file by parsing the CIGAR string.  
-`sat.py aln_connected_component` - Generates connected component clusters from an alignment file. All query-target pairs that are connected will be placed into the same cluster.  
+`sat.py aln_cluster_connected_component` - Generates connected component clusters from an alignment file. All query-target pairs that are connected will be placed into the same cluster.  
+`sat.py aln_cluster_greedy` - Performs greedy set cover clustering, similar to foldseek/mmseqs cluster mode 0. Does not transitively connect members.  
 `sat.py aln_connection_map` - This takes a cluster file (that has taxonomy information) and reports, for every pair of families, the number of clusters that they share.  
 `sat.py aln_dali_alignment_attributes` -  Generates a csv file of aligned targets and queries and their attributes, such as qstart, qend, tstart, tend, etc.  
 `sat.py aln_dali_motif_finder` - This parses the 'alignments' block of a DALI output file, and checks if a given residue or motif is present in each target at an indicated position of the structural alignment.  
@@ -122,7 +123,7 @@ q1      t1      100     200     80M     0.800       0.400       1e-10
 <!-- RICH-CODEX hide_command: true -->
 ![`poetry run .github/tmp/sat_codex.py aln_cigar_to_cov -h`](.github/img/aln_cigar_to_cov.png)  
 
-# SAT aln_connected_component
+# SAT aln_cluster_connected_component
 This subcommand generates connected component clusters from an alignment file. All query-target pairs that are connected (directly or transitively) will be placed into the same cluster. This is similar to foldseek/mmseqs cluster mode 1 (connected-component clustering).
 
 The output is a foldseek-style cluster file with two columns: `cluster_rep` and `cluster_member`. The cluster representative is selected randomly from each cluster.
@@ -130,7 +131,26 @@ The output is a foldseek-style cluster file with two columns: `cluster_rep` and 
 Column names can be auto-detected if the first line of the alignment file starts with "query". Otherwise, provide column names via `--colnames` as a comma-delimited list (must include "query" and "target").
 
 <!-- RICH-CODEX hide_command: true -->
-![`poetry run .github/tmp/sat_codex.py aln_connected_component -h`](.github/img/aln_connected_component.png)  
+![`poetry run .github/tmp/sat_codex.py aln_cluster_connected_component -h`](.github/img/aln_cluster_connected_component.png)  
+
+# SAT aln_cluster_greedy
+This subcommand performs greedy set cover clustering, similar to foldseek/mmseqs cluster mode 0.
+
+**Algorithm:**
+1. Sort members by number of alignments (descending)
+2. Pick the top member as cluster rep, assign all its alignments to its cluster
+3. Remove assigned members from consideration
+4. Repeat until all members are clustered
+5. Perform a reassignment step where members are moved to a different cluster if they have a better alignment score to that cluster's representative
+
+**Key difference from connected-component clustering:** This method does NOT transitively connect members. If A aligns to B and B aligns to C, but A doesn't align to C, then A and C may end up in different clusters. This typically produces more, smaller clusters than connected-component clustering.
+
+The output is a foldseek-style cluster file with two columns: `cluster_rep` and `cluster_member`.
+
+Use `--no_reassign` to skip the reassignment step. Use `-s/--score_column` to specify which column contains alignment scores (default: `alntmscore`).
+
+<!-- RICH-CODEX hide_command: true -->
+![`poetry run .github/tmp/sat_codex.py aln_cluster_greedy -h`](.github/img/aln_cluster_greedy.png)  
 
 # SAT aln_connection_map
 This subcommand takes in a cluster file that has taxonomy information (critically - family) and determines, for each pair of families, how many clusters exist in which both families have a member.

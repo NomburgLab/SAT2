@@ -212,7 +212,7 @@ def write_cluster_file(output_file, clusters):
 # ------------------------------------------------------------------------------------ #
 # Main
 # ------------------------------------------------------------------------------------ #
-def aln_connected_component_main(args):
+def aln_cluster_connected_component_main(args):
     """
     Generate connected component clusters from an alignment file.
 
