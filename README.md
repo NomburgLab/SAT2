@@ -68,6 +68,7 @@ When you run the tests or the first time you run any taxonomy-related script, et
 `sat.py aln_cluster_connected_component` - Generates connected component clusters from an alignment file. All query-target pairs that are connected will be placed into the same cluster.  
 `sat.py aln_cluster_greedy` - Performs greedy set cover clustering, similar to foldseek/mmseqs cluster mode 0. Does not transitively connect members.  
 `sat.py aln_connection_map` - This takes a cluster file (that has taxonomy information) and reports, for every pair of families, the number of clusters that they share.  
+`sat.py aln_create_pairwise_aln_fasta` - Reads an alignment file with qaln/taln columns and writes pairwise FASTA files (one per query-target pair), organized into per-query subdirectories.  
 `sat.py aln_dali_alignment_attributes` -  Generates a csv file of aligned targets and queries and their attributes, such as qstart, qend, tstart, tend, etc.  
 `sat.py aln_dali_motif_finder` - This parses the 'alignments' block of a DALI output file, and checks if a given residue or motif is present in each target at an indicated position of the structural alignment.  
 `sat.py aln_dali_to_pariwise_fastas` - This subcommand converts the alignment fields of a DALI output file to pairwise fasta files, one per alignment. The usecase here is typically when you are trying to generate a structure-guided MSA.  
@@ -156,6 +157,11 @@ Use `--no_reassign` to skip the reassignment step. Use `-s/--score_column` to sp
 This subcommand takes in a cluster file that has taxonomy information (critically - family) and determines, for each pair of families, how many clusters exist in which both families have a member.
 <!-- RICH-CODEX hide_command: true -->
 ![`poetry run .github/tmp/sat_codex.py aln_aln_connection_mapecod_purity -h`](.github/img/aln_connection_map.png)  
+
+# SAT aln_create_pairwise_aln_fasta
+This subcommand reads in an alignment file that has qaln and taln columns (e.g. from foldseek or lolalign) and writes pairwise FASTA files for each query-target pair. Each output file contains four lines: the query alignment sequence in FASTA format followed by the target alignment sequence in FASTA format. Output files are named {query}xxx{target}.fasta.aln and are organized into per-query subdirectories within the specified output directory. By default, self-alignments are excluded.
+<!-- RICH-CODEX hide_command: true -->
+![`poetry run .github/tmp/sat_codex.py aln_create_pairwise_aln_fasta -h`](.github/img/aln_create_pairwise_aln_fasta.png)  
 
 # SAT aln_dali_alignment_attributes
 This subcommands takes in a DALI alignment file (which must have an alignments field) and a key to generate a csv file of aligned targets and queries and their attributes, such as qstart, qend, tstart, tend, etc.

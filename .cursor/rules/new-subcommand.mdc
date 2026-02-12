@@ -1,0 +1,156 @@
+---
+description: How to create a new SAT subcommand
+alwaysApply: false
+---
+# Creating a New SAT Subcommand
+
+When creating a new subcommand for this project, there are three files that must be modified and one file that must be created. Follow the conventions below exactly.
+
+---
+
+## 1. Create the script file: `sat/scripts/<subcommand_name>.py`
+
+- File goes in `sat/scripts/` and is named after the subcommand (e.g. `struc_rebase.py`).
+- Imports from local utils use relative imports: `from .utils.misc import talk_to_me, make_output_dir`
+- Structure the file with section comments:
+
+```python
+# ------------------------------------------------------------------------------------ #
+# Import dependencies
+# ------------------------------------------------------------------------------------ #
+import ...
+
+from .utils.misc import talk_to_me, make_output_dir
+
+# ------------------------------------------------------------------------------------ #
+# Functions
+# ------------------------------------------------------------------------------------ #
+
+def some_helper(...):
+    ...
+
+# ------------------------------------------------------------------------------------ #
+# Main
+# ------------------------------------------------------------------------------------ #
+def <subcommand_name>_main(args):
+    talk_to_me("Doing something")
+    ...
+    talk_to_me("Done!")
+
+
+if __name__ == "__main__":
+    msg = "Call this script from sat.py, where there is argument parsing."
+    raise ValueError(msg)
+```
+
+Key conventions:
+- The main entry function is named `<subcommand_name>_main(args)` and accepts the argparse `args` object.
+- Use `talk_to_me(...)` for progress messages.
+- Use `make_output_dir(path)` before writing output files.
+- End the file with the `if __name__ == "__main__"` guard that raises a ValueError.
+
+---
+
+## 2. Add the argparse subparser in `sat/sat.py`
+
+There are two additions to `sat/sat.py`:
+
+### 2a. Add the parser block (top half of sat.py)
+
+Insert a new parser block **in alphabetical order** among the existing parser blocks. Follow this exact format:
+
+```python
+    # -------------------------------------------------------------------------------- #
+    # Parser for <subcommand_name> subcommand
+    # -------------------------------------------------------------------------------- #
+    parser_<subcommand_name> = subparsers.add_parser(
+        "<subcommand_name>",
+        help=(
+            """
+            Description of what the subcommand does. Be thorough.
+            """
+        ),
+    )
+    parser_<subcommand_name>.add_argument(
+        "-<short_flag>",
+        "--<long_flag>",
+        type=<type>,
+        required=<True|False>,
+        default=<default_value>,  # only include if required=False
+        help="""
+        Description of this argument.
+        """,
+    )
+    # ... more arguments ...
+    parser_<subcommand_name>.set_defaults(func=call_<subcommand_name>)
+```
+
+Conventions:
+- Each argument uses both a short flag (`-x`) and a long flag (`--long_name`).
+- The `help` strings use triple-quoted multiline strings indented with 8 spaces.
+- Required arguments have `required=True` and no `default`.
+- Optional arguments have `required=False` and include a `default` value.
+- String defaults that mean "not provided" use `default=""`.
+- Boolean flags use `action="store_true"` (no `type`, `required`, or `default`).
+- The block ends with `.set_defaults(func=call_<subcommand_name>)`.
+
+### 2b. Add the call function (bottom half of sat.py)
+
+Insert a call function **in alphabetical order** among the existing call functions at the bottom of `sat.py`, before the final `if __name__ == "__main__":` block:
+
+```python
+def call_<subcommand_name>(args):
+    from scripts.<subcommand_name> import <subcommand_name>_main
+
+    <subcommand_name>_main(args)
+```
+
+Note: the import is `from scripts.<name>`, NOT `from .scripts.<name>` (no leading dot).
+
+---
+
+## 3. Update `README.md`
+
+Two sections must be updated, both in **alphabetical order** within their category.
+
+### 3a. Overview list (under "# List of subcommands")
+
+Add a one-liner in the appropriate category (`Structure-focused`, `Alignment-focused`, `Sequence-focused`, `Plotting-focused`, or `Manipulation of tabular files`), maintaining alphabetical order:
+
+```
+`sat.py <subcommand_name>` - Brief one-line description.  
+```
+
+### 3b. Detailed section (later in README)
+
+Add a new section in alphabetical order among the existing detailed sections. Follow this format:
+
+```markdown
+# SAT <subcommand_name>
+A paragraph describing what the subcommand does, its inputs, and outputs.
+<!-- RICH-CODEX hide_command: true -->
+![`poetry run .github/tmp/sat_codex.py <subcommand_name> -h`](.github/img/<subcommand_name>.png)  
+```
+
+The RICH-CODEX comment and image line must always be included — they auto-generate the help screenshot.
+
+---
+
+## Naming conventions
+
+- Subcommand names use snake_case with a category prefix:
+  - `struc_` for structure-focused commands
+  - `aln_` for alignment-focused commands
+  - `seq_` for sequence-focused commands
+  - `tab_` for tabular file manipulation commands
+  - `plot_` for plotting commands
+- The script filename, main function name, and argparse subcommand string must all match: e.g. subcommand `struc_rebase` → file `struc_rebase.py` → function `struc_rebase_main` → call wrapper `call_struc_rebase`.
+
+---
+
+## Alphabetical ordering reminder
+
+- Parser blocks in `sat.py` are ordered alphabetically by subcommand name.
+- Call functions at the bottom of `sat.py` are ordered alphabetically by subcommand name.
+- README overview entries are ordered alphabetically within each category section.
+- README detailed sections are ordered alphabetically by subcommand name.

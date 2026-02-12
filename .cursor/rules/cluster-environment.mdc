@@ -1,0 +1,46 @@
+---
+description: How to set up and run SAT on the cluster
+alwaysApply: true
+---
+# Running SAT on the Cluster
+
+This project runs inside a conda environment called SAT. On the cluster, you must load the miniforge module and initialize conda before activating the environment.
+
+---
+
+## Environment Setup
+
+Before running any SAT commands or tests, execute the following in order:
+
+    module load miniforge/25.9.1
+    eval "$(conda shell.bash hook)"
+    conda activate SAT
+
+**Important:** After activating the conda environment, the system python on PATH may still point to the base miniforge Python (3.12) rather than the SAT environment Python (3.10). Always use `$CONDA_PREFIX/bin/python` to ensure you are using the correct interpreter with all dependencies installed.
+
+---
+
+## Running SAT
+
+    $CONDA_PREFIX/bin/python sat/sat.py <subcommand> [args...]
+
+For example:
+
+    $CONDA_PREFIX/bin/python sat/sat.py aln_filter -a alignment.m8 -o filtered.m8
+
+---
+
+## Running Tests
+
+    cd /mnt/labs/data/nomburg/shared/code/SAT2
+    $CONDA_PREFIX/bin/python -m pytest
+
+---
+
+## Key Details
+
+- Conda environment name: SAT
+- Environment location: /mnt/labs/home/jnomburg/.conda/envs/SAT
+- Python version in SAT env: 3.10.5
+- Always use `$CONDA_PREFIX/bin/python` instead of bare `python` to avoid picking up the wrong interpreter.
+- The SAT project root is the working directory when running commands (i.e. cd into the repo first).

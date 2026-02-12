@@ -289,6 +289,73 @@ def main():
     parser_aln_connection_map.set_defaults(func=call_aln_connection_map)
 
     # -------------------------------------------------------------------------------- #
+    # Parser for aln_create_pairwise_aln_fasta subcommand
+    # -------------------------------------------------------------------------------- #
+    parser_aln_create_pairwise_aln_fasta = subparsers.add_parser(
+        "aln_create_pairwise_aln_fasta",
+        help=(
+            """
+            This subcommand reads in an alignment file that has qaln and taln
+            columns (e.g. from foldseek or lolalign). For each query-target pair,
+            it writes out a FASTA file containing the pairwise alignment. Each
+            output file has four lines: the query alignment in FASTA format
+            (header + sequence) followed by the target alignment in FASTA format
+            (header + sequence).
+
+            Output files are named {query}xxx{target}.fasta.aln and are placed
+            in a subdirectory named after the query within the specified output
+            directory.
+
+            By default, self-alignments (where query == target) are excluded.
+            """
+        ),
+    )
+    parser_aln_create_pairwise_aln_fasta.add_argument(
+        "-a",
+        "--alignment_file",
+        type=str,
+        required=True,
+        help="""
+        Path to the alignment file. Must contain 'query', 'target', 'qaln',
+        and 'taln' columns. If the first row starts with 'query', it will be
+        automatically used as the header. Otherwise, provide column names via
+        --colnames.
+        """,
+    )
+    parser_aln_create_pairwise_aln_fasta.add_argument(
+        "-o",
+        "--output_dir",
+        type=str,
+        required=True,
+        help="""
+        Path to the output directory. Within this directory, a subdirectory
+        will be created for each unique query, and the pairwise FASTA files
+        for that query will be written inside it.
+        """,
+    )
+    parser_aln_create_pairwise_aln_fasta.add_argument(
+        "-c",
+        "--colnames",
+        type=str,
+        required=False,
+        default="",
+        help="""
+        Comma-delimited string of column names in the alignment file. If not
+        provided, the first line of the file must start with 'query' and will
+        be used as the header.
+        """,
+    )
+    parser_aln_create_pairwise_aln_fasta.add_argument(
+        "--include_self",
+        action="store_true",
+        help="""
+        Include self-alignments (where query == target). By default,
+        self-alignments are excluded. Use this flag to include them.
+        """,
+    )
+    parser_aln_create_pairwise_aln_fasta.set_defaults(func=call_aln_create_pairwise_aln_fasta)
+
+    # -------------------------------------------------------------------------------- #
     # Parser for aln_dali_motif_finder subcommand
     # -------------------------------------------------------------------------------- #
     parser_aln_dali_motif_finder = subparsers.add_parser(
@@ -2427,6 +2494,12 @@ def call_aln_connection_map(args):
     from scripts.aln_connection_map import aln_connection_map_main
 
     aln_connection_map_main(args)
+
+
+def call_aln_create_pairwise_aln_fasta(args):
+    from scripts.aln_create_pairwise_aln_fasta import aln_create_pairwise_aln_fasta_main
+
+    aln_create_pairwise_aln_fasta_main(args)
 
 
 def call_aln_cluster_connected_component_main(args):
