@@ -48,6 +48,7 @@ When you run the tests or the first time you run any taxonomy-related script, et
 # List of subcommands
 
 ## Structure-focused
+`sat.py struc_clean` - Cleans a pdb file from water molecules, ions and other ligands, leaving only the proteins. 
 `sat.py struc_detect_interaction` - For a co-folded prediction of two molecules, determine if the PAE matrix clusters across the molecules and suggests a potential interaction.  
 `sat.py struc_disorder` - Get information on the number of residues in an input structure that are considered disordered and ordered.  
 `sat.py struc_extract_chains` - Given an input structure file with multiple chains, write a new file with only the specified chain(s).  
@@ -353,6 +354,11 @@ Note that if you desire to only process a subset of genbank entires, you can pro
 This subcommand parses a fasta file with multiple entries into multiple fasta files with one entry each.
 <!-- RICH-CODEX hide_command: true -->
 ![`poetry run .github/tmp/sat_codex.py seq_split_fasta -h`](.github/img/seq_split_fasta.png) 
+
+# SAT struc_clean
+This subcommand takes in a structure predction (PDB file), removes all the molecules that are not amino acids (water, ions, small ligands), and outputs the cleaned protein-only PDB file.
+<!-- RICH-CODEX hide_command: true -->
+![`poetry run .github/tmp/sat_codex.py struc_clean -h`](.github/img/struc_clean.png) 
 
 # SAT struc_detect_interaction
 This subcommand takes in a structure predction (PDB file) and its associated PAE file (from colabfold) that was generated with AF Multimer between two molecules. Thus, the structure prediction should have two chains, A and B. This script clusters the PAE matrix and determins if a cluster contains residues from both chains - if so, the molecules are considered to have an interaction. This script also counts the number of residues of each chain that have a C-alpha  within a specified agstrom distance from a C-alpha from the other chain.  
