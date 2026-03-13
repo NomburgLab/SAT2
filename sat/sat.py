@@ -1714,6 +1714,44 @@ def main():
     parser_seq_parse_genbank.set_defaults(func=call_parser_seq_parse_genbank)
 
     # -------------------------------------------------------------------------------- #
+    # Parser for struc_clean subcommand
+    # -------------------------------------------------------------------------------- #
+    parser_struc_clean = subparsers.add_parser(
+        "struc_clean",
+        help=(
+            """
+            Cleans a PDB file by removing non-protein residues such as bound
+            waters (HOH), ions (e.g. CA, MG, ZN), and small-molecule ligands
+            (e.g. ATP, NAG). Only standard amino acid ATOM records are kept,
+            along with HETATM records whose residue name is a recognised
+            modified amino acid (MSE, SEC, PYL). TER, MODEL, ENDMDL, and END
+            bookkeeping lines are preserved. Header and REMARK lines are
+            dropped. The output is a minimal, protein-only PDB file.
+            """
+        ),
+    )
+    parser_struc_clean.add_argument(
+        "-i",
+        "--infile",
+        type=str,
+        required=True,
+        help="""
+        Path to the input PDB file to be cleaned. Must end with .pdb.
+        """,
+    )
+    parser_struc_clean.add_argument(
+        "-o",
+        "--outfile",
+        type=str,
+        required=True,
+        help="""
+        Path to write the cleaned output PDB file. If the file already
+        exists it will be overwritten.
+        """,
+    )
+    parser_struc_clean.set_defaults(func=call_struc_clean)
+
+    # -------------------------------------------------------------------------------- #
     # Parser for struc_detect_interaction subcommand
     # -------------------------------------------------------------------------------- #
     parser_struc_detect_interaction = subparsers.add_parser(
