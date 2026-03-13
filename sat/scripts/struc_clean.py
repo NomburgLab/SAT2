@@ -38,7 +38,7 @@ def ligands_cleaner(pdb_path):
             record = line[:6].strip()
 
             # Keep model / end bookkeeping lines as-is
-            if record in ("MODEL", "ENDMDL", "END"):
+            if record in ("MODEL", "ENDMDL", "END", "CRYST1"):
                 cleaned_lines.append(line)
                 continue
 

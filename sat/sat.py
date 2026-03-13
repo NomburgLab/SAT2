@@ -1724,7 +1724,7 @@ def main():
             waters (HOH), ions (e.g. CA, MG, ZN), and small-molecule ligands
             (e.g. ATP, NAG). Only standard amino acid ATOM records are kept,
             along with HETATM records whose residue name is a recognised
-            modified amino acid (MSE, SEC, PYL). TER, MODEL, ENDMDL, and END
+            modified amino acid (MSE, SEC, PYL). TER, MODEL, ENDMDL, END and CRYST1
             bookkeeping lines are preserved. Header and REMARK lines are
             dropped. The output is a minimal, protein-only PDB file.
             """
@@ -2592,6 +2592,10 @@ def call_seq_split_fasta_main(args):
 
     seq_split_fasta_main(args)
 
+def call_struc_clean(args):
+    from scripts.struc_clean import struc_clean_main
+    
+    struc_clean_main(args)
 
 def call_struc_detect_interaction_main(args):
     from scripts.struc_detect_interaction import struc_detect_interaction_main
