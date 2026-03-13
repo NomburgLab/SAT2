@@ -156,7 +156,7 @@ Use `--no_reassign` to skip the reassignment step. Use `-s/--score_column` to sp
 # SAT aln_connection_map
 This subcommand takes in a cluster file that has taxonomy information (critically - family) and determines, for each pair of families, how many clusters exist in which both families have a member.
 <!-- RICH-CODEX hide_command: true -->
-![`poetry run .github/tmp/sat_codex.py aln_aln_connection_mapecod_purity -h`](.github/img/aln_connection_map.png)  
+![`poetry run .github/tmp/sat_codex.py aln_aln_connection_map -h`](.github/img/aln_connection_map.png)  
 
 # SAT aln_dali_alignment_attributes
 This subcommands takes in a DALI alignment file (which must have an alignments field) and a key to generate a csv file of aligned targets and queries and their attributes, such as qstart, qend, tstart, tend, etc.
