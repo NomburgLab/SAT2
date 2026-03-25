@@ -161,8 +161,8 @@ class Test_Struc_Get_Domains_Main():
         struc_get_domains_main(args)
         _compare_outputs(args.outfile_dir, OUTPUT_EXTRACT_ALL)
 
-    def test_missing_structure_produces_dunk(self, tmp_path):
-        """Structure not in domain file → output __DUNK with all residues."""
+    def test_missing_structure_raises(self, tmp_path):
+        """Structure not in domain file → ValueError."""
         args = _make_args(
             structure_file_path=PDB_MN539721,
             domain_file_path=str(INPUT_EXTRACT_ALL / "chainsaw_file_missing_structure.txt"),
@@ -172,13 +172,8 @@ class Test_Struc_Get_Domains_Main():
         )
         args.outfile_dir.mkdir()
 
-        struc_get_domains_main(args)
-
-        output_files = list(args.outfile_dir.iterdir())
-        assert len(output_files) == 1
-        assert output_files[0].name == "MN539721__QGH71255.1__X__00025__DUNK.pdb"
-        expected = OUTPUT_EXTRACT_ALL / "MN539721__QGH71255.1__X__00025__DUNK.pdb"
-        assert filecmp.cmp(expected, output_files[0], shallow=False)
+        with pytest.raises(ValueError, match="not found in the domain file"):
+            struc_get_domains_main(args)
 
     def test_merizo_format(self, tmp_path):
         """Merizo headerless TSV: IDs include .pdb extension, boundaries in last column."""

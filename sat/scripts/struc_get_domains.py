@@ -274,12 +274,11 @@ def struc_get_domains_main(args):
     ndom_extracted = 0
 
     # Determine domain boundaries for this structure
-    if structure_name not in domain_dict or domain_dict[structure_name] is None:
-        if structure_name not in domain_dict:
-            talk_to_me(f"{structure_name} not found in the domain file. Falling back to full structure (__DUNK).")
-        else:
-            talk_to_me(f"{structure_name} has no domain boundary info (null). Falling back to full structure (__DUNK).")
+    if structure_name not in domain_dict:
+        raise ValueError(f"{structure_name} is not found in the domain file.")
 
+    if domain_dict[structure_name] is None:
+        talk_to_me(f"{structure_name} has no domain boundary info (null). Falling back to full structure (__DUNK).")
         domain_residues = list(all_pdb_residues)
         output_file_name = get_outfile_name(args.structure_file_path, domain_boundary="UNK")
         file_path = os.path.join(args.outfile_dir, output_file_name)
