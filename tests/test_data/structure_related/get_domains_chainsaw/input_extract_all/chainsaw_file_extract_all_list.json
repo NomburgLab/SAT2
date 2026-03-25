@@ -1,0 +1,5 @@
+[
+    {"chain_id": "MN539721__QGH71255.1__X__00025", "sequence_md5": "f7987c8283ac2c815d364544f8139603", "nres": 528, "ndom": 0, "chopping": null, "confidence": 0.771, "time_sec": 7.64},
+    {"chain_id": "MN876845__QJF12414.1__PSV2-gp02__00002", "sequence_md5": "ddf9d37a19940ef063f5789279e32fac", "nres": 525, "ndom": 3, "chopping": "3-10,15-45,100-120", "confidence": 0.833, "time_sec": 6.857},
+    {"chain_id": "MT047590__QIM61606.1__X__00001", "sequence_md5": "6dc52d4078a8a2b8c043b0025c12f280", "nres": 533, "ndom": 2, "chopping": "25-30_35-40,110-120", "confidence": 0.9, "time_sec": 7.074}
+]

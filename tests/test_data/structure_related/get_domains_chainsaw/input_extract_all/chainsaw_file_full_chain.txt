@@ -1,0 +1,2 @@
+chain_id	chopping
+MN539721__QGH71255.1__X__00025	1-528
