@@ -75,6 +75,8 @@ class Test_Struc_Get_Domains_Main():
         args = _make_args(
             structure_file_path="tests/test_data/structure_related/get_domains_chainsaw/input_min_length/AB537968__BAJ06111.1__X__00001.pdb",
             domain_file_path="tests/test_data/structure_related/get_domains_chainsaw/input_min_length/chainsaw_file_min_length_test.txt",
+            colnames="",
+            domain_column="chopping",
             id_column=None,
             min_domain_length=5,
             outfile_dir=tmp_path / "test_output",
@@ -92,6 +94,8 @@ class Test_Struc_Get_Domains_Main():
         """Standard Chainsaw TSV with header. NULL chopping → __DUNK."""
         args = _make_args(
             domain_file_path=str(INPUT_EXTRACT_ALL / "chainsaw_file_extract_all_test.txt"),
+            colnames="",
+            domain_column="chopping",
             id_column=None,
             min_domain_length=1,
             outfile_dir=tmp_path / "test_output",
@@ -110,48 +114,8 @@ class Test_Struc_Get_Domains_Main():
         args = _make_args(
             structure_file_path=PDB_MN876845,
             domain_file_path=str(INPUT_EXTRACT_ALL / "chainsaw_file_extract_all_no_header.txt"),
-            id_column=None,
-            min_domain_length=1,
-            outfile_dir=tmp_path / "test_output",
-        )
-        args.outfile_dir.mkdir()
-
-        struc_get_domains_main(args)
-        _compare_outputs(args.outfile_dir, OUTPUT_EXTRACT_ALL)
-
-    def test_csv(self, tmp_path):
-        """Comma-separated file with quoted multi-domain values, tested on MT047590."""
-        args = _make_args(
-            structure_file_path=PDB_MT047590,
-            domain_file_path=str(INPUT_EXTRACT_ALL / "chainsaw_file_extract_all.csv"),
-            id_column=None,
-            min_domain_length=1,
-            outfile_dir=tmp_path / "test_output",
-        )
-        args.outfile_dir.mkdir()
-
-        struc_get_domains_main(args)
-        _compare_outputs(args.outfile_dir, OUTPUT_EXTRACT_ALL)
-
-    def test_json_flat(self, tmp_path):
-        """JSON flat dict {name: boundary}, tested on MN876845."""
-        args = _make_args(
-            structure_file_path=PDB_MN876845,
-            domain_file_path=str(INPUT_EXTRACT_ALL / "chainsaw_file_extract_all_flat.json"),
-            id_column=None,
-            min_domain_length=1,
-            outfile_dir=tmp_path / "test_output",
-        )
-        args.outfile_dir.mkdir()
-
-        struc_get_domains_main(args)
-        _compare_outputs(args.outfile_dir, OUTPUT_EXTRACT_ALL)
-
-    def test_json_list_of_records(self, tmp_path):
-        """JSON list of records [{chain_id: ..., chopping: ...}], tested on MT047590."""
-        args = _make_args(
-            structure_file_path=PDB_MT047590,
-            domain_file_path=str(INPUT_EXTRACT_ALL / "chainsaw_file_extract_all_list.json"),
+            colnames="chain_id,sequence_md5,nres,ndom,chopping,confidence,time_sec",
+            domain_column="chopping",
             id_column=None,
             min_domain_length=1,
             outfile_dir=tmp_path / "test_output",
@@ -166,6 +130,8 @@ class Test_Struc_Get_Domains_Main():
         args = _make_args(
             structure_file_path=PDB_MN539721,
             domain_file_path=str(INPUT_EXTRACT_ALL / "chainsaw_file_missing_structure.txt"),
+            colnames="",
+            domain_column="chopping",
             id_column=None,
             min_domain_length=1,
             outfile_dir=tmp_path / "test_output",
@@ -179,6 +145,8 @@ class Test_Struc_Get_Domains_Main():
         """Merizo headerless TSV: IDs include .pdb extension, boundaries in last column."""
         args = _make_args(
             domain_file_path=str(INPUT_MERIZO / "merizo_test.txt"),
+            colnames="id,nres,nres_resolved,nres_unresolved,ndom,confidence,mean_plddt,domains",
+            domain_column="domains",
             id_column=None,
             min_domain_length=1,
             outfile_dir=tmp_path / "test_output",
@@ -196,6 +164,8 @@ class Test_Struc_Get_Domains_Main():
         args = _make_args(
             structure_file_path=PDB_MN539721,
             domain_file_path=str(INPUT_EXTRACT_ALL / "chainsaw_file_full_chain.txt"),
+            colnames="",
+            domain_column="chopping",
             id_column=None,
             min_domain_length=1,
             outfile_dir=tmp_path / "test_output",
@@ -209,3 +179,20 @@ class Test_Struc_Get_Domains_Main():
         assert output_files[0].name == "MN539721__QGH71255.1__X__00025__DFULL.pdb"
         expected = OUTPUT_EXTRACT_ALL / "MN539721__QGH71255.1__X__00025__DFULL.pdb"
         assert filecmp.cmp(expected, output_files[0], shallow=False)
+
+    def test_directory_mode(self, tmp_path):
+        """Passing a directory of PDB files processes all of them."""
+        args = _make_args(
+            structure_file_path=str(INPUT_EXTRACT_ALL),
+            domain_file_path=str(INPUT_EXTRACT_ALL / "chainsaw_file_extract_all_test.txt"),
+            colnames="",
+            domain_column="chopping",
+            id_column=None,
+            min_domain_length=1,
+            outfile_dir=tmp_path / "test_output",
+        )
+        args.outfile_dir.mkdir()
+
+        struc_get_domains_main(args)
+
+        _compare_outputs(args.outfile_dir, OUTPUT_EXTRACT_ALL)
