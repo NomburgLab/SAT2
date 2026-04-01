@@ -2225,9 +2225,7 @@ def main():
     parser_struc_get_domains = subparsers.add_parser(
         "struc_get_domains",
         help="""
-        Extract domains from a pdb structure using a domain segmentation file.
-        The segmentation file can be TSV, CSV, or JSON, with or without a header,
-        and can contain results for a single structure or a concatenation of many.
+        Extract domains from PDB structures using a TSV domain segmentation file.
         """,
     )
     parser_struc_get_domains.add_argument(
@@ -2237,7 +2235,7 @@ def main():
         required=True,
         default="",
         help="""
-        Path to the input structure in .pdb format.
+        Path to a .pdb file or a directory of .pdb files.
         """,
     )
     parser_struc_get_domains.add_argument(
@@ -2247,10 +2245,28 @@ def main():
         required=True,
         default="",
         help="""
-        Path to the domain segmentation file (TSV, CSV, or JSON). The file must contain a column
-        whose values follow the domain boundary convention (e.g. '1-50', '3-10,15-45', '25-30_35-40').
+        Path to a TSV domain segmentation file. The file must contain a column
+        with domain boundaries (e.g. '1-50', '3-10,15-45', '25-30_35-40').
         Commas separate domains; underscores separate discontinuous segments within a domain.
-        The file can contain a single structure's output or be a concatenation of many.
+        """,
+    )
+    parser_struc_get_domains.add_argument(
+        "-c",
+        "--colnames",
+        type=str,
+        required=False,
+        default="",
+        help="""
+        Comma-delimited string of column names for the domain file. If not provided,
+        the first line of the file is used as the header.
+        """,
+    )
+    parser_struc_get_domains.add_argument(
+        "--domain_column",
+        type=str,
+        required=True,
+        help="""
+        Name of the column in the domain file that contains the domain boundaries.
         """,
     )
     parser_struc_get_domains.add_argument(
@@ -2260,8 +2276,8 @@ def main():
         required=False,
         default=None,
         help="""
-        Name or 0-based integer index of the column containing structure IDs. Defaults to the
-        first column if not provided.
+        Name of the column containing structure IDs. Defaults to the first column
+        if not provided.
         """,
     )
 
