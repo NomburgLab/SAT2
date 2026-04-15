@@ -53,7 +53,7 @@ When you run the tests or the first time you run any taxonomy-related script, et
 `sat.py struc_extract_chains` - Given an input structure file with multiple chains, write a new file with only the specified chain(s).  
 `sat.py struc_find_motif` - Checks if there is a motif in a structure or sequence input.  
 `sat.py struc_get_contact_probability` - Determines the probability that two proteins are interacting. This will probably replace struc_detect_interaction.  
-`sat.py struc_get_domains` - Uses chainsaw predicted domain boundaries to extract domains from structure files.  
+`sat.py struc_get_domains` - Extracts individual domain structures from a PDB file using a domain segmentation file (TSV, CSV, or JSON) from any tool (e.g. Chainsaw, Merizo).
 `sat.py struc_get_iptm` - Extract the iPTM value from a colanbfold json file.    
 `sat.py struc_qc` - Get information on the fraction of residues that are at least a specified pLDDT - this can be good for filtration.  
 `sat.py struc_rebase` - Rebases an input structure such that the first residue is residue #1, and all subsequent residues are sequential (e.g. removes numeric gaps present in discontinuous domains).  
@@ -436,8 +436,8 @@ The output file is tab delimited and has the following columns, with one line pe
 ![`poetry run .github/tmp/sat_codex.py struc_get_contact_probability -h`](.github/img/struc_get_contact_probability.png)  
 
 # SAT struc_get_domains
-Extract separate domain structures from a predicted structure.  
-This uses the chainsaw predicted domain boundaries to extract domains from pdb structure files. 
+Extract individual domain structures from a PDB file using a domain segmentation file.
+Accepts TSV, CSV, or JSON files (with or without header) from any segmentation tool (e.g. Chainsaw, Merizo). The domain boundary column is auto-detected; the structure ID column defaults to the first column but can be overridden with `--id_column`. Output PDB files are labeled `__D{boundary}`, `__DFULL` (whole chain), or `__DUNK` (no info available).
 <!-- RICH-CODEX hide_command: true -->
 ![`poetry run .github/tmp/sat_codex.py struc_get_domains -h`](.github/img/struc_get_domains.png)  
 

@@ -93,6 +93,50 @@ def read_fasta_to_memory(input_fasta):
     return fasta_dict
 
     
+def read_tsv(filepath, colnames=""):
+    """
+    Generator that reads a TSV file line-by-line, yielding each row as a dict.
+
+    Args:
+        filepath: Path to the TSV file.
+        colnames: Comma-delimited string of column names.
+                  If empty, the first line of the file is used as the header.
+
+    Yields:
+        dict mapping column names to string values for each data row.
+    """
+    with open(filepath) as f:
+        # Find first non-blank line
+        first_line = None
+        for line in f:
+            stripped = line.rstrip("\n")
+            if stripped.strip():
+                first_line = stripped
+                break
+
+        if first_line is None:
+            raise ValueError(f"File {filepath} is empty.")
+
+        first_parts = first_line.split("\t")
+
+        if colnames == "":
+            columns = first_parts
+        else:
+            columns = [c.strip() for c in colnames.split(",")]
+            # If first line matches provided colnames, it's a header — skip it.
+            # Otherwise, yield it as a data row.
+            if first_parts != columns:
+                yield dict(zip(columns, first_parts))
+
+        for line in f:
+            stripped = line.rstrip("\n")
+            if not stripped.strip():
+                continue
+            parts = stripped.split("\t")
+            yield dict(zip(columns, parts))
+
+
+
 if __name__ == "__main__":
     msg = "This script has utilities and functions. Don't call it directly!"
     raise ValueError(msg)

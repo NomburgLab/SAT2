@@ -2225,8 +2225,7 @@ def main():
     parser_struc_get_domains = subparsers.add_parser(
         "struc_get_domains",
         help="""
-        Extract domains from a structure using chainsaw domain predictions. Notably, this script is
-        designed for pdb files. 
+        Extract domains from PDB structures using a TSV domain segmentation file.
         """,
     )
     parser_struc_get_domains.add_argument(
@@ -2236,18 +2235,49 @@ def main():
         required=True,
         default="",
         help="""
-        Path to the input structure in .pdb format.
+        Path to a .pdb file or a directory of .pdb files.
         """,
     )
     parser_struc_get_domains.add_argument(
-        "-c",
-        "--chainsaw_file_path",
+        "-d",
+        "--domain_file_path",
         type=str,
         required=True,
         default="",
         help="""
-        Path to the chainsaw.txt file. The first row contains column names.
-        The chainsaw file can consist of a single chainsaw output or be a concatenation of multiple chainsaw outputs.
+        Path to a TSV domain segmentation file. The file must contain a column
+        with domain boundaries (e.g. '1-50', '3-10,15-45', '25-30_35-40').
+        Commas separate domains; underscores separate discontinuous segments within a domain.
+        """,
+    )
+    parser_struc_get_domains.add_argument(
+        "-c",
+        "--colnames",
+        type=str,
+        required=False,
+        default="",
+        help="""
+        Comma-delimited string of column names for the domain file. If not provided,
+        the first line of the file is used as the header.
+        """,
+    )
+    parser_struc_get_domains.add_argument(
+        "--domain_column",
+        type=str,
+        required=True,
+        help="""
+        Name of the column in the domain file that contains the domain boundaries.
+        """,
+    )
+    parser_struc_get_domains.add_argument(
+        "-i",
+        "--id_column",
+        type=str,
+        required=False,
+        default=None,
+        help="""
+        Name of the column containing structure IDs. Defaults to the first column
+        if not provided.
         """,
     )
 
@@ -2270,8 +2300,8 @@ def main():
         default="",
         help="""
         Directory of the output domains. Files will be labeled
-        {output_dir}/{basename of structure}_domain_{domain_start}_{domain_end}.pdb.
-        Note that the domain number will be 1-indexed.
+        {output_dir}/{basename of structure}__D{domain_boundary}.pdb.
+        Full-chain domains are labeled __DFULL; structures with no domain info are labeled __DUNK.
         """,
     )
 

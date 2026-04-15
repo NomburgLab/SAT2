@@ -1,39 +1,63 @@
 # ------------------------------------------------------------------------------------ #
 # Import dependencies
 # ------------------------------------------------------------------------------------ #
-import pandas as pd
 import os
+from pathlib import Path
 
-from .utils.misc import talk_to_me, make_output_dir
+from .utils.misc import talk_to_me, make_output_dir, read_tsv
 from .utils.structure import pdb_to_structure_object, write_structure_subset
+
+# ------------------------------------------------------------------------------------ #
+# Constants
+# ------------------------------------------------------------------------------------ #
+
+_STRUCTURE_EXTENSIONS = ('.pdb', '.cif', '.mmcif', '.ent')
+_NULL_VALUES = frozenset({'null', 'none', 'nan', '', 'na', 'n/a', 'missing'})
 
 # ------------------------------------------------------------------------------------ #
 # Functions
 # ------------------------------------------------------------------------------------ #
 
-def parse_chainsaw_file(chainsaw_file):
+def _strip_structure_extension(name):
+    """Strip common structure file extensions so IDs match PDB basenames."""
+    for ext in _STRUCTURE_EXTENSIONS:
+        if name.lower().endswith(ext):
+            return name[:-len(ext)]
+    return name
+
+def _build_domain_dict(rows, domain_column, id_column=None):
     """
-    Given text file of chainsaw results, read the results into a table and return a nested dictionary.
-    The dictionary key is the structure name (i.e. chain_id in the chainsaw file). 
-    Each structure name maps to an inner dictionary containing key-value pairs that
-    represent the characteristics of the structure file from the chainsaw results.
+    Build a lookup dict {structure_name: boundary_or_None} by iterating over
+    rows from read_tsv (or any iterable of dicts). Each row is processed and
+    discarded — only the extracted ID and boundary are kept in memory.
 
-    Inputs:
-    - chainsaw_file: chainsaw results text file, containing chain_id, sequence_md5, nres, ndom, chopping, confidence, time_sec
+    Args:
+        rows: iterable of dicts (e.g. read_tsv generator or a list)
+        domain_column: name of the column containing domain boundaries
+        id_column: name of the column containing structure IDs (default: first column)
 
-    Outputs:
-    - domain_dict: a nested dictionary of each structure's chainsaw result. 
-                    {stucture_name: {chain_id:value, sequence_md5:value, nres:value, ndom:value, chopping:value, confidence:value, time_sec:value}}
-                    Domain boundaries are found by using the "chopping" key. 
-                    Structures with no domains have their "chopping" key filled with '1-nres' (from one to the total number of residues).
+    Returns:
+        dict: {stripped_structure_name: boundary_string_or_None}
     """
-    chainsaw_table = pd.read_csv(chainsaw_file, sep='\t')
+    domain_dict = {}
+    for row in rows:
+        # Resolve id column on first row
+        if id_column is None:
+            id_column = next(iter(row))
 
-    chainsaw_table['chopping'] = chainsaw_table['chopping'].fillna(chainsaw_table['nres'].apply(lambda nres: f'1-{nres}'))
+        if domain_column not in row:
+            raise ValueError(
+                f"Domain column '{domain_column}' not found. "
+                f"Available columns: {list(row.keys())}"
+            )
 
-    domain_dict = chainsaw_table.set_index('chain_id').to_dict(orient='index')
+        structure_id = _strip_structure_extension(row[id_column].strip())
+        boundary = row[domain_column].strip()
+        is_null = boundary.lower() in _NULL_VALUES
+        domain_dict[structure_id] = None if is_null else boundary
 
     return domain_dict
+
 
 def parse_domain(domain_boundary):
     """
@@ -49,20 +73,22 @@ def parse_domain(domain_boundary):
     if "," in domain_boundary:
         raise ValueError(f"{domain_boundary} domain boundary has a comma, which indicates more than one domain. \
                          Only one domain is accepted (e.g. 1-10 or 10-20_50-100). Underscores denote a discontinous domain.")
-    
+
     domain_residues =[]
     subdomains = domain_boundary.split('_')
     for subdomain in subdomains:
 
         if '-' not in subdomain:
-            raise ValueError(f"{domain_boundary} domain boundary must have a hyphen to separate subdomains (e.g. 1-10).")
-
-        subdomain_start = int(subdomain.split('-')[0])
-        subdomain_end = int(subdomain.split('-')[1])
+            # Single-residue segment (e.g. "20" means just residue 20)
+            subdomain_start = int(subdomain)
+            subdomain_end = subdomain_start
+        else:
+            subdomain_start = int(subdomain.split('-')[0])
+            subdomain_end = int(subdomain.split('-')[1])
         subdomain_residues = [i for i in range(subdomain_start, subdomain_end+1)]
         domain_residues.extend(subdomain_residues)
 
-    return domain_residues 
+    return domain_residues
 
 
 def get_pdb_filename(file_path):
@@ -85,65 +111,131 @@ def get_outfile_name(file_path, domain_boundary):
 
     Inputs:
     - file_path: path to pdb structure file
-    - domain_boundary: a string that indicates the domain boundary (e.g. '10-20' or '10-20_50-100')
-      Discontinuous domains are separated by underscores.
+    - domain_boundary: a string that indicates the domain boundary (e.g. '10-20' or '10-20_50-100'),
+      or 'FULL' for a single domain spanning the whole chain, or 'UNK' when no domain info is available.
 
     Output:
     - output_file_name: name of the extracted domain output file
     """
     input_file_name = get_pdb_filename(file_path)
     output_file_name = input_file_name + '__D' + domain_boundary +'.pdb'
-    
+
     return output_file_name
 
-def struc_get_domains_main(args):
-    """
-    For the pdb file, extract and output the domains (pdb format) that meet the min_domain_length requirement.
-    
-    - structure_file_path: path to pdb file
-    - chainsaw_file_path: path to chainsaw text file
-    - min_domain_length: The length cutoff for the domains. 
-                         If domain length < min_domain_length, the domain will not be written out to file.
-    - outfile_dir: directory to output the pdb files
-    """
-    structure = pdb_to_structure_object(args.structure_file_path, structure_name="structure")
-    structure_name = get_pdb_filename(args.structure_file_path)
-    domain_dict = parse_chainsaw_file(args.chainsaw_file_path)
 
-    #for a structure, create a list of domains from 'chopping' key
-    domain_boundaries = domain_dict[structure_name]['chopping'].split(",")
+def _process_one_structure(structure_file_path, domain_dict, min_domain_length, outfile_dir):
+    """
+    Process a single PDB structure: look up its domain boundaries and extract domains.
+
+    Args:
+        structure_file_path: path to the .pdb file
+        domain_dict: {structure_name: boundary_or_None}
+        min_domain_length: minimum residue count for a domain to be extracted
+        outfile_dir: output directory path
+    """
+    structure = pdb_to_structure_object(structure_file_path, structure_name="structure")
+    structure_name = get_pdb_filename(structure_file_path)
+    all_pdb_residues = set(res.id[1] for res in structure.get_residues())
+
+    if structure_name not in domain_dict:
+        raise ValueError(f"{structure_name} is not found in the domain file.")
+
+    if domain_dict[structure_name] is None:
+        talk_to_me(f"{structure_name} has no domain boundary info (null). Falling back to full structure (__DUNK).")
+        domain_residues = list(all_pdb_residues)
+        output_file_name = get_outfile_name(structure_file_path, domain_boundary="UNK")
+        file_path = os.path.join(outfile_dir, output_file_name)
+        write_structure_subset(structure, residues_to_keep=domain_residues, outfile=file_path)
+        talk_to_me(f"{structure_name}: 1 extracted domain (full chain, unknown segmentation).")
+        return
+
+    domain_boundaries = domain_dict[structure_name].split(",")
     talk_to_me(f"{structure_name} has {len(domain_boundaries)} domains.")
 
-    #check if structure exists
-    if structure_name not in domain_dict:
-        raise ValueError(f"{structure_name} is not found in the chainsaw file.")
-    
-    make_output_dir(args.outfile_dir, is_dir=True)
     ndom_extracted = 0
-
-    #iterate through each domain of a structure and extract it only if it meets min length requirement
     for domain_boundary in domain_boundaries:
-        
+
         domain_residues = parse_domain(domain_boundary)
-        
-        if len(domain_residues) < args.min_domain_length:
+
+        if len(domain_residues) < min_domain_length:
             talk_to_me(f"{structure_name} with {domain_boundary} domain boundary does not meet the minimum domain length. This domain will not be extracted.")
             continue
-   
-        ndom_extracted +=1
 
-        #determine the domain boundary for the output file name
-        if domain_boundary == "1-"+ str(domain_dict[structure_name]['nres']):
-            output_file_name = get_outfile_name(args.structure_file_path, domain_boundary="FULL")
+        ndom_extracted += 1
+
+        # Determine output label
+        is_full_chain = (set(domain_residues) == all_pdb_residues)
+        if is_full_chain:
+            output_file_name = get_outfile_name(structure_file_path, domain_boundary="FULL")
         else:
-            output_file_name = get_outfile_name(args.structure_file_path, domain_boundary=domain_boundary)
-        
-        file_path = os.path.join(args.outfile_dir, output_file_name) 
+            output_file_name = get_outfile_name(structure_file_path, domain_boundary=domain_boundary)
 
-        #write the extracted domain to file
+        file_path = os.path.join(outfile_dir, output_file_name)
         write_structure_subset(structure, residues_to_keep=domain_residues, outfile=file_path)
 
     talk_to_me(f"{structure_name} has {ndom_extracted} extracted domains.")
+
+
+def struc_get_domains_main(args):
+    """
+    Extract domains from PDB structures using a TSV domain segmentation file.
+
+    - structure_file_path: path to a .pdb file or a directory of .pdb files
+    - domain_file_path: path to a TSV domain segmentation file
+    - colnames: comma-delimited column names (or empty to use first line as header)
+    - domain_column: name of the column containing domain boundaries
+    - id_column: name of the column containing structure IDs (default: first column)
+    - min_domain_length: minimum domain length to extract
+    - outfile_dir: directory to output the pdb files
+    """
+    structure_path = Path(args.structure_file_path)
+    colnames = args.colnames
+    id_column = args.id_column
+    domain_column = args.domain_column
+
+    make_output_dir(args.outfile_dir, is_dir=True)
+
+    if structure_path.is_dir():
+        # Batch: stream domain file into dict, process all PDB files
+        pdb_files = sorted(structure_path.glob("*.pdb"))
+        if not pdb_files:
+            raise ValueError(f"No .pdb files found in {structure_path}")
+        talk_to_me(f"Found {len(pdb_files)} .pdb files in {structure_path}")
+
+        domain_dict = _build_domain_dict(
+            read_tsv(args.domain_file_path, colnames=colnames),
+            domain_column, id_column,
+        )
+
+        for pdb_file in pdb_files:
+            _process_one_structure(str(pdb_file), domain_dict, args.min_domain_length, args.outfile_dir)
+    else:
+        # Single file: stream domain file, stop at first match
+        structure_name = get_pdb_filename(str(structure_path))
+        found = False
+
+        for row in read_tsv(args.domain_file_path, colnames=colnames):
+            row_id_col = id_column if id_column is not None else next(iter(row))
+
+            if domain_column not in row:
+                raise ValueError(
+                    f"Domain column '{domain_column}' not found. "
+                    f"Available columns: {list(row.keys())}"
+                )
+
+            row_id = _strip_structure_extension(row[row_id_col].strip())
+            if row_id == structure_name:
+                boundary = row[domain_column].strip()
+                is_null = boundary.lower() in _NULL_VALUES
+                domain_dict = {structure_name: None if is_null else boundary}
+                found = True
+                break
+
+        if not found:
+            raise ValueError(f"{structure_name} is not found in the domain file.")
+
+        _process_one_structure(str(structure_path), domain_dict, args.min_domain_length, args.outfile_dir)
+
 
 if __name__ == "__main__":
     msg = "Call this script from sat.py, where there is argument parsing."
