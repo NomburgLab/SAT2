@@ -78,6 +78,7 @@ When you run the tests or the first time you run any taxonomy-related script, et
 `sat.py aln_parse_dali` - This parses a Dalilite alignment output into a tab-delimited format. It can also filter based on various alignment statistics.  
 `sat.py aln_parse_dali_matrix` - This parses a Dalilite matrix output - basically uses the DALI key to annotate it.  
 `sat.py aln_query_uniprot` - Lets you look up alphafold or uniprot IDs using the Uniprot REST API, and get the geneName and fullName (an informative protein name) for each.  
+`sat.py aln_sample` - Subsamples N alignments per query, either randomly or by top N values in a specified column.  
 `sat.py aln_taxa_counts` - Returns counts at desired taxonomic levels within each foldseek cluster.  
 `sat.py aln_trim_target` - Trim the fasta sequences of target accessions from alignment files to the longest or shortest target alignment length.
 
@@ -311,6 +312,11 @@ specified key to convert each ID to its proper name.
 This script takes alphafold IDs (or raw uniprot IDs) and uses the Uniprot REST API to get information on the geneName and fullName (an informative name of the protein) for each ID. You can specify in which column of the infile the IDs live.
 <!-- RICH-CODEX hide_command: true -->
 ![`poetry run .github/tmp/sat_codex.py aln_query_uniprot -h`](.github/img/aln_query_uniprot.png)  
+
+# SAT aln_sample
+Subsamples N alignments per query from a TSV alignment file. Supports random sampling (with a configurable seed for reproducibility) or top-N selection by a numeric column. If a query has fewer than N alignments, all are kept.
+<!-- RICH-CODEX hide_command: true -->
+![`poetry run .github/tmp/sat_codex.py aln_sample -h`](.github/img/aln_sample.png)  
 
 # SAT aln_taxa_counts
 This takes in a cluster file (required columns are cluster_ID, cluster_rep, cluster_member, and cluster_count) and tallies up the taxons for each cluster. It makes a tidy file for each cluster where, for every taxon at every level, it specifies the count. The cluster file is assumed to be generated from an all-by-all alignment, perhaps with some additional merging steps. If you are also interested in adding taxonomy count information for the targets of a search of the cluster members against a separate database, you can enter an alignment file to this script. In the event an alignment file is provided, taxonIDs from the TARGET will be added to the cluster_ID of the QUERY.  

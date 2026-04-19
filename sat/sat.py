@@ -1250,6 +1250,94 @@ def main():
     parser_aln_query_uniprot.set_defaults(func=call_aln_query_uniprot_main)
 
     # -------------------------------------------------------------------------------- #
+    # Parser for aln_sample subcommand
+    # -------------------------------------------------------------------------------- #
+    parser_aln_sample = subparsers.add_parser(
+        "aln_sample",
+        help=(
+            """
+            Subsamples N alignments per query from a TSV alignment file. Can either
+            randomly select N alignments or select the top N by a specified column.
+            If a query has fewer than N alignments, all are kept.
+            """
+        ),
+    )
+    parser_aln_sample.add_argument(
+        "-a",
+        "--alignment_file",
+        type=str,
+        required=True,
+        help="""
+        Path to the alignment file. It is OK if the first row is the header, as long as
+        the first column is 'query'.
+        """,
+    )
+    parser_aln_sample.add_argument(
+        "-o",
+        "--output_file",
+        type=str,
+        required=True,
+        help="""
+        Path to the output alignment file.
+        """,
+    )
+    parser_aln_sample.add_argument(
+        "-f",
+        "--alignment_fields",
+        type=str,
+        required=False,
+        default="",
+        help="""
+        Comma-delimited string of alignment fields. Leave blank if there is a header in
+        the input file.
+        """,
+    )
+    parser_aln_sample.add_argument(
+        "-n",
+        "--n_alignments",
+        type=int,
+        required=True,
+        help="""
+        Number of alignments to keep per query.
+        """,
+    )
+    parser_aln_sample.add_argument(
+        "-q",
+        "--query_column",
+        type=str,
+        required=False,
+        default="query",
+        help="""
+        Default: 'query'
+        Name of the column that identifies each query.
+        """,
+    )
+    parser_aln_sample.add_argument(
+        "-s",
+        "--sort_column",
+        type=str,
+        required=False,
+        default="",
+        help="""
+        Column to sort by (descending) for top-N selection. If left blank, random
+        sampling is used instead.
+        """,
+    )
+    parser_aln_sample.add_argument(
+        "-r",
+        "--random_seed",
+        type=int,
+        required=False,
+        default=42,
+        help="""
+        Default: 42
+        Random seed for reproducibility. Only used when sort_column is not specified
+        (i.e., random sampling mode).
+        """,
+    )
+    parser_aln_sample.set_defaults(func=call_aln_sample)
+
+    # -------------------------------------------------------------------------------- #
     # Parser for aln_taxa_counts subcommand
     # -------------------------------------------------------------------------------- #
     parser_aln_taxa_counts = subparsers.add_parser(
@@ -2602,6 +2690,12 @@ def call_aln_query_uniprot_main(args):
     from scripts.aln_query_uniprot import aln_query_uniprot_main
 
     aln_query_uniprot_main(args)
+
+
+def call_aln_sample(args):
+    from scripts.aln_sample import aln_sample_main
+
+    aln_sample_main(args)
 
 
 def call_aln_trim_target_fasta_main(args):
