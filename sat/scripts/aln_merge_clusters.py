@@ -134,7 +134,8 @@ def merge_cluster_files(file1_colnames, file1_rows, file2_colnames, file2_rows):
 
     # Build output rows
     output_rows = []
-    unmatched_count = 0
+    unmatched_file2_count = 0
+    matched_file1_keys = set()
 
     for row2 in file2_rows:
         join_value = row2[file2_join_col]
@@ -144,6 +145,7 @@ def merge_cluster_files(file1_colnames, file1_rows, file2_colnames, file2_rows):
 
         if join_value in file1_lookup:
             row1 = file1_lookup[join_value]
+            matched_file1_keys.add(join_value)
             # Add file1's first column (the new highest level)
             out_row[file1_colnames[0]] = row1[file1_colnames[0]]
             # Add any extra columns from file1
@@ -152,7 +154,7 @@ def merge_cluster_files(file1_colnames, file1_rows, file2_colnames, file2_rows):
         else:
             # Value not found in file1 - use file2's first column value as its own
             # higher-level representative (it becomes its own cluster)
-            unmatched_count += 1
+            unmatched_file2_count += 1
             out_row[file1_colnames[0]] = join_value
             for col in file1_extra_cols:
                 out_row[col] = join_value
@@ -163,7 +165,22 @@ def merge_cluster_files(file1_colnames, file1_rows, file2_colnames, file2_rows):
 
         output_rows.append(out_row)
 
-    return output_colnames, output_rows, unmatched_count
+    # Add file1 entries that had no match in file2
+    unmatched_file1_count = 0
+    for key, row1 in file1_lookup.items():
+        if key not in matched_file1_keys:
+            unmatched_file1_count += 1
+            out_row = {}
+            out_row[file1_colnames[0]] = row1[file1_colnames[0]]
+            for col in file1_extra_cols:
+                out_row[col] = row1[col]
+            # The join column gets the file1 value; remaining file2 columns get "X"
+            out_row[file2_join_col] = key
+            for col in file2_colnames[1:]:
+                out_row[col] = "X"
+            output_rows.append(out_row)
+
+    return output_colnames, output_rows, unmatched_file2_count, unmatched_file1_count
 
 
 def write_output(output_file, colnames, rows):
@@ -201,15 +218,24 @@ def aln_merge_clusters_main(args):
     file2_colnames, file2_rows = parse_cluster_file(args.file2, args.file2_colnames)
 
     talk_to_me("Merging cluster files.")
-    output_colnames, output_rows, unmatched_count = merge_cluster_files(
-        file1_colnames, file1_rows, file2_colnames, file2_rows
+    output_colnames, output_rows, unmatched_file2_count, unmatched_file1_count = (
+        merge_cluster_files(
+            file1_colnames, file1_rows, file2_colnames, file2_rows
+        )
     )
 
-    if unmatched_count > 0:
+    if unmatched_file2_count > 0:
         talk_to_me(
-            f"NOTE: {unmatched_count} rows in file2 had values in the first column "
+            f"NOTE: {unmatched_file2_count} rows in file2 had values in the first column "
             f"that were not found in file1's second column. These rows use their own "
             f"first column value as the higher-level cluster representative."
+        )
+
+    if unmatched_file1_count > 0:
+        talk_to_me(
+            f"NOTE: {unmatched_file1_count} entries in file1's second column had no "
+            f"match in file2's first column. These were added to the output with 'X' "
+            f"for the missing file2 columns."
         )
 
     # Sort output by the first column (highest-level rep) to keep clusters together

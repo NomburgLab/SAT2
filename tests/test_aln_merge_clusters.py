@@ -122,7 +122,7 @@ def test_merge_cluster_files__simple_to_nested():
     file1_colnames, file1_rows = parse_cluster_file(FILE1_SIMPLE)
     file2_colnames, file2_rows = parse_cluster_file(FILE2_NESTED)
 
-    out_colnames, out_rows, unmatched_count = merge_cluster_files(
+    out_colnames, out_rows, unmatched_file2, unmatched_file1 = merge_cluster_files(
         file1_colnames, file1_rows, file2_colnames, file2_rows
     )
 
@@ -133,7 +133,8 @@ def test_merge_cluster_files__simple_to_nested():
     assert len(out_rows) == 5
 
     # Check no unmatched entries
-    assert unmatched_count == 0
+    assert unmatched_file2 == 0
+    assert unmatched_file1 == 0
 
     # Check specific mappings
     # Row with member B should have lol_rep=A (since struc_rep A maps to lol_rep A)
@@ -160,7 +161,7 @@ def test_merge_cluster_files__simple_to_simple():
     file1_colnames, file1_rows = parse_cluster_file(FILE1_SIMPLE)
     file2_colnames, file2_rows = parse_cluster_file(FILE2_SIMPLE)
 
-    out_colnames, out_rows, unmatched_count = merge_cluster_files(
+    out_colnames, out_rows, unmatched_file2, unmatched_file1 = merge_cluster_files(
         file1_colnames, file1_rows, file2_colnames, file2_rows
     )
 
@@ -171,7 +172,8 @@ def test_merge_cluster_files__simple_to_simple():
     assert len(out_rows) == 5
 
     # Check no unmatched entries
-    assert unmatched_count == 0
+    assert unmatched_file2 == 0
+    assert unmatched_file1 == 0
 
 
 def test_merge_cluster_files__missing_in_file1():
@@ -185,12 +187,12 @@ def test_merge_cluster_files__missing_in_file1():
         {"struc_rep": "Z", "member": "Z"},  # Z not in file1
     ]
 
-    out_colnames, out_rows, unmatched_count = merge_cluster_files(
+    out_colnames, out_rows, unmatched_file2, unmatched_file1 = merge_cluster_files(
         file1_colnames, file1_rows, file2_colnames, file2_rows
     )
 
-    # Should have 1 unmatched entry
-    assert unmatched_count == 1
+    # Should have 1 unmatched file2 entry
+    assert unmatched_file2 == 1
 
     # Check the matched row
     a_rows = [r for r in out_rows if r["member"] == "A"]
@@ -205,24 +207,36 @@ def test_merge_cluster_files__missing_in_file1():
 
 
 def test_merge_cluster_files__missing_in_file2():
-    """Test when file1's second column value not found in file2 - should be ignored."""
+    """Test when file1's second column value not found in file2 - should appear with X."""
     file1_colnames = ["lol_rep", "struc_rep"]
     file1_rows = [
         {"lol_rep": "A", "struc_rep": "A"},
-        {"lol_rep": "A", "struc_rep": "Z"},  # Z not in file2 - this is fine
+        {"lol_rep": "A", "struc_rep": "Z"},  # Z not in file2
     ]
 
     file2_colnames = ["struc_rep", "member"]
     file2_rows = [{"struc_rep": "A", "member": "A"}]
 
-    out_colnames, out_rows, unmatched_count = merge_cluster_files(
+    out_colnames, out_rows, unmatched_file2, unmatched_file1 = merge_cluster_files(
         file1_colnames, file1_rows, file2_colnames, file2_rows
     )
 
-    # Should work fine - unused file1 entries are just ignored
-    assert len(out_rows) == 1
-    assert unmatched_count == 0
-    assert out_rows[0]["lol_rep"] == "A"
+    # The matched row plus the unmatched file1 entry
+    assert len(out_rows) == 2
+    assert unmatched_file2 == 0
+    assert unmatched_file1 == 1
+
+    # Check the matched row
+    a_rows = [r for r in out_rows if r["struc_rep"] == "A"]
+    assert len(a_rows) == 1
+    assert a_rows[0]["lol_rep"] == "A"
+    assert a_rows[0]["member"] == "A"
+
+    # Check the unmatched file1 row has X for missing file2 columns
+    z_rows = [r for r in out_rows if r["struc_rep"] == "Z"]
+    assert len(z_rows) == 1
+    assert z_rows[0]["lol_rep"] == "A"
+    assert z_rows[0]["member"] == "X"
 
 
 def test_merge_cluster_files__multiple_unmatched():
@@ -238,12 +252,13 @@ def test_merge_cluster_files__multiple_unmatched():
         {"struc_rep": "Z", "member": "Z"},  # Not in file1
     ]
 
-    out_colnames, out_rows, unmatched_count = merge_cluster_files(
+    out_colnames, out_rows, unmatched_file2, unmatched_file1 = merge_cluster_files(
         file1_colnames, file1_rows, file2_colnames, file2_rows
     )
 
-    # Should have 3 unmatched entries
-    assert unmatched_count == 3
+    # Should have 3 unmatched file2 entries
+    assert unmatched_file2 == 3
+    assert unmatched_file1 == 0
     assert len(out_rows) == 4
 
     # Check all unmatched rows use their own struc_rep value as lol_rep
