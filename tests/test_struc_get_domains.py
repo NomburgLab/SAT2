@@ -55,8 +55,8 @@ class Test_Parse_Domain():
 
     def test_single_residue_domain(self):
         domain_boundary= "3"
-        with pytest.raises(ValueError):
-            parse_domain(domain_boundary)
+        expected = [3]
+        assert parse_domain(domain_boundary) == expected
 
     def test_empty_domain(self):
         domain_boundary= " "
@@ -65,8 +65,8 @@ class Test_Parse_Domain():
 
     def test_no_hyphen_domain(self):
         domain_boundary = "10_20"
-        with pytest.raises(ValueError):
-            parse_domain(domain_boundary)
+        expected = [10, 20]
+        assert parse_domain(domain_boundary) == expected
 
 
 class Test_Struc_Get_Domains_Main():
