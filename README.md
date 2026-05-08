@@ -443,7 +443,7 @@ The output file is tab delimited and has the following columns, with one line pe
 
 # SAT struc_get_domains
 Extract individual domain structures from a PDB file using a domain segmentation file.
-Accepts TSV, CSV, or JSON files (with or without header) from any segmentation tool (e.g. Chainsaw, Merizo). The domain boundary column is auto-detected; the structure ID column defaults to the first column but can be overridden with `--id_column`. Output PDB files are labeled `__D{boundary}`, `__DFULL` (whole chain), or `__DUNK` (no info available).
+Accepts TSV, CSV, or JSON files (with or without header) from any segmentation tool (e.g. Chainsaw, Merizo). The domain boundary column must be explicitly specified by the user with `--domain_column`; the structure ID column defaults to the first column but can be overridden with `--id_column`. Output PDB files are labeled `__D{boundary}`, `__DFULL` (whole chain), or `__DUNK` (no info available).
 <!-- RICH-CODEX hide_command: true -->
 ![`poetry run .github/tmp/sat_codex.py struc_get_domains -h`](.github/img/struc_get_domains.png)  
 
