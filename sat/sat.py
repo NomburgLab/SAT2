@@ -2511,11 +2511,13 @@ def main():
         "struc_to_plddt",
         help=(
             """
-            Simple subcommand that returns the average plddt of the input structure
-            file. If --out_file is not specified, the average plddt is simply printed
-            to the screen. If --out_file is specified, the output file will be
-            APPENDED to with the following:
-            [basename input structure_file]\\t[plddt]\\n
+            Returns the average pLDDT of the input structure file(s). Accepts a
+            single file via -s or a file/directory via -i. When a directory is
+            given, all .pdb files inside it are processed. Use -t to set the
+            number of parallel workers for batch processing. If --out_file is
+            not specified, results are printed to the screen. If --out_file is
+            specified, results are APPENDED as:
+            [basename]\\t[plddt]\\n
             """
         ),
     )
@@ -2523,9 +2525,21 @@ def main():
         "-s",
         "--structure_file",
         type=str,
-        required=True,
+        required=False,
+        default="",
         help="""
-        Path to the structure file in pdb format.
+        Path to a single structure file in pdb format.
+        """,
+    )
+    parser_struc_to_plddt.add_argument(
+        "-i",
+        "--input",
+        type=str,
+        required=False,
+        default="",
+        help="""
+        Path to a PDB file or a directory of PDB files. Alternative to -s for
+        batch processing. When a directory is given, all .pdb files are processed.
         """,
     )
     parser_struc_to_plddt.add_argument(
@@ -2535,8 +2549,18 @@ def main():
         required=False,
         default="",
         help="""
-        Path to a file the sequence will be appended to. If left blank, sequence will be
+        Path to a file results will be appended to. If left blank, results will be
         printed to the screen.
+        """,
+    )
+    parser_struc_to_plddt.add_argument(
+        "-t",
+        "--threads",
+        type=int,
+        required=False,
+        default=1,
+        help="""
+        Number of parallel workers for batch processing. Default is 1 (sequential).
         """,
     )
     parser_struc_to_plddt.set_defaults(func=call_struc_to_plddt)
