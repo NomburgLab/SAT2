@@ -20,20 +20,15 @@ def _compute_plddt(pdb_file):
 
 
 def _resolve_input_files(args):
-    if hasattr(args, "input") and args.input:
-        input_path = Path(args.input)
-        if input_path.is_dir():
-            pdb_files = sorted(str(p) for p in input_path.glob("*.pdb"))
-            if not pdb_files:
-                raise ValueError(f"No .pdb files found in {args.input}")
-            talk_to_me(f"Found {len(pdb_files)} PDB files in {args.input}")
-            return pdb_files
-        else:
-            return [str(input_path)]
-    elif hasattr(args, "structure_file") and args.structure_file:
-        return [args.structure_file]
+    input_path = Path(args.structure_file)
+    if input_path.is_dir():
+        pdb_files = sorted(str(p) for p in input_path.glob("*.pdb"))
+        if not pdb_files:
+            raise ValueError(f"No .pdb files found in {args.structure_file}")
+        talk_to_me(f"Found {len(pdb_files)} PDB files in {args.structure_file}")
+        return pdb_files
     else:
-        raise ValueError("No input provided. Use -s for a single file or -i for a file/directory.")
+        return [str(input_path)]
 
 
 # ------------------------------------------------------------------------------------ #

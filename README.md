@@ -467,7 +467,7 @@ Simple subcommand that renumbers all residues in a structure such that the first
 ![`poetry run .github/tmp/sat_codex.py struc_rebase -h`](.github/img/struc_rebase.png)  
 
 # SAT struc_to_plddt
-Returns the average pLDDT of one or many structure files. Use `-s` for a single file or `-i` for a file or directory of PDB files. When a directory is given, all `.pdb` files inside are processed. Use `-t` to set the number of parallel workers for batch processing (default 1). If `--out_file` is not specified, results are printed to the screen. If `--out_file` is specified, results are APPENDED as: `[basename]\t[plddt]\n`.
+Returns the average pLDDT of one or many structure files. Accepts a single PDB file or a directory of PDB files via `-s`. When a directory is given, all `.pdb` files inside are processed. Use `-t` to set the number of parallel workers for batch processing (default 1). If `--out_file` is not specified, results are printed to the screen. If `--out_file` is specified, results are APPENDED as: `[basename]\t[plddt]\n`.
 <!-- RICH-CODEX hide_command: true -->
 ![`poetry run .github/tmp/sat_codex.py struc_to_plddt -h`](.github/img/struc_to_plddt.png)  
 

@@ -2511,12 +2511,12 @@ def main():
         "struc_to_plddt",
         help=(
             """
-            Returns the average pLDDT of the input structure file(s). Accepts a
-            single file via -s or a file/directory via -i. When a directory is
-            given, all .pdb files inside it are processed. Use -t to set the
-            number of parallel workers for batch processing. If --out_file is
-            not specified, results are printed to the screen. If --out_file is
-            specified, results are APPENDED as:
+            Returns the average pLDDT of the input structure file(s). Accepts
+            a single PDB file or a directory of PDB files. When a directory
+            is given, all .pdb files inside it are processed. Use -t to set
+            the number of parallel workers for batch processing. If --out_file
+            is not specified, results are printed to the screen. If --out_file
+            is specified, results are APPENDED as:
             [basename]\\t[plddt]\\n
             """
         ),
@@ -2525,21 +2525,10 @@ def main():
         "-s",
         "--structure_file",
         type=str,
-        required=False,
-        default="",
+        required=True,
         help="""
-        Path to a single structure file in pdb format.
-        """,
-    )
-    parser_struc_to_plddt.add_argument(
-        "-i",
-        "--input",
-        type=str,
-        required=False,
-        default="",
-        help="""
-        Path to a PDB file or a directory of PDB files. Alternative to -s for
-        batch processing. When a directory is given, all .pdb files are processed.
+        Path to a PDB file or a directory of PDB files. When a directory is
+        given, all .pdb files inside it are processed.
         """,
     )
     parser_struc_to_plddt.add_argument(
