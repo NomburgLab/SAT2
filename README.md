@@ -57,7 +57,7 @@ When you run the tests or the first time you run any taxonomy-related script, et
 `sat.py struc_get_iptm` - Extract the iPTM value from a colanbfold json file.    
 `sat.py struc_qc` - Get information on the fraction of residues that are at least a specified pLDDT - this can be good for filtration.  
 `sat.py struc_rebase` - Rebases an input structure such that the first residue is residue #1, and all subsequent residues are sequential (e.g. removes numeric gaps present in discontinuous domains).  
-`sat.py struc_to_plddt` - Prints the average pLDDT of a structure to the screen or appends to a specified file.  
+`sat.py struc_to_plddt` - Returns the average pLDDT of one or many structure files. Supports batch processing of directories with optional parallelism.  
 `sat.py struc_to_seq` - Prints the primary amino acid sequence of a structure to the screen or appends to a specified file in fasta format.  
 
 
@@ -467,7 +467,7 @@ Simple subcommand that renumbers all residues in a structure such that the first
 ![`poetry run .github/tmp/sat_codex.py struc_rebase -h`](.github/img/struc_rebase.png)  
 
 # SAT struc_to_plddt
-Simple subcommand that returns the average plddt of the input structure file. If --out_file is not specified, the average plddt is simply printed to the screen. If --out_file is specified, the output file will be APPENDED to with the following: [basename input structure_file]\\t[plddt]\\n
+Returns the average pLDDT of one or many structure files. Use `-s` for a single file or `-i` for a file or directory of PDB files. When a directory is given, all `.pdb` files inside are processed. Use `-t` to set the number of parallel workers for batch processing (default 1). If `--out_file` is not specified, results are printed to the screen. If `--out_file` is specified, results are APPENDED as: `[basename]\t[plddt]\n`.
 <!-- RICH-CODEX hide_command: true -->
 ![`poetry run .github/tmp/sat_codex.py struc_to_plddt -h`](.github/img/struc_to_plddt.png)  
 
