@@ -2561,9 +2561,14 @@ def main():
         "struc_to_seq",
         help=(
             """
-            Simple subcommand that returns the amino-acid sequence of a specified
-            structure (in pdb format). The AA sequence will be APPENDED to the outfile
-            if specified, or printed to the screen if -o --out_file is not specified.
+            Returns the amino-acid sequence of the input structure file(s).
+            Accepts a single PDB file or a directory of PDB files. When a
+            directory is given, all .pdb files inside it are processed and
+            FASTA headers are derived from filenames. Use -t to set the
+            number of parallel workers for batch processing. In single-file
+            mode, the sequence is APPENDED to the outfile (or printed if -o
+            is not specified). In directory mode, the outfile is OVERWRITTEN
+            with a combined FASTA.
             """
         ),
     )
@@ -2573,7 +2578,8 @@ def main():
         type=str,
         required=True,
         help="""
-        Path to the structure file in pdb format.
+        Path to a PDB file or a directory of PDB files. When a directory is
+        given, all .pdb files inside it are processed.
         """,
     )
     parser_struc_to_seq.add_argument(
@@ -2583,8 +2589,9 @@ def main():
         required=False,
         default="",
         help="""
-        Path to a file the sequence will be appended to. If left blank, sequence will be
-        printed to the screen.
+        Path to a file the sequence will be written to. In single-file mode,
+        output is appended. In directory mode, output is overwritten. If left
+        blank, results are printed to the screen.
         """,
     )
     parser_struc_to_seq.add_argument(
@@ -2594,8 +2601,18 @@ def main():
         required=False,
         default="",
         help="""
-        Header of the entry if writing to a fasta. Only required if -o --out_file is
-        specified.
+        Header of the entry if writing to a fasta. Only used in single-file
+        mode. In directory mode, headers are derived from filenames.
+        """,
+    )
+    parser_struc_to_seq.add_argument(
+        "-t",
+        "--threads",
+        type=int,
+        required=False,
+        default=1,
+        help="""
+        Number of parallel workers for batch processing. Default is 1 (sequential).
         """,
     )
     parser_struc_to_seq.set_defaults(func=call_struc_to_seq)
