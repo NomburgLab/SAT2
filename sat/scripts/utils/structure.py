@@ -1,3 +1,4 @@
+from pathlib import Path
 from Bio.PDB import PDBParser, PDBIO, Select, Selection, NeighborSearch
 from Bio.PDB.Structure import Structure
 from Bio.PDB.Model import Model
@@ -13,6 +14,20 @@ def pdb_to_structure_object(pdb_file_path, structure_name="structure"):
     parser = PDBParser()
     structure = parser.get_structure(structure_name, pdb_file_path)
     return structure
+
+
+def parse_structure_inputs(input_path):
+    """
+    Given a path to a PDB file or a directory, returns a sorted list of PDB file paths.
+    """
+    input_path = Path(input_path)
+    if input_path.is_dir():
+        pdb_files = sorted(str(p) for p in input_path.glob("*.pdb"))
+        if not pdb_files:
+            raise ValueError(f"No .pdb files found in {input_path}")
+        return pdb_files
+    else:
+        return [str(input_path)]
 
 
 def struc_to_seq(structure):

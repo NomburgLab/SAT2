@@ -5,7 +5,7 @@ import os
 from pathlib import Path
 from multiprocessing import Pool
 
-from .utils.structure import pdb_to_structure_object, struc_to_seq
+from .utils.structure import pdb_to_structure_object, parse_structure_inputs, struc_to_seq
 from .utils.misc import talk_to_me, make_output_dir
 
 
@@ -24,23 +24,14 @@ def _extract_seq(pdb_file):
     return f">{basename}\n{seq}\n"
 
 
-def _resolve_input_files(args):
-    input_path = Path(args.structure_file)
-    if input_path.is_dir():
-        pdb_files = sorted(str(p) for p in input_path.glob("*.pdb"))
-        if not pdb_files:
-            raise ValueError(f"No .pdb files found in {args.structure_file}")
-        talk_to_me(f"Found {len(pdb_files)} PDB files in {args.structure_file}")
-        return pdb_files
-    else:
-        return [str(input_path)]
-
 
 # ------------------------------------------------------------------------------------ #
 # Main
 # ------------------------------------------------------------------------------------ #
 def struc_to_seq_main(args):
-    pdb_files = _resolve_input_files(args)
+    pdb_files = parse_structure_inputs(args.structure_file)
+    if len(pdb_files) > 1:
+        talk_to_me(f"Found {len(pdb_files)} PDB files in {args.structure_file}")
     directory_mode = len(pdb_files) > 1 or Path(args.structure_file).is_dir()
 
     if directory_mode:
