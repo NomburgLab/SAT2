@@ -4,7 +4,7 @@
 import os
 
 from .utils.misc import talk_to_me, make_output_dir, read_tsv
-from .utils.structure import pdb_to_structure_object, parse_structure_inputs, write_structure_subset
+from .utils.structure import pdb_to_structure_object, get_structure_paths, write_structure_subset
 
 # ------------------------------------------------------------------------------------ #
 # Constants
@@ -187,26 +187,26 @@ def struc_get_domains_main(args):
     - min_domain_length: minimum domain length to extract
     - outfile_dir: directory to output the pdb files
     """
-    pdb_files = parse_structure_inputs(args.structure_file_path)
+    structure_paths = get_structure_paths(args.structure_file_path)
     colnames = args.colnames
     id_column = args.id_column
     domain_column = args.domain_column
 
     make_output_dir(args.outfile_dir, is_dir=True)
 
-    if len(pdb_files) > 1:
-        talk_to_me(f"Found {len(pdb_files)} PDB files in {args.structure_file_path}")
+    if len(structure_paths) > 1:
+        talk_to_me(f"Found {len(structure_paths)} PDB files in {args.structure_file_path}")
 
         domain_dict = _build_domain_dict(
             read_tsv(args.domain_file_path, colnames=colnames),
             domain_column, id_column,
         )
 
-        for pdb_file in pdb_files:
+        for pdb_file in structure_paths:
             _process_one_structure(pdb_file, domain_dict, args.min_domain_length, args.outfile_dir)
     else:
         # Single file: stream domain file, stop at first match
-        structure_name = get_pdb_filename(pdb_files[0])
+        structure_name = get_pdb_filename(structure_paths[0])
         found = False
 
         for row in read_tsv(args.domain_file_path, colnames=colnames):
@@ -229,7 +229,7 @@ def struc_get_domains_main(args):
         if not found:
             raise ValueError(f"{structure_name} is not found in the domain file.")
 
-        _process_one_structure(pdb_files[0], domain_dict, args.min_domain_length, args.outfile_dir)
+        _process_one_structure(structure_paths[0], domain_dict, args.min_domain_length, args.outfile_dir)
 
 
 if __name__ == "__main__":

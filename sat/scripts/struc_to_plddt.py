@@ -4,7 +4,7 @@
 import os
 from multiprocessing import Pool
 
-from .utils.structure import pdb_to_structure_object, parse_structure_inputs, structure_to_pLDDT
+from .utils.structure import pdb_to_structure_object, get_structure_paths, structure_to_pLDDT
 from .utils.misc import talk_to_me, make_output_dir
 
 
@@ -24,17 +24,17 @@ def _compute_plddt(pdb_file):
 # Main
 # ------------------------------------------------------------------------------------ #
 def struc_to_plddt_main(args):
-    pdb_files = parse_structure_inputs(args.structure_file)
-    if len(pdb_files) > 1:
-        talk_to_me(f"Found {len(pdb_files)} PDB files in {args.structure_file}")
+    structure_paths = get_structure_paths(args.structure_file)
+    if len(structure_paths) > 1:
+        talk_to_me(f"Found {len(structure_paths)} PDB files in {args.structure_file}")
 
     threads = getattr(args, "threads", 1) or 1
-    if threads > 1 and len(pdb_files) > 1:
+    if threads > 1 and len(structure_paths) > 1:
         talk_to_me(f"Processing with {threads} workers")
         with Pool(processes=threads) as pool:
-            results = pool.map(_compute_plddt, pdb_files)
+            results = pool.map(_compute_plddt, structure_paths)
     else:
-        results = [_compute_plddt(f) for f in pdb_files]
+        results = [_compute_plddt(f) for f in structure_paths]
 
     if args.out_file == "":
         for basename, plddt in results:

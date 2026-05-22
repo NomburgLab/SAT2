@@ -5,7 +5,7 @@ import os
 from pathlib import Path
 from multiprocessing import Pool
 
-from .utils.structure import pdb_to_structure_object, parse_structure_inputs, struc_to_seq
+from .utils.structure import pdb_to_structure_object, get_structure_paths, struc_to_seq
 from .utils.misc import talk_to_me, make_output_dir
 
 
@@ -29,23 +29,23 @@ def _extract_seq(pdb_file):
 # Main
 # ------------------------------------------------------------------------------------ #
 def struc_to_seq_main(args):
-    pdb_files = parse_structure_inputs(args.structure_file)
-    if len(pdb_files) > 1:
-        talk_to_me(f"Found {len(pdb_files)} PDB files in {args.structure_file}")
-    directory_mode = len(pdb_files) > 1 or Path(args.structure_file).is_dir()
+    structure_paths = get_structure_paths(args.structure_file)
+    if len(structure_paths) > 1:
+        talk_to_me(f"Found {len(structure_paths)} PDB files in {args.structure_file}")
+    directory_mode = len(structure_paths) > 1 or Path(args.structure_file).is_dir()
 
     if directory_mode:
         threads = getattr(args, "threads", 1) or 1
         if threads > 1:
             talk_to_me(f"Processing with {threads} workers")
             with Pool(processes=threads) as pool:
-                results = pool.imap(_extract_seq, pdb_files, chunksize=50)
-                _write_directory_results(results, len(pdb_files), args)
+                results = pool.imap(_extract_seq, structure_paths, chunksize=50)
+                _write_directory_results(results, len(structure_paths), args)
         else:
-            results = (_extract_seq(f) for f in pdb_files)
-            _write_directory_results(results, len(pdb_files), args)
+            results = (_extract_seq(f) for f in structure_paths)
+            _write_directory_results(results, len(structure_paths), args)
     else:
-        _write_single_file(pdb_files[0], args)
+        _write_single_file(structure_paths[0], args)
 
     talk_to_me("Done!")
 
