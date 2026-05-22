@@ -63,16 +63,16 @@ def _write_directory_results(results, total, args):
     n_ok = 0
 
     if args.out_file == "":
-        for i, payload in enumerate(results):
-            print(payload, end="")
+        for i, seq_record in enumerate(results):
+            print(seq_record, end="")
             n_ok += 1
             if (i + 1) % 10000 == 0:
                 talk_to_me(f"  {i + 1}/{total} done")
     else:
         make_output_dir(args.out_file)
         with open(args.out_file, "w") as out_f:
-            for i, payload in enumerate(results):
-                out_f.write(payload)
+            for i, seq_record in enumerate(results):
+                out_f.write(seq_record)
                 n_ok += 1
                 if (i + 1) % 10000 == 0:
                     talk_to_me(f"  {i + 1}/{total} done")

@@ -14,9 +14,9 @@ EXPECTED_SEQ = struc_to_seq(pdb_to_structure_object(PDB_FILE))
 # Unit tests for _extract_seq
 # ------------------------------------------------------------------------------------ #
 def test_extract_seq_ok():
-    payload = _extract_seq(PDB_FILE)
-    assert payload.startswith(">discontinuous_structure\n")
-    seq = payload.strip().split("\n")[1]
+    seq_record = _extract_seq(PDB_FILE)
+    assert seq_record.startswith(">discontinuous_structure\n")
+    seq = seq_record.strip().split("\n")[1]
     assert seq == EXPECTED_SEQ
 
 
