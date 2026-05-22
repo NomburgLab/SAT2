@@ -2,10 +2,9 @@
 # Import dependencies
 # ------------------------------------------------------------------------------------ #
 import os
-from pathlib import Path
 from multiprocessing import Pool
 
-from .utils.structure import pdb_to_structure_object, structure_to_pLDDT
+from .utils.structure import pdb_to_structure_object, get_structure_paths, structure_to_pLDDT
 from .utils.misc import talk_to_me, make_output_dir
 
 
@@ -19,31 +18,23 @@ def _compute_plddt(pdb_file):
     return (os.path.basename(pdb_file), avg)
 
 
-def _resolve_input_files(args):
-    input_path = Path(args.structure_file)
-    if input_path.is_dir():
-        pdb_files = sorted(str(p) for p in input_path.glob("*.pdb"))
-        if not pdb_files:
-            raise ValueError(f"No .pdb files found in {args.structure_file}")
-        talk_to_me(f"Found {len(pdb_files)} PDB files in {args.structure_file}")
-        return pdb_files
-    else:
-        return [str(input_path)]
 
 
 # ------------------------------------------------------------------------------------ #
 # Main
 # ------------------------------------------------------------------------------------ #
 def struc_to_plddt_main(args):
-    pdb_files = _resolve_input_files(args)
+    structure_paths = get_structure_paths(args.structure_file)
+    if len(structure_paths) > 1:
+        talk_to_me(f"Found {len(structure_paths)} PDB files in {args.structure_file}")
 
     threads = getattr(args, "threads", 1) or 1
-    if threads > 1 and len(pdb_files) > 1:
+    if threads > 1 and len(structure_paths) > 1:
         talk_to_me(f"Processing with {threads} workers")
         with Pool(processes=threads) as pool:
-            results = pool.map(_compute_plddt, pdb_files)
+            results = pool.map(_compute_plddt, structure_paths)
     else:
-        results = [_compute_plddt(f) for f in pdb_files]
+        results = [_compute_plddt(f) for f in structure_paths]
 
     if args.out_file == "":
         for basename, plddt in results:

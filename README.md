@@ -58,7 +58,7 @@ When you run the tests or the first time you run any taxonomy-related script, et
 `sat.py struc_qc` - Get information on the fraction of residues that are at least a specified pLDDT - this can be good for filtration.  
 `sat.py struc_rebase` - Rebases an input structure such that the first residue is residue #1, and all subsequent residues are sequential (e.g. removes numeric gaps present in discontinuous domains).  
 `sat.py struc_to_plddt` - Returns the average pLDDT of one or many structure files. Supports batch processing of directories with optional parallelism.  
-`sat.py struc_to_seq` - Prints the primary amino acid sequence of a structure to the screen or appends to a specified file in fasta format.  
+`sat.py struc_to_seq` - Returns the amino-acid sequence of one or many structure files. Accepts a single PDB file or a directory of PDB files. Supports batch processing with optional parallelism.  
 
 
 ## Alignment-focused
@@ -472,9 +472,7 @@ Returns the average pLDDT of one or many structure files. Accepts a single PDB f
 ![`poetry run .github/tmp/sat_codex.py struc_to_plddt -h`](.github/img/struc_to_plddt.png)  
 
 # SAT struc_to_seq
-Simple subcommand to produce the amino-acid sequence from a structure file.  
-
-Can append the sequence to an outfile if provided, or will print to screen.
+Returns the amino-acid sequence of one or many structure files. Accepts a single PDB file or a directory of PDB files via `-s`. When a directory is given, all `.pdb` files inside are processed and FASTA headers are derived from filenames. Use `-t` to set the number of parallel workers for batch processing (default 1). In single-file mode, the sequence is appended to the outfile (or printed if `-o` is not specified). In directory mode, the outfile is overwritten with a combined FASTA. If any PDB file cannot be parsed, the script raises an error and reports the offending file.
 <!-- RICH-CODEX hide_command: true -->
 ![`poetry run .github/tmp/sat_codex.py struc_to_seq -h`](.github/img/struc_to_seq.png)  
 
