@@ -17,11 +17,11 @@ def _extract_seq(pdb_file):
     try:
         structure = pdb_to_structure_object(pdb_file, basename)
         seq = struc_to_seq(structure)
-        if not seq:
-            return ("err", pdb_file)
-        return ("ok", f">{basename}\n{seq}\n")
-    except Exception:
-        return ("err", pdb_file)
+    except Exception as e:
+        raise ValueError(f"Failed to parse PDB file: {pdb_file}") from e
+    if not seq:
+        raise ValueError(f"Failed to parse PDB file: {pdb_file}")
+    return f">{basename}\n{seq}\n"
 
 
 def _resolve_input_files(args):
@@ -60,35 +60,24 @@ def struc_to_seq_main(args):
 
 
 def _write_directory_results(results, total, args):
-    n_ok = n_err = 0
+    n_ok = 0
 
     if args.out_file == "":
-        for i, (status, payload) in enumerate(results):
-            if status == "ok":
-                print(payload, end="")
-                n_ok += 1
-            else:
-                n_err += 1
+        for i, payload in enumerate(results):
+            print(payload, end="")
+            n_ok += 1
             if (i + 1) % 10000 == 0:
                 talk_to_me(f"  {i + 1}/{total} done")
     else:
         make_output_dir(args.out_file)
-        failed_path = args.out_file.replace(".fasta", "_failed.txt")
-        with open(args.out_file, "w") as out_f, \
-             open(failed_path, "w") as err_f:
-            for i, (status, payload) in enumerate(results):
-                if status == "ok":
-                    out_f.write(payload)
-                    n_ok += 1
-                else:
-                    err_f.write(payload + "\n")
-                    n_err += 1
+        with open(args.out_file, "w") as out_f:
+            for i, payload in enumerate(results):
+                out_f.write(payload)
+                n_ok += 1
                 if (i + 1) % 10000 == 0:
                     talk_to_me(f"  {i + 1}/{total} done")
 
     talk_to_me(f"Wrote {n_ok} sequences")
-    if n_err:
-        talk_to_me(f"WARNING: {n_err} failed — see {failed_path}")
 
 
 def _write_single_file(pdb_file, args):

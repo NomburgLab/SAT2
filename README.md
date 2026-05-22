@@ -472,7 +472,7 @@ Returns the average pLDDT of one or many structure files. Accepts a single PDB f
 ![`poetry run .github/tmp/sat_codex.py struc_to_plddt -h`](.github/img/struc_to_plddt.png)  
 
 # SAT struc_to_seq
-Returns the amino-acid sequence of one or many structure files. Accepts a single PDB file or a directory of PDB files via `-s`. When a directory is given, all `.pdb` files inside are processed and FASTA headers are derived from filenames. Use `-t` to set the number of parallel workers for batch processing (default 1). In single-file mode, the sequence is appended to the outfile (or printed if `-o` is not specified). In directory mode, the outfile is overwritten with a combined FASTA; a companion `_failed.txt` file is written for any PDBs that could not be parsed.
+Returns the amino-acid sequence of one or many structure files. Accepts a single PDB file or a directory of PDB files via `-s`. When a directory is given, all `.pdb` files inside are processed and FASTA headers are derived from filenames. Use `-t` to set the number of parallel workers for batch processing (default 1). In single-file mode, the sequence is appended to the outfile (or printed if `-o` is not specified). In directory mode, the outfile is overwritten with a combined FASTA. If any PDB file cannot be parsed, the script raises an error and reports the offending file.
 <!-- RICH-CODEX hide_command: true -->
 ![`poetry run .github/tmp/sat_codex.py struc_to_seq -h`](.github/img/struc_to_seq.png)  
 

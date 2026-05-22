@@ -1,5 +1,7 @@
 import os
 
+import pytest
+
 from sat.scripts.struc_to_seq import struc_to_seq_main, _extract_seq
 from sat.scripts.utils.structure import pdb_to_structure_object, struc_to_seq
 
@@ -12,8 +14,7 @@ EXPECTED_SEQ = struc_to_seq(pdb_to_structure_object(PDB_FILE))
 # Unit tests for _extract_seq
 # ------------------------------------------------------------------------------------ #
 def test_extract_seq_ok():
-    status, payload = _extract_seq(PDB_FILE)
-    assert status == "ok"
+    payload = _extract_seq(PDB_FILE)
     assert payload.startswith(">discontinuous_structure\n")
     seq = payload.strip().split("\n")[1]
     assert seq == EXPECTED_SEQ
@@ -22,9 +23,8 @@ def test_extract_seq_ok():
 def test_extract_seq_bad_file(tmp_path):
     bad_pdb = tmp_path / "bad.pdb"
     bad_pdb.write_text("not a pdb file\n")
-    status, payload = _extract_seq(str(bad_pdb))
-    assert status == "err"
-    assert str(bad_pdb) in payload
+    with pytest.raises(ValueError, match=str(bad_pdb)):
+        _extract_seq(str(bad_pdb))
 
 
 # ------------------------------------------------------------------------------------ #
@@ -174,13 +174,5 @@ def test_directory_mode_failed_file(tmp_path):
         header = ""
         threads = 1
 
-    struc_to_seq_main(args)
-
-    with open(out) as f:
-        content = f.read()
-    assert content.count(">") == 2
-
-    failed_path = out.replace(".fasta", "_failed.txt")
-    with open(failed_path) as f:
-        failed = f.read()
-    assert "broken.pdb" in failed
+    with pytest.raises(ValueError, match="broken.pdb"):
+        struc_to_seq_main(args)
